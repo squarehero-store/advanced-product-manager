@@ -4093,7 +4093,7 @@ globalCategoriesData=await fetchCategoriesFromAllCollections(crumb);
 // Make categories, collections, and category tree globally accessible for API calls
 window.globalCategoriesData=globalCategoriesData;window.globalCollectionsData=globalCollectionsData;window.globalCategoryTreeData=globalCategoryTreeData;
 // Fetch products from Squarespace
-const squarespaceProducts=await fetchAllProducts();if(0===squarespaceProducts.length){productContainer&&(productContainer.innerHTML='<tr><td colspan="11" style="text-align: center; padding: 2em;">No products found or unable to fetch products. Please ensure you are logged into Squarespace admin.</td></tr>');return}
+const squarespaceProducts=await fetchAllProducts();if(0===squarespaceProducts.length){productContainer&&(productContainer.innerHTML='<tr><td colspan="11" style="text-align: center; padding: 2em;">No products found or unable to fetch products.</td></tr>');return}
 // Store products globally for undo functionality
 globalProductsData=squarespaceProducts;
 // Make products available to save functions
