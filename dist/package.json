@@ -1,0 +1,26 @@
+{
+  "name": "squarehero-product-manager",
+  "version": "1.0.0",
+  "description": "Advanced product management plugin for Squarespace websites",
+  "main": "dist/squarehero-product-manager.js",
+  "files": [
+    "dist/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/squarehero-product-manager.git"
+  },
+  "keywords": [
+    "squarespace",
+    "e-commerce",
+    "product-management",
+    "bulk-editing",
+    "squarespace-plugin"
+  ],
+  "author": "SquareHero",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/squarehero-product-manager/issues"
+  },
+  "homepage": "https://github.com/yourusername/squarehero-product-manager#readme"
+}
