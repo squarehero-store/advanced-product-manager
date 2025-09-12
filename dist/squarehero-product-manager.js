@@ -20242,6 +20242,11 @@ function initializeTableScroll() {
     const scrollRightBtn = document.getElementById('scroll-right');
     const scrollArrowsContainer = document.querySelector('.table-scroll-arrows');
     
+    // Exit early if required elements don't exist
+    if (!tableContainer || !scrollLeftBtn || !scrollRightBtn || !scrollArrowsContainer) {
+        console.warn('Table scroll elements not found, skipping initialization');
+        return null;
+    }
 
     const SCROLL_AMOUNT = 200; // Pixels to scroll per click
     
@@ -20331,13 +20336,20 @@ function initializeTableScroll() {
 // Export for use in other modules
 window.initializeTableScroll = initializeTableScroll;
 
-// Auto-initialize when DOM is ready
+// Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        initializeTableScroll();
+        const scrollHandler = initializeTableScroll();
+        if (scrollHandler) {
+            console.log('Table scroll initialized successfully');
+        }
     });
 } else {
-    initializeTableScroll();
+    // DOM is already ready
+    const scrollHandler = initializeTableScroll();
+    if (scrollHandler) {
+        console.log('Table scroll initialized successfully');
+    }
 }
 
 
