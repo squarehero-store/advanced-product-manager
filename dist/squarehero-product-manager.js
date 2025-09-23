@@ -4790,7 +4790,7 @@ window.initializeInteractiveUtilities = initializeInteractiveUtilities;
 class _0x21c74a45 {
     constructor() {
         this.firebaseConfig = window.firebaseConfig || {
-            _0x7cc61b43: (function(){return atob('aHR0cHM6Ly91cy1jZW50cmFsMS1teS1zcXVhcmVoZXJvLWh1Yi5jbG91ZGZ1bmN0aW9ucy5uZXQ=')})()
+            _0x7cc61b43: 'https://dashboard.squarehero.store'
         };
         this.storageKey = 'squarehero-license';
         this.currentLicense = null;
