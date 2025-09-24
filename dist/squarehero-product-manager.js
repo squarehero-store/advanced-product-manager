@@ -305,10 +305,11 @@ async function updateProductFields(product, changes, crumbToken) {
                     (variant.unlimited || false),
                 onSale: false, // Will be set below after price validation
                 optionValues: variant.optionalValues || [], // Use optionalValues from Squarespace data, rename to optionValues for API
-                width: variant.width || 0,
-                height: variant.height || 0, 
-                length: variant.length || 0,
-                weight: variant.weight || 1 // Use existing weight or default to 1
+                // Preserve original dimensions - don't default to 0 as this causes validation issues
+                width: variant.width || variant.width === 0 ? variant.width : 1,
+                height: variant.height || variant.height === 0 ? variant.height : 1, 
+                length: variant.length || variant.length === 0 ? variant.length : 1,
+                weight: variant.weight || variant.weight === 0 ? variant.weight : 1 // Preserve original weight including 0
             };
             
             // Validate sale price vs regular price and set onSale accordingly
@@ -9573,86 +9574,69 @@ function initializeProductUpdateAPI() {
                 
                 // Build variant in native Squarespace format (matching working example)
                 const updatedVariant = {
-                    quantityChange: 0, // CRITICAL: Always include quantityChange field
                     id: variant.id,
                     sku: variantChanges.sku !== undefined ? variantChanges.sku : variant.sku,
                     price: {
                         decimalValue: variantChanges.price !== undefined ? 
-                            parseFloat(variantChanges.price).toFixed(2) : 
-                            (() => {
-                                if (variant.price) {
-                                    // Handle both cents (number) and decimal object formats
-                                    const priceValue = typeof variant.price === 'object' && variant.price.decimalValue ?
-                                        parseFloat(variant.price.decimalValue) :
-                                        (variant.price / 100);
-                                    return priceValue.toFixed(2);
-                                }
-                                return '0.00';
-                            })(),
+                            String(parseFloat(variantChanges.price)) : 
+                            (variant.price ? String(variant.price / 100) : '0'),
+                        currencyCode: currencyCode
+                    },
+                    salePrice: {
+                        decimalValue: variantChanges.salePrice !== undefined ? 
+                            String(parseFloat(variantChanges.salePrice)) : 
+                            (variant.salePrice ? String(variant.salePrice / 100) : '0'),
                         currencyCode: currencyCode
                     },
                     unlimited: variantChanges.stock !== undefined ? 
                         (variantChanges.stock === '∞') : 
                         (variant.unlimited || false),
-                    onSale: false, // Default to false, will be set below if needed
+                    onSale: false, // Will be set below after price validation
                     optionValues: variant.optionalValues || [], // Use optionalValues from Squarespace data, rename to optionValues for API
-                    width: 0,
-                    height: 0,
-                    length: 0,
-                    weight: 0
+                    // Preserve original dimensions - don't default to 0 as this causes validation issues
+                    width: variant.width || variant.width === 0 ? variant.width : 1,
+                    height: variant.height || variant.height === 0 ? variant.height : 1, 
+                    length: variant.length || variant.length === 0 ? variant.length : 1,
+                    weight: variant.weight || variant.weight === 0 ? variant.weight : 1 // Preserve original weight including 0
                 };
 
-                // Handle sale price for physical products - process sale price changes independently
-                const isSaleRelatedChange = variantChanges.salePrice !== undefined || variantChanges.onSale !== undefined;
                 
-                if (variantChanges.salePrice !== undefined || isSaleRelatedChange) {
-                    // Include sale price when we're modifying sale-related fields
-                    updatedVariant.salePrice = {
-                        decimalValue: variantChanges.salePrice !== undefined && variantChanges.salePrice !== '' ? 
-                            (() => {
-                                const parsed = parseFloat(variantChanges.salePrice);
-                                const validated = !isNaN(parsed) && parsed >= 0 ? parsed : 0;
-                                return validated.toFixed(2);
-                            })() : 
-                            (() => {
-                                if (variant.salePrice) {
-                                    // Handle both cents (number) and decimal object formats
-                                    const salePriceValue = typeof variant.salePrice === 'object' && variant.salePrice.decimalValue ?
-                                        parseFloat(variant.salePrice.decimalValue) :
-                                        (variant.salePrice / 100);
-                                    const validated = !isNaN(salePriceValue) && salePriceValue >= 0 ? salePriceValue : 0;
-                                    return validated.toFixed(2);
-                                }
-                                return '0.00';
-                            })(),
-                        currencyCode: currencyCode
-                    };
-                } else if (variant.salePrice !== null && variant.salePrice !== undefined) {
-                    // Preserve existing sale price if it exists (including $0.00 for free products)
-                    updatedVariant.salePrice = {
-                        decimalValue: typeof variant.salePrice === 'object' && variant.salePrice.decimalValue ?
-                            parseFloat(variant.salePrice.decimalValue).toFixed(2) :
-                            (variant.salePrice / 100).toFixed(2),
-                        currencyCode: currencyCode
-                    };
-                }
+                // Validate sale price vs regular price and set onSale accordingly
+                const regularPrice = parseFloat(updatedVariant.price.decimalValue);
+                const salePrice = parseFloat(updatedVariant.salePrice.decimalValue);
                 
-                // Set onSale status based on explicit changes or preserve existing
                 if (variantChanges.onSale !== undefined) {
-                    // Only modify onSale when explicitly requested
-                    updatedVariant.onSale = variantChanges.onSale === 'Yes';
+                    // If onSale is explicitly set, use it but validate sale price
+                    if (variantChanges.onSale === 'Yes' && salePrice > 0 && salePrice < regularPrice) {
+                        updatedVariant.onSale = true;
+                    } else if (variantChanges.onSale === 'Yes' && salePrice >= regularPrice) {
+                        // Sale price is invalid, set to slightly less than regular price
+                        updatedVariant.salePrice.decimalValue = String(Math.max(0.01, regularPrice - 0.01));
+                        updatedVariant.onSale = true;
+                        console.warn(`⚠️ Sale price ${salePrice} was >= regular price ${regularPrice} for variant ${variant.id}, adjusted to ${updatedVariant.salePrice.decimalValue}`);
+                    } else {
+                        updatedVariant.onSale = false;
+                    }
                 } else {
-                    // Preserve existing onSale status - don't auto-modify based on sale price
-                    updatedVariant.onSale = variant.onSale || false;
+                    // Auto-determine onSale based on valid sale price
+                    if (salePrice > 0 && salePrice < regularPrice) {
+                        updatedVariant.onSale = true;
+                    } else if (salePrice >= regularPrice && salePrice > 0) {
+                        // Sale price is invalid, set to slightly less than regular price
+                        updatedVariant.salePrice.decimalValue = String(Math.max(0.01, regularPrice - 0.01));
+                        updatedVariant.onSale = true;
+                        console.warn(`⚠️ Sale price ${salePrice} was >= regular price ${regularPrice} for variant ${variant.id}, adjusted to ${updatedVariant.salePrice.decimalValue}`);
+                    } else {
+                        updatedVariant.onSale = false;
+                    }
                 }
                 
                 // Handle stock - only add qtyInStock if not unlimited
                 if (!updatedVariant.unlimited && variantChanges.stock !== undefined && variantChanges.stock !== '∞') {
-                    // For specific stock values, we don't use quantityChange - we set the absolute value
-                    // Note: The API expects the current stock value, not a change
+                    // Stock is managed by Squarespace internally via the variant update
+                    // We don't include quantityChange or qtyInStock in the payload
                     const stockValue = parseInt(variantChanges.stock) || 0;
                     // Don't add qtyInStock to the payload - Squarespace manages this internally
-                }
                 
                 return updatedVariant;
             }) || [];
