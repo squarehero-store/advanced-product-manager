@@ -305,10 +305,10 @@ async function updateProductFields(product, changes, crumbToken) {
                     (variant.unlimited || false),
                 onSale: false, // Will be set below after price validation
                 optionValues: variant.optionalValues || [], // Use optionalValues from Squarespace data, rename to optionValues for API
-                width: 0,
-                height: 0,
-                length: 0,
-                weight: variant.weight || 1 // Use existing weight or default to 1 like native request
+                width: variant.width || 0,
+                height: variant.height || 0, 
+                length: variant.length || 0,
+                weight: variant.weight || 1 // Use existing weight or default to 1
             };
             
             // Validate sale price vs regular price and set onSale accordingly
