@@ -17186,41 +17186,6 @@ function populateCategoryFilterDropdown(categoriesWithProducts) {
     const currentSelection = categoryFilter ? categoryFilter.value : 'all';
     const currentDisplayText = categoryText ? categoryText.textContent : 'All Categories';
     
-    // ALSO PRESERVE OTHER FILTERS DURING CATEGORY DROPDOWN REBUILD
-    // This prevents loadProducts() from resetting type, status, and sort filters
-    const preservedFilters = {
-        type: null,
-        typeText: null,
-        status: null, 
-        statusText: null,
-        sort: null,
-        sortText: null
-    };
-    
-    // Preserve type filter
-    const typeFilter = document.getElementById('type-filter');
-    const typeText = document.getElementById('type-filter-text');
-    if (typeFilter && typeText) {
-        preservedFilters.type = typeFilter.value;
-        preservedFilters.typeText = typeText.textContent;
-    }
-    
-    // Preserve status filter
-    const statusFilter = document.getElementById('status-filter');
-    const statusText = document.getElementById('status-filter-text');
-    if (statusFilter && statusText) {
-        preservedFilters.status = statusFilter.value;
-        preservedFilters.statusText = statusText.textContent;
-    }
-    
-    // Preserve sort filter
-    const sortFilter = document.getElementById('sort-filter');
-    const sortText = document.getElementById('sort-filter-text');
-    if (sortFilter && sortText) {
-        preservedFilters.sort = sortFilter.value;
-        preservedFilters.sortText = sortText.textContent;
-    }
-    
     // Clear existing options except "All Categories"
     const allCategoriesOption = categoryDropdown.querySelector('[data-value="all"]');
     categoryDropdown.innerHTML = '';
