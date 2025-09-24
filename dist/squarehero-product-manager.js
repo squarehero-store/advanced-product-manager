@@ -7626,84 +7626,101 @@ function applyRounding(price, roundingType, customCents) {
     return result;
 }
 
-// Helper functions to preserve and restore filter states after bulk operations
-function preserveFilterStates() {
-    const filters = {};
+// Helper function to reset all filters to their default state after bulk operations
+function resetAllFilters() {
+    console.log('🔄 Resetting all filters to default state');
     
-    // Preserve type filter
+    // Reset Type Filter
     const typeFilter = document.getElementById('type-filter');
+    const typeFilterText = document.getElementById('type-filter-text');
+    const typeFilterDropdown = document.getElementById('type-filter-dropdown');
+    
     if (typeFilter) {
-        filters.type = typeFilter.value;
+        typeFilter.value = 'all';
+    }
+    if (typeFilterText) {
+        typeFilterText.textContent = 'All types';
+    }
+    if (typeFilterDropdown) {
+        // Remove selection from all options
+        typeFilterDropdown.querySelectorAll('.select-option').forEach(opt => opt.classList.remove('selected'));
+        // Add selection to "All types" option
+        const allTypesOption = typeFilterDropdown.querySelector('[data-value="all"]');
+        if (allTypesOption) {
+            allTypesOption.classList.add('selected');
+        }
     }
     
-    // Preserve status filter  
+    // Reset Status Filter
     const statusFilter = document.getElementById('status-filter');
+    const statusFilterText = document.getElementById('status-filter-text');
+    const statusFilterDropdown = document.getElementById('status-filter-dropdown');
+    
     if (statusFilter) {
-        filters.status = statusFilter.value;
+        statusFilter.value = 'all';
+    }
+    if (statusFilterText) {
+        statusFilterText.textContent = 'All status';
+    }
+    if (statusFilterDropdown) {
+        // Remove selection from all options
+        statusFilterDropdown.querySelectorAll('.select-option').forEach(opt => opt.classList.remove('selected'));
+        // Add selection to "All status" option
+        const allStatusOption = statusFilterDropdown.querySelector('[data-value="all"]');
+        if (allStatusOption) {
+            allStatusOption.classList.add('selected');
+        }
     }
     
-    // Preserve sort filter
-    const sortFilter = document.getElementById('sort-filter');
-    if (sortFilter) {
-        filters.sort = sortFilter.value;
+    // Reset Sort Filter (note: uses 'sort-select' not 'sort-filter' for the hidden element)
+    const sortSelect = document.getElementById('sort-select');
+    const sortFilterText = document.getElementById('sort-filter-text');
+    const sortFilterDropdown = document.getElementById('sort-filter-dropdown');
+    
+    if (sortSelect) {
+        sortSelect.value = 'default';
+    }
+    if (sortFilterText) {
+        sortFilterText.textContent = 'Sort by';
+    }
+    if (sortFilterDropdown) {
+        // Remove selection from all options
+        sortFilterDropdown.querySelectorAll('.select-option').forEach(opt => opt.classList.remove('selected'));
+        // Add selection to "Sort by" option
+        const defaultSortOption = sortFilterDropdown.querySelector('[data-value="default"]');
+        if (defaultSortOption) {
+            defaultSortOption.classList.add('selected');
+        }
     }
     
-    // Also preserve category filter if it exists
+    // Reset Category Filter
     const categoryFilter = document.getElementById('category-filter');
+    const categoryFilterText = document.getElementById('category-filter-text');
+    const categoryFilterDropdown = document.getElementById('category-filter-dropdown');
+    
     if (categoryFilter) {
-        filters.category = categoryFilter.value;
+        categoryFilter.value = 'all';
     }
-    
-    console.log('🔄 Preserved filter states:', filters);
-    return filters;
-}
-
-function restoreFilterStates(preservedFilters) {
-    if (!preservedFilters) {
-        console.log('⚠️ No preserved filters to restore');
-        return;
+    if (categoryFilterText) {
+        categoryFilterText.textContent = 'All Categories';
     }
-    
-    console.log('🔄 Restoring filter states:', preservedFilters);
-    
-    // Restore type filter
-    if (preservedFilters.type !== undefined) {
-        const typeFilter = document.getElementById('type-filter');
-        if (typeFilter && typeFilter.value !== preservedFilters.type) {
-            typeFilter.value = preservedFilters.type;
-            // Trigger change event if the filter has event listeners
-            typeFilter.dispatchEvent(new Event('change', { bubbles: true }));
+    if (categoryFilterDropdown) {
+        // Remove selection from all options
+        categoryFilterDropdown.querySelectorAll('.select-option').forEach(opt => opt.classList.remove('selected'));
+        // Add selection to "All Categories" option
+        const allCategoriesOption = categoryFilterDropdown.querySelector('[data-value="all"]');
+        if (allCategoriesOption) {
+            allCategoriesOption.classList.add('selected');
         }
     }
     
-    // Restore status filter
-    if (preservedFilters.status !== undefined) {
-        const statusFilter = document.getElementById('status-filter');
-        if (statusFilter && statusFilter.value !== preservedFilters.status) {
-            statusFilter.value = preservedFilters.status;
-            statusFilter.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-    }
+    // Trigger change events to ensure any filtering logic is updated
+    if (typeFilter) typeFilter.dispatchEvent(new Event('change', { bubbles: true }));
+    if (statusFilter) statusFilter.dispatchEvent(new Event('change', { bubbles: true }));
+    if (sortSelect) sortSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    if (categoryFilter) categoryFilter.dispatchEvent(new Event('change', { bubbles: true }));
     
-    // Restore sort filter
-    if (preservedFilters.sort !== undefined) {
-        const sortFilter = document.getElementById('sort-filter');
-        if (sortFilter && sortFilter.value !== preservedFilters.sort) {
-            sortFilter.value = preservedFilters.sort;
-            sortFilter.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-    }
-    
-    // Restore category filter
-    if (preservedFilters.category !== undefined) {
-        const categoryFilter = document.getElementById('category-filter');
-        if (categoryFilter && categoryFilter.value !== preservedFilters.category) {
-            categoryFilter.value = preservedFilters.category;
-            categoryFilter.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-    }
-    
-    console.log('✅ Filter states restored');
+    console.log('✅ All filters reset to default state');
 }
 
 // Category operation throttling system to prevent API conflicts
@@ -8459,25 +8476,26 @@ function initializeProgressTracking() {
                     hideBulkAdjustDrawer();
                 }
                 
-                // Preserve filter states before reloading
-                const preservedFilters = preserveFilterStates();
-                
                 // Reload the product table to show updated values
                 if (typeof loadProducts === 'function') {
                     loadProducts().then(() => {
-                        // Small delay to ensure DOM elements are fully rendered before restoring
+                        // Small delay to ensure DOM elements are fully rendered before resetting filters
                         setTimeout(() => {
-                            restoreFilterStates(preservedFilters);
+                            resetAllFilters();
                         }, 100);
                     }).catch(error => {
                         console.error('❌ COMPLETION: Failed to reload product table:', error);
-                        // Still try to restore filters even if reload failed
+                        // Still try to reset filters even if reload failed
                         setTimeout(() => {
-                            restoreFilterStates(preservedFilters);
+                            resetAllFilters();
                         }, 100);
                     });
                 } else {
                     console.warn('⚠️ COMPLETION: loadProducts function not available, table will not be refreshed');
+                    // Reset filters anyway
+                    setTimeout(() => {
+                        resetAllFilters();
+                    }, 100);
                 }
                 
                 // Reset completion flag for next operation
@@ -17168,6 +17186,41 @@ function populateCategoryFilterDropdown(categoriesWithProducts) {
     const currentSelection = categoryFilter ? categoryFilter.value : 'all';
     const currentDisplayText = categoryText ? categoryText.textContent : 'All Categories';
     
+    // ALSO PRESERVE OTHER FILTERS DURING CATEGORY DROPDOWN REBUILD
+    // This prevents loadProducts() from resetting type, status, and sort filters
+    const preservedFilters = {
+        type: null,
+        typeText: null,
+        status: null, 
+        statusText: null,
+        sort: null,
+        sortText: null
+    };
+    
+    // Preserve type filter
+    const typeFilter = document.getElementById('type-filter');
+    const typeText = document.getElementById('type-filter-text');
+    if (typeFilter && typeText) {
+        preservedFilters.type = typeFilter.value;
+        preservedFilters.typeText = typeText.textContent;
+    }
+    
+    // Preserve status filter
+    const statusFilter = document.getElementById('status-filter');
+    const statusText = document.getElementById('status-filter-text');
+    if (statusFilter && statusText) {
+        preservedFilters.status = statusFilter.value;
+        preservedFilters.statusText = statusText.textContent;
+    }
+    
+    // Preserve sort filter
+    const sortFilter = document.getElementById('sort-filter');
+    const sortText = document.getElementById('sort-filter-text');
+    if (sortFilter && sortText) {
+        preservedFilters.sort = sortFilter.value;
+        preservedFilters.sortText = sortText.textContent;
+    }
+    
     // Clear existing options except "All Categories"
     const allCategoriesOption = categoryDropdown.querySelector('[data-value="all"]');
     categoryDropdown.innerHTML = '';
@@ -17229,6 +17282,63 @@ function populateCategoryFilterDropdown(categoriesWithProducts) {
         }
     }
     
+    // RESTORE OTHER FILTERS THAT WERE PRESERVED ABOVE
+    // This ensures type, status, and sort filters don't get reset during loadProducts()
+    
+    // Restore type filter
+    if (preservedFilters.type && typeFilter && typeText) {
+        typeFilter.value = preservedFilters.type;
+        typeText.textContent = preservedFilters.typeText;
+        
+        // Also update the dropdown selection visual state
+        const typeDropdown = document.getElementById('type-filter-dropdown');
+        if (typeDropdown) {
+            // Remove existing selections
+            typeDropdown.querySelectorAll('.select-option').forEach(opt => opt.classList.remove('selected'));
+            // Add selection to correct option
+            const selectedOption = typeDropdown.querySelector(`[data-value="${preservedFilters.type}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+        }
+    }
+    
+    // Restore status filter  
+    if (preservedFilters.status && statusFilter && statusText) {
+        statusFilter.value = preservedFilters.status;
+        statusText.textContent = preservedFilters.statusText;
+        
+        // Also update the dropdown selection visual state
+        const statusDropdown = document.getElementById('status-filter-dropdown');
+        if (statusDropdown) {
+            // Remove existing selections
+            statusDropdown.querySelectorAll('.select-option').forEach(opt => opt.classList.remove('selected'));
+            // Add selection to correct option
+            const selectedOption = statusDropdown.querySelector(`[data-value="${preservedFilters.status}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+        }
+    }
+    
+    // Restore sort filter
+    if (preservedFilters.sort && sortFilter && sortText) {
+        sortFilter.value = preservedFilters.sort;
+        sortText.textContent = preservedFilters.sortText;
+        
+        // Also update the dropdown selection visual state
+        const sortDropdown = document.getElementById('sort-filter-dropdown');
+        if (sortDropdown) {
+            // Remove existing selections
+            sortDropdown.querySelectorAll('.select-option').forEach(opt => opt.classList.remove('selected'));
+            // Add selection to correct option
+            const selectedOption = sortDropdown.querySelector(`[data-value="${preservedFilters.sort}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+        }
+    }
+
 }
 
 
