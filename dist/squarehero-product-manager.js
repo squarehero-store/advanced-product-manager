@@ -9637,6 +9637,7 @@ function initializeProductUpdateAPI() {
                     // We don't include quantityChange or qtyInStock in the payload
                     const stockValue = parseInt(variantChanges.stock) || 0;
                     // Don't add qtyInStock to the payload - Squarespace manages this internally
+                }
                 
                 return updatedVariant;
             }) || [];
