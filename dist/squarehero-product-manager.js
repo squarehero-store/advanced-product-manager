@@ -286,19 +286,18 @@ async function updateProductFields(product, changes, crumbToken) {
             
             // Build variant in native Squarespace format (matching working example)
             const updatedVariant = {
-                quantityChange: 0, // CRITICAL: Always include quantityChange field
                 id: variant.id,
                 sku: variantChanges.sku !== undefined ? variantChanges.sku : variant.sku,
                 price: {
                     decimalValue: variantChanges.price !== undefined ? 
-                        parseFloat(variantChanges.price).toFixed(2) : 
-                        (variant.price ? (variant.price / 100).toFixed(2) : '0.00'),
+                        String(parseFloat(variantChanges.price)) : 
+                        (variant.price ? String(variant.price / 100) : '0'),
                     currencyCode: currencyCode
                 },
                 salePrice: {
                     decimalValue: variantChanges.salePrice !== undefined ? 
-                        parseFloat(variantChanges.salePrice).toFixed(2) : 
-                        (variant.salePrice ? (variant.salePrice / 100).toFixed(2) : '0.00'),
+                        String(parseFloat(variantChanges.salePrice)) : 
+                        (variant.salePrice ? String(variant.salePrice / 100) : '0'),
                     currencyCode: currencyCode
                 },
                 unlimited: variantChanges.stock !== undefined ? 
@@ -309,7 +308,7 @@ async function updateProductFields(product, changes, crumbToken) {
                 width: 0,
                 height: 0,
                 length: 0,
-                weight: 0
+                weight: variant.weight || 1 // Use existing weight or default to 1 like native request
             };
             
             // Validate sale price vs regular price and set onSale accordingly
@@ -322,7 +321,7 @@ async function updateProductFields(product, changes, crumbToken) {
                     updatedVariant.onSale = true;
                 } else if (variantChanges.onSale === 'Yes' && salePrice >= regularPrice) {
                     // Sale price is invalid, set to slightly less than regular price
-                    updatedVariant.salePrice.decimalValue = Math.max(0.01, regularPrice - 0.01).toFixed(2);
+                    updatedVariant.salePrice.decimalValue = String(Math.max(0.01, regularPrice - 0.01));
                     updatedVariant.onSale = true;
                     console.warn(`⚠️ Sale price ${salePrice} was >= regular price ${regularPrice} for variant ${variant.id}, adjusted to ${updatedVariant.salePrice.decimalValue}`);
                 } else {
@@ -334,7 +333,7 @@ async function updateProductFields(product, changes, crumbToken) {
                     updatedVariant.onSale = true;
                 } else if (salePrice >= regularPrice && salePrice > 0) {
                     // Sale price is invalid, set to slightly less than regular price
-                    updatedVariant.salePrice.decimalValue = Math.max(0.01, regularPrice - 0.01).toFixed(2);
+                    updatedVariant.salePrice.decimalValue = String(Math.max(0.01, regularPrice - 0.01));
                     updatedVariant.onSale = true;
                     console.warn(`⚠️ Sale price ${salePrice} was >= regular price ${regularPrice} for variant ${variant.id}, adjusted to ${updatedVariant.salePrice.decimalValue}`);
                 } else {
@@ -344,8 +343,8 @@ async function updateProductFields(product, changes, crumbToken) {
             
             // Handle stock - only add qtyInStock if not unlimited
             if (!updatedVariant.unlimited && variantChanges.stock !== undefined && variantChanges.stock !== '∞') {
-                // For specific stock values, we don't use quantityChange - we set the absolute value
-                // Note: The API expects the current stock value, not a change
+                // Stock is managed by Squarespace internally via the variant update
+                // We don't include quantityChange or qtyInStock in the payload
                 const stockValue = parseInt(variantChanges.stock) || 0;
                 // Don't add qtyInStock to the payload - Squarespace manages this internally
             }
