@@ -7626,6 +7626,86 @@ function applyRounding(price, roundingType, customCents) {
     return result;
 }
 
+// Helper functions to preserve and restore filter states after bulk operations
+function preserveFilterStates() {
+    const filters = {};
+    
+    // Preserve type filter
+    const typeFilter = document.getElementById('type-filter');
+    if (typeFilter) {
+        filters.type = typeFilter.value;
+    }
+    
+    // Preserve status filter  
+    const statusFilter = document.getElementById('status-filter');
+    if (statusFilter) {
+        filters.status = statusFilter.value;
+    }
+    
+    // Preserve sort filter
+    const sortFilter = document.getElementById('sort-filter');
+    if (sortFilter) {
+        filters.sort = sortFilter.value;
+    }
+    
+    // Also preserve category filter if it exists
+    const categoryFilter = document.getElementById('category-filter');
+    if (categoryFilter) {
+        filters.category = categoryFilter.value;
+    }
+    
+    console.log('🔄 Preserved filter states:', filters);
+    return filters;
+}
+
+function restoreFilterStates(preservedFilters) {
+    if (!preservedFilters) {
+        console.log('⚠️ No preserved filters to restore');
+        return;
+    }
+    
+    console.log('🔄 Restoring filter states:', preservedFilters);
+    
+    // Restore type filter
+    if (preservedFilters.type !== undefined) {
+        const typeFilter = document.getElementById('type-filter');
+        if (typeFilter && typeFilter.value !== preservedFilters.type) {
+            typeFilter.value = preservedFilters.type;
+            // Trigger change event if the filter has event listeners
+            typeFilter.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+    
+    // Restore status filter
+    if (preservedFilters.status !== undefined) {
+        const statusFilter = document.getElementById('status-filter');
+        if (statusFilter && statusFilter.value !== preservedFilters.status) {
+            statusFilter.value = preservedFilters.status;
+            statusFilter.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+    
+    // Restore sort filter
+    if (preservedFilters.sort !== undefined) {
+        const sortFilter = document.getElementById('sort-filter');
+        if (sortFilter && sortFilter.value !== preservedFilters.sort) {
+            sortFilter.value = preservedFilters.sort;
+            sortFilter.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+    
+    // Restore category filter
+    if (preservedFilters.category !== undefined) {
+        const categoryFilter = document.getElementById('category-filter');
+        if (categoryFilter && categoryFilter.value !== preservedFilters.category) {
+            categoryFilter.value = preservedFilters.category;
+            categoryFilter.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
+    
+    console.log('✅ Filter states restored');
+}
+
 // Category operation throttling system to prevent API conflicts
 const categoryOperationTracker = {
     activeOperations: new Map(), // Map of categoryName -> { count, lastOperation, queue }
@@ -8379,11 +8459,22 @@ function initializeProgressTracking() {
                     hideBulkAdjustDrawer();
                 }
                 
+                // Preserve filter states before reloading
+                const preservedFilters = preserveFilterStates();
+                
                 // Reload the product table to show updated values
                 if (typeof loadProducts === 'function') {
                     loadProducts().then(() => {
+                        // Small delay to ensure DOM elements are fully rendered before restoring
+                        setTimeout(() => {
+                            restoreFilterStates(preservedFilters);
+                        }, 100);
                     }).catch(error => {
                         console.error('❌ COMPLETION: Failed to reload product table:', error);
+                        // Still try to restore filters even if reload failed
+                        setTimeout(() => {
+                            restoreFilterStates(preservedFilters);
+                        }, 100);
                     });
                 } else {
                     console.warn('⚠️ COMPLETION: loadProducts function not available, table will not be refreshed');
