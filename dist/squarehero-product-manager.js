@@ -17250,8 +17250,26 @@ function populateCategoryFilterDropdown(categoriesWithProducts) {
     // RESTORE OTHER FILTERS THAT WERE PRESERVED ABOVE
     // This ensures type, status, and sort filters don't get reset during loadProducts()
     
+    // Get filter elements
+    const typeFilter = document.getElementById('type-filter');
+    const typeText = document.getElementById('type-filter-text');
+    const statusFilter = document.getElementById('status-filter');
+    const statusText = document.getElementById('status-filter-text');
+    const sortFilter = document.getElementById('sort-select');
+    const sortText = document.getElementById('sort-filter-text');
+    
+    // Create preservedFilters object from current values to avoid resetting during loadProducts()
+    const preservedFilters = {
+        type: typeFilter ? typeFilter.value : 'all',
+        typeText: typeText ? typeText.textContent : 'All types',
+        status: statusFilter ? statusFilter.value : 'all',
+        statusText: statusText ? statusText.textContent : 'All status',
+        sort: sortFilter ? sortFilter.value : 'default',
+        sortText: sortText ? sortText.textContent : 'Sort by'
+    };
+    
     // Restore type filter
-    if (preservedFilters.type && typeFilter && typeText) {
+    if (preservedFilters.type && preservedFilters.type !== 'all' && typeFilter && typeText) {
         typeFilter.value = preservedFilters.type;
         typeText.textContent = preservedFilters.typeText;
         
@@ -17269,7 +17287,7 @@ function populateCategoryFilterDropdown(categoriesWithProducts) {
     }
     
     // Restore status filter  
-    if (preservedFilters.status && statusFilter && statusText) {
+    if (preservedFilters.status && preservedFilters.status !== 'all' && statusFilter && statusText) {
         statusFilter.value = preservedFilters.status;
         statusText.textContent = preservedFilters.statusText;
         
@@ -17287,7 +17305,7 @@ function populateCategoryFilterDropdown(categoriesWithProducts) {
     }
     
     // Restore sort filter
-    if (preservedFilters.sort && sortFilter && sortText) {
+    if (preservedFilters.sort && preservedFilters.sort !== 'default' && sortFilter && sortText) {
         sortFilter.value = preservedFilters.sort;
         sortText.textContent = preservedFilters.sortText;
         
