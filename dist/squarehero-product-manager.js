@@ -8,7 +8,7 @@
     
     
     // HTML Template
-    const HTML_TEMPLATE = `<link rel=preconnect href="https://fonts.googleapis.com"><link rel=preconnect href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&display=swap" rel=stylesheet><div class=sh-product-manager><header class=sh-header><div class=logo><img src="https://cdn.jsdelivr.net/gh/squarehero-store/advanced-product-manager@latest/dist/sh-logo.png" alt="SquareHero Logo" class=logo-icon></div><div class=header-title-section><h2 class=header-title>Advanced Product Manager</h2><span class=demo-mode-indicator id=demo-mode-indicator style="display: none;">Demo mode</span><div class="sh-status-indicator sh-active" id=activated-badge style="display: none;"><div class=sh-status-icon><svg width=11 height=8 viewBox="0 0 11 8" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M1.66539 3.83192L4.2107 6.16528L9.66539 1.16528" stroke=white stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></div>Activated</div></div><button class=preview-toggle-btn id=preview-toggle-btn title="Toggle Preview Mode"><svg width=16 height=16 viewBox="0 0 16 16" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M1 10H6V15M15 6H10V1" stroke=white stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></button></header><div class=gradient-strip></div><div class=container><main class=main-content><div class=content-header><div class=action-buttons><button class="btn bulk-adjust"><svg width=19 height=17 viewBox="0 0 19 17" fill=none xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_224_2570)"><path d="M7.75 13.75H17.375M1.625 13.75H4.25M4.25 13.75V15.5M4.25 13.75V12M16.5 8.5H17.375M1.625 8.5H13M13 8.5V10.25M13 8.5V6.75M11.25 3.25H17.375M1.625 3.25H7.75M7.75 3.25V5M7.75 3.25V1.5" stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round/></g><defs><clipPath id=clip0_224_2570><rect width=19 height=17 fill=white/></clipPath></defs></svg><span>Bulk Adjust</span></button></div></div><div class=filters><div class=search-box><span class=search-icon><svg width=18 height=18 viewBox="0 0 18 18" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M7.53223 14.0332C3.72656 14.0332 0.615234 10.9219 0.615234 7.11621C0.615234 3.31055 3.73535 0.199219 7.53223 0.199219C11.3379 0.199219 14.4492 3.31055 14.4492 7.11621C14.4492 8.59277 13.9834 9.95508 13.1924 11.0801L17.0156 14.9209C17.2617 15.167 17.376 15.4922 17.376 15.8262C17.376 16.5469 16.8398 17.1182 16.1104 17.1182C15.7588 17.1182 15.4336 16.9951 15.1787 16.749L11.3291 12.8906C10.2393 13.6113 8.92969 14.0332 7.53223 14.0332ZM7.53223 12.1875C10.3184 12.1875 12.6035 9.90234 12.6035 7.11621C12.6035 4.33008 10.3184 2.04492 7.53223 2.04492C4.74609 2.04492 2.46094 4.33008 2.46094 7.11621C2.46094 9.90234 4.74609 12.1875 7.53223 12.1875Z" fill="#3C3C43" fill-opacity="0.6"/></svg></span><input type=text id=search-input placeholder="Search products by name or SKU"></div><div class=filter-dropdown id=category-filter-container><div class=select-trigger id=category-filter-trigger><span class=select-text id=category-filter-text>All categories</span><svg width=10 height=6 viewBox="0 0 10 6" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M9 1L5 5L1 1" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></div><div class=select-dropdown id=category-filter-dropdown><div class="select-option selected" data-value=all>All categories</div></div><select id=category-filter style="display: none;"><option value=all>All categories</option></select></div><div class=filter-dropdown id=type-filter-container><div class=select-trigger id=type-filter-trigger><span class=select-text id=type-filter-text>All types</span><svg width=10 height=6 viewBox="0 0 10 6" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M9 1L5 5L1 1" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></div><div class=select-dropdown id=type-filter-dropdown><div class="select-option selected" data-value=all>All types</div><div class=select-option data-value=Physical>Physical</div><div class=select-option data-value=Digital>Digital</div><div class=select-option data-value=Service>Service</div></div><select id=type-filter style="display: none;"><option value=all>All types</option><option value=Physical>Physical</option><option value=Digital>Digital</option><option value=Service>Service</option></select></div><div class=filter-dropdown id=status-filter-container><div class=select-trigger id=status-filter-trigger><span class=select-text id=status-filter-text>All status</span><svg width=10 height=6 viewBox="0 0 10 6" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M9 1L5 5L1 1" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></div><div class=select-dropdown id=status-filter-dropdown><div class="select-option selected" data-value=all>All status</div><div class=select-option data-value=public>Public</div><div class=select-option data-value=hidden>Hidden</div><div class=select-option data-value=scheduled>Scheduled</div></div><select id=status-filter style="display: none;"><option value=all>All status</option><option value=public>Public</option><option value=hidden>Hidden</option><option value=scheduled>Scheduled</option></select></div><div class=filter-dropdown id=sort-filter-container><div class=select-trigger id=sort-filter-trigger><span class=select-text id=sort-filter-text>Sort by</span><svg width=10 height=6 viewBox="0 0 10 6" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M9 1L5 5L1 1" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></div><div class=select-dropdown id=sort-filter-dropdown><div class="select-option selected" data-value=default>Sort by</div><div class=select-option data-value="title:asc">Title (A-Z)</div><div class=select-option data-value="title:desc">Title (Z-A)</div><div class=select-option data-value="price:asc">Price (Low-High)</div><div class=select-option data-value="price:desc">Price (High-Low)</div><div class=select-option data-value="stock:asc">Stock (Low-High)</div><div class=select-option data-value="stock:desc">Stock (High-Low)</div></div><select id=sort-select style="display: none;"><option value=default>Sort by</option><option value="title:asc">Title (A-Z)</option><option value="title:desc">Title (Z-A)</option><option value="price:asc">Price (Low-High)</option><option value="price:desc">Price (High-Low)</option><option value="stock:asc">Stock (Low-High)</option><option value="stock:desc">Stock (High-Low)</option></select></div><button class=reset-filters-btn id=reset-filters-btn disabled><svg width=14 height=18 viewBox="0 0 14 18" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M7.75 3.98328H11.8C12.2201 3.98328 12.4307 3.98328 12.5911 4.06502C12.7322 4.13693 12.8461 4.25158 12.918 4.3927C12.9997 4.55313 13 4.76331 13 5.18335V5.74188C13 5.92161 13 6.01241 12.9795 6.09784C12.9612 6.17437 12.9304 6.24747 12.8893 6.31458C12.8429 6.39026 12.7782 6.45513 12.6486 6.58484L11.5 7.73337M3.62471 3.98328H2.19971C1.77967 3.98328 1.56986 3.98328 1.40942 4.06502C1.2683 4.13693 1.15365 4.25158 1.08174 4.3927C1 4.55313 1 4.76331 1 5.18335V5.7363C1 5.91974 1 6.01152 1.02072 6.09784C1.0391 6.17437 1.06947 6.24747 1.11059 6.31458C1.15696 6.39024 1.22193 6.45521 1.35156 6.58484L5.14862 10.3819C5.27832 10.5116 5.34283 10.5761 5.38921 10.6518C5.43033 10.7189 5.46112 10.7922 5.4795 10.8688C5.5 10.9542 5.5 11.0449 5.5 11.2247V14.7915C5.5 15.4344 5.5 15.7561 5.63541 15.9497C5.75364 16.1187 5.93605 16.2315 6.14014 16.2617C6.37385 16.2962 6.66153 16.1526 7.23657 15.8651L7.83655 15.5651C8.07738 15.4447 8.19745 15.3843 8.28542 15.2944C8.3632 15.215 8.42275 15.1197 8.45898 15.0145C8.5 14.8957 8.5 14.7608 8.5 14.4915V11.2302C8.5 11.0468 8.5 10.9551 8.5207 10.8688C8.53908 10.7922 8.56945 10.719 8.61063 10.6519C8.65683 10.5765 8.7214 10.5119 8.85017 10.3831L8.8516 10.3818L9.62508 9.60835M9.62508 9.60835L1.75 1.73328M9.62508 9.60835L12.25 12.2333" stroke="#011E45" stroke-width="1.5" stroke-linecap=round stroke-linejoin=round/></svg><span>Reset</span></button></div><div class=no-products-message id=no-products-message style="display: none;"><h3>No products found</h3><p>This usually means your store doesn't have any products yet. If you do have products and they're not showing up, please contact support.</p></div><div class=table-wrapper style="display: none;"><div class=table-header-controls><div class=products-selected-text id=products-selected-text>0 products selected</div><div class=table-scroll-arrows><button class="scroll-arrow scroll-arrow-left" id=scroll-left aria-label="Scroll table left"><svg width=9 height=16 viewBox="0 0 9 16" fill=none xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_181_2572_left)"><path d="M8 15L1 8L8 1" stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round/></g><defs><clipPath id=clip0_181_2572_left><rect width=9 height=16 fill=white/></clipPath></defs></svg></button><button class="scroll-arrow scroll-arrow-right" id=scroll-right aria-label="Scroll table right"><svg width=9 height=16 viewBox="0 0 9 16" fill=none xmlns="http://www.w3.org/2000/svg" style="transform: rotate(180deg);"><g clip-path="url(#clip0_181_2572_right)"><path d="M8 15L1 8L8 1" stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round/></g><defs><clipPath id=clip0_181_2572_right><rect width=9 height=16 fill=white/></clipPath></defs></svg></button></div></div><div class=table-container id=table-container><table><thead><tr><th><input type=checkbox id=select-all-checkbox></th><th>Title</th><th>URL</th><th>SKU</th><th>Categories</th><th id=price-header>Price</th><th id=sale-price-header>Sale Price</th><th>On Sale</th><th>Stock</th><th>Type</th><th>Status</th><th id=scheduled-header class="scheduled-column hidden">Scheduled</th></tr></thead><tbody id=product-container></tbody></table></div><div class=pagination><div class=pagination-info id=pagination-info></div><div class=pagination-controls><div class=page-numbers id=page-numbers></div><div class=show-select><span>Show</span><select id=items-per-page><option value=10>10</option><option value=20 selected>20</option><option value=50>50</option></select></div></div></div></main></div><div id=changes-footer class="changes-footer hidden"><div class=changes-footer-content><div class=changes-footer-left><div class=changes-info><span class=changes-icon><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 6.44971V10.4497M5.33173 1.9375L1.9375 5.33173L1.93442 5.33462C1.59057 5.67847 1.41824 5.85081 1.29492 6.05204C1.18526 6.23098 1.10425 6.4263 1.05526 6.63037C1 6.86055 1 7.10506 1 7.59424V12.4058C1 12.8949 1 13.1395 1.05526 13.3697C1.10425 13.5738 1.18526 13.7688 1.29492 13.9478C1.41857 14.1495 1.59182 14.3228 1.9375 14.6685L5.33173 18.0627C5.67763 18.4086 5.85021 18.5812 6.05204 18.7048C6.23099 18.8145 6.42581 18.8958 6.62988 18.9448C6.85971 19 7.10382 19 7.59151 19H12.4075C12.8952 19 13.1404 19 13.3702 18.9448C13.5743 18.8958 13.7693 18.8145 13.9482 18.7049C14.1501 18.5812 14.323 18.4086 14.6689 18.0627L18.0632 14.6685C18.4091 14.3226 18.5817 14.1496 18.7053 13.9478C18.815 13.7688 18.8953 13.5738 18.9443 13.3697C18.9996 13.1395 19 12.895 19 12.4058V7.59424C19 7.10506 18.9996 6.86055 18.9443 6.63037C18.8953 6.4263 18.815 6.23099 18.7053 6.05205C18.5817 5.85022 18.4091 5.67761 18.0632 5.33173L14.6689 1.9375C14.3233 1.59181 14.15 1.41857 13.9482 1.29492C13.7693 1.18526 13.5743 1.10425 13.3702 1.05526C13.14 1 12.8945 1 12.4053 1H7.59375C7.10457 1 6.86006 1 6.62988 1.05526C6.42581 1.10425 6.23099 1.18526 6.05204 1.29492C5.85204 1.41748 5.68106 1.58847 5.3414 1.92813L5.33173 1.9375ZM10.0498 13.4497V13.5497L9.9502 13.5499V13.4497H10.0498Z" stroke=white stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></span><span class=changes-text>You have unsaved changes</span><span class=changes-count id=changes-count>0 products modified</span></div><div class=changes-notification-content style="display: none;"><span class=changes-notification-text id=notification-text></span></div><div id=main-progress-container class=progress-container style="display: none;"><div class=progress-bar><div class=progress-fill id=main-progress-fill></div></div><div class=progress-info><span id=main-progress-text>Saving changes...</span><span id=main-progress-time></span></div></div></div><div class=changes-footer-right><button class=btn-discard id=discard-changes>Discard Changes</button><button class=apply-btn id=save-changes>Apply Changes</button></div></div></div><div id=url-suggestion-tooltip class="url-suggestion-tooltip hidden"><div class=url-suggestion-content><div class=url-suggestion-header><span class=url-suggestion-title>Update URL to match title?</span><button class=url-suggestion-close id=url-suggestion-close>×</button></div><div class=url-suggestion-body><span class=url-suggestion-text>New URL:</span><span class=url-suggestion-preview id=url-suggestion-preview></span><div class=url-redirect-option><label class=url-redirect-checkbox><input type=checkbox id=url-create-redirect checked><span class=url-redirect-checkmark></span><span class=url-redirect-text>Create redirect from old URL to new URL</span></label></div></div><div class=url-suggestion-actions><button class="url-suggestion-btn secondary" id=url-suggestion-cancel>Keep Current</button><button class="url-suggestion-btn primary" id=url-suggestion-apply>Update URL</button></div></div></div><div id=category-editor-popup class="category-editor-popup hidden"><div class=category-popup-content><div class=category-popup-body><div class=category-field-container><div class=category-field-wrapper><div id=category-tags-display class=category-tags-display></div><div class=category-input-section><input type=text id=category-popup-input class=category-popup-input placeholder="Type to add new category..."><div class=category-suggestions id=category-popup-suggestions></div></div></div><div class=category-existing-dropdown><div class=category-existing-select><div class=select-trigger><span class="select-text placeholder">Select an existing category</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown></div><select id=category-existing-select-hidden style="display: none;"></select></div></div></div><div class=category-popup-actions><button id=category-popup-discard class="category-popup-btn category-popup-discard">Discard</button><button id=category-popup-save class="category-popup-btn category-popup-save">Save Changes</button></div></div></div></div><div id=schedule-editor-popup class="schedule-editor-popup hidden"><div class=schedule-popup-content><div class=schedule-popup-body><h4>Schedule Publication Date & Time</h4><div class=schedule-field-container><label for=schedule-datetime-input class=schedule-label>When should this product be published?</label><input type=datetime-local id=schedule-datetime-input class=schedule-datetime-input><div class=schedule-note><svg width=14 height=14 viewBox="0 0 14 14" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#666" stroke-width="1.5" stroke-linecap=round stroke-linejoin=round/><path d="M7 4.5V7L8.5 8.5" stroke="#666" stroke-width="1.5" stroke-linecap=round stroke-linejoin=round/></svg><span>Product will be automatically published at the specified date and time</span></div></div><div class=schedule-popup-actions><button id=schedule-popup-cancel class="schedule-popup-btn schedule-popup-cancel">Cancel</button><button id=schedule-popup-save class="schedule-popup-btn schedule-popup-save">Schedule</button></div></div></div></div><div id=stock-editor-popup class="stock-editor-popup hidden"><div class=stock-popup-content><div class=stock-popup-body><h4>Edit Stock Level</h4><div class=stock-field-container><div class=stock-input-section><label for=stock-quantity-input class=stock-label>Stock Quantity</label><input type=number id=stock-quantity-input class=stock-quantity-input min=0 placeholder=0></div><div class=stock-toggle-section><div class=section-header><span class=stock-toggle-label>Track Inventory</span><label class=toggle-switch><input type=checkbox id=stock-track-inventory class=stock-track-checkbox><span class=toggle-slider></span></label></div><div class=price-adjustment-tooltip><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>When disabled, shows unlimited stock (∞)</span></div></div></div><div class=stock-popup-actions><button id=stock-popup-cancel class="stock-popup-btn stock-popup-cancel">Cancel</button><button id=stock-popup-save class="stock-popup-btn stock-popup-save">Save Changes</button></div></div></div></div><div id=bulk-adjust-drawer class=bulk-adjust-drawer><div class=bulk-drawer-overlay></div><div class=bulk-drawer-content><div class=bulk-drawer-header><h3>Bulk Product Editor</h3><button class=bulk-drawer-close id=bulk-drawer-close><svg xmlns="http://www.w3.org/2000/svg" width=24 height=24 viewBox="0 0 24 24" fill=none><path d="M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></button></div><div class=bulk-drawer-body><div class=bulk-tabs-nav><button class="bulk-tab active" data-tab=pricing>Pricing</button><button class=bulk-tab data-tab=visibility>Visibility</button><button class=bulk-tab data-tab=inventory>Inventory</button></div><div class=bulk-drawer-main><div class=bulk-tabs-container><div class=bulk-tab-content><div id=pricing-tab class="tab-pane active"><div class=bulk-section><div class=section-header><h4>Regular Pricing</h4><label class=toggle-switch><input type=checkbox id=bulk-adjust-regular-prices><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-regular-price-options style="display: none;"><div class=price-adjustment-container><div class=price-controls-row><label class=price-adjustment-label>Price adjustment</label><div class=price-input-group><div class=price-value-input><input type=number id=bulk-regular-adjustment placeholder=0 step="0.01" value=0><span class=price-unit id=price-unit>%</span></div><div class=price-method-selector><div class=bulk-select-dropdown><div class=select-trigger id=price-method-trigger><span class=select-text id=price-method-text>Adjust by %</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown id=price-method-dropdown><div class="select-option selected" data-value=percentage>Adjust by %</div><div class=select-option data-value=fixed-adjustment>Adjust by amount</div><div class=select-option data-value=fixed-price>Fixed price</div></div><select id=bulk-regular-adjustment-type style="display: none;"><option value=percentage>Adjust by %</option><option value=fixed-adjustment>Adjust by amount</option><option value=fixed-price>Fixed price</option></select></div></div></div></div><div class=price-slider-row><div class=price-slider-container data-slider=regular><div class=price-slider-track><div class=price-slider-cover></div><div class=price-slider-handle></div></div></div></div></div><div class=price-adjustment-tooltip><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>If a price change reduces the value below $0, the product price will default to $0.</span></div></div></div><div class=bulk-section><div class=section-header><h4>Sale Pricing</h4><label class=toggle-switch><input type=checkbox id=bulk-adjust-sale-prices><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-sale-price-options style="display: none;"><div class=calculation-source-toggle><label class=calculation-source-label>Calculate discount from</label><div class=two-way-toggle><input type=radio name=sale-calculation-source id=sale-calc-regular-price value=regular-price checked><input type=radio name=sale-calculation-source id=sale-calc-current-sale value=current-sale><div class=toggle-buttons><label for=sale-calc-regular-price class="toggle-button active">Regular price</label><label for=sale-calc-current-sale class=toggle-button>Current sale price</label></div></div><div class=calculation-source-tooltip id=sale-calculation-tooltip style="display: flex;"><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text id=sale-calculation-tooltip-text>Discount is calculated from each product's original regular price.</span></div></div><div class=bulk-form-group id=bulk-sale-pricing-controls><div class=price-adjustment-container><div class=price-controls-row><label class=price-adjustment-label>Price adjustment</label><div class=price-input-group><div class=price-value-input><input type=number id=bulk-sale-adjustment placeholder=0 step="0.01" value=0><span class=price-unit id=sale-price-unit>%</span></div><div class=price-method-selector><div class=bulk-select-dropdown><div class=select-trigger id=sale-price-method-trigger><span class=select-text id=sale-price-method-text>Adjust by %</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown id=sale-price-method-dropdown><div class="select-option selected" data-value=percentage>Adjust by %</div><div class=select-option data-value=fixed-adjustment>Adjust by amount</div><div class=select-option data-value=fixed-price>Fixed sale price</div></div><select id=bulk-sale-adjustment-type style="display: none;"><option value=percentage selected>Adjust by %</option><option value=fixed-adjustment>Adjust by amount</option><option value=fixed-price>Fixed sale price</option></select></div></div></div></div><div class=price-slider-row><div class=price-slider-container data-slider=sale><div class=price-slider-track><div class=price-slider-cover></div><div class=price-slider-handle></div></div></div></div></div><div class=price-adjustment-tooltip id=sale-adjustment-tooltip style="display: none;"><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>Sale prices that exceed the regular price will be capped at the regular price for affected products.</span></div></div><div style="display: none;"><input type=radio name=bulk-sale-action id=bulk-sale-keep-current value=keep-current checked><input type=radio name=bulk-sale-action id=bulk-sale-put-on value=put-on-sale><input type=radio name=bulk-sale-action id=bulk-sale-take-off value=take-off-sale></div></div></div><div class=bulk-section><div class=section-header><h4>Sale On/off</h4><label class=toggle-switch><input type=checkbox id=bulk-adjust-sale-status><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-sale-status-options style="display: none;"><div class=bulk-form-group><label>Set products as on sale?</label><div class=three-way-toggle><button class="toggle-option active" data-value=unchanged>No change</button><button class=toggle-option data-value=on-sale>Yes</button><button class=toggle-option data-value=not-on-sale>No</button></div><input type=hidden id=bulk-sale-status value=unchanged></div><div class=price-adjustment-tooltip id=sale-status-tooltip style="display: block;"><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>Products will keep their current sale setting. Items already on sale will remain on sale, and items not on sale will remain unchanged.</span></div><div style="display: none;"><input type=radio name=bulk-sale-status-action id=bulk-sale-status-keep-current value=keep-current checked><input type=radio name=bulk-sale-status-action id=bulk-sale-status-put-on value=put-on-sale><input type=radio name=bulk-sale-status-action id=bulk-sale-status-take-off value=take-off-sale></div></div></div><div class=bulk-section><div class=section-header><h4>Rounding</h4><label class=toggle-switch><input type=checkbox id=bulk-round-prices><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-rounding-options style="display: none;"><div class=bulk-form-group><label>Rounding type</label><div class=four-way-toggle><button class="toggle-option active" data-value=whole title="Round to nearest dollar (e.g., $24.60 becomes $25)">Whole</button><button class=toggle-option data-value=".99" title="Round to the nearest .99 (e.g. $24.60 becomes $24.99)">.99</button><button class=toggle-option data-value=".95" title="Round to the nearest .95 (e.g. $24.60 becomes $24.95)">.95</button><button class=toggle-option data-value=custom title="Round to custom cents value">Custom</button></div><input type=hidden id=bulk-rounding-type value=whole></div><div class=bulk-form-group id=bulk-rounding-description><div class=info-text><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span id=bulk-rounding-description-text>Round to the nearest dollar (e.g. $24.60 becomes $25)</span></div></div><div class=bulk-price-input-group id=bulk-custom-ending style="display: none; margin-top: 8px;"><label>Custom ending (2 digits):</label><div class=price-input-group><div class=price-value-input><span class=price-unit>.</span><input type=number id=bulk-custom-cents placeholder=99 min=0 max=99 step=1></div></div></div><div class=bulk-form-group style="margin-top: 16px;"><label>Apply rounding to</label><div class=three-way-toggle><button class="toggle-option active" data-value=all>All prices</button><button class=toggle-option data-value=regular>Regular price</button><button class=toggle-option data-value=sale>Sale price</button></div><input type=hidden id=bulk-rounding-target value=all></div></div></div></div><div id=visibility-tab class=tab-pane><div class=bulk-section><div class=section-header><h4>Product Status</h4><label class=toggle-switch><input type=checkbox id=bulk-product-status-toggle><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-product-status-options style="display: none;"><div class=bulk-form-group><label>Product status</label><div class=four-way-toggle><button class="toggle-option active" data-value=unchanged title="Keep current status">Unchanged</button><button class=toggle-option data-value=public title="Make products visible to customers">Public</button><button class=toggle-option data-value=hidden title="Hide products from customers">Hidden</button><button class=toggle-option data-value=scheduled title="Schedule products for future publication">Scheduled</button></div><input type=hidden id=bulk-product-status value=unchanged></div><div class=bulk-form-group id=bulk-scheduled-date-group style="display: none;"><label for=bulk-scheduled-date>Schedule publication date</label><input type=datetime-local id=bulk-scheduled-date class=bulk-datetime-input></div></div></div><div class=bulk-section><div class=section-header><h4>Categories</h4><label class=toggle-switch><input type=checkbox id=bulk-categories-toggle><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-categories-options style="display: none;"><div class=category-section><div class=category-field-container><div class=category-field-wrapper><div id=bulk-category-tags-display class=category-tags-display></div><div class=category-input-section><input type=text id=bulk-category-input class=category-popup-input placeholder="Type to add new category..."><div class=category-suggestions id=bulk-category-suggestions></div></div></div><div class=bulk-select-dropdown><div class=select-trigger id=bulk-category-add-trigger><span class="select-text placeholder">Select an existing category</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown id=bulk-category-add-dropdown></div></div><div class=bulk-select-dropdown><div class=select-trigger id=bulk-category-remove-trigger><span class="select-text placeholder">Select category to remove</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown id=bulk-category-remove-dropdown></div></div></div><div class=category-info-tooltip><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>When removing categories, a number in brackets next to a category shows how many selected products it applies to.</span></div></div></div></div></div><div id=inventory-tab class=tab-pane><div class=bulk-section><div class=section-header><h4>Stock management</h4><label class=toggle-switch><input type=checkbox id=bulk-enable-stock-tracking><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-stock-controls style="display: none;"><div class=two-way-toggle><div class="toggle-option active" data-value=limited>Limited stock</div><div class=toggle-option data-value=unlimited>Unlimited stock</div></div><input type=hidden id=bulk-stock-type value=limited><div class=bulk-form-group id=bulk-stock-adjustment-group><div class=price-adjustment-container><div class=price-controls-row><label class=price-adjustment-label>Stock adjustment</label><div class=price-input-group><div class=price-value-input><input type=number id=bulk-stock-adjustment placeholder=0 step=1 value=0></div><div class=price-method-selector><div class=bulk-select-dropdown><div class=select-trigger id=stock-method-trigger><span class=select-text id=stock-method-text>Adjust by amount</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown id=stock-method-dropdown><div class="select-option selected" data-value=adjust>Adjust by amount</div><div class=select-option data-value=fixed>Fixed amount</div></div><select id=bulk-stock-action style="display: none;"><option value=adjust>Adjust by amount</option><option value=fixed>Fixed amount</option></select></div></div></div></div><div class=price-slider-row><div class=price-slider-container data-slider=stock><div class=price-slider-track><div class=price-slider-cover></div><div class=price-slider-handle></div></div></div></div></div></div><div class=price-adjustment-tooltip id=stock-adjustment-tooltip style="display: none;"><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>Products where the adjustment would set stock below 0 will instead be set to 0.</span></div></div></div></div></div></div><div class=bulk-preview-pane><div class=group-pane><h4>Changes to Apply</h4><div id=changes-summary class=changes-list><div class=no-changes>No changes configured</div></div></div><div class=group-pane><h4>Product preview</h4><div id=sample-products class=sample-products-carousel></div></div></div></div></div><div id=bulk-notification-footer class=bulk-notification-footer><div class=bulk-footer-content><div class=bulk-footer-left><div class=products-selected-info><h4 id=products-selected-count>0 Products Selected</h4><div class=time-estimate><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 5.83333V10H14.1667M10 17.5C5.85786 17.5 2.5 14.1421 2.5 10C2.5 5.85786 5.85786 2.5 10 2.5C14.1421 2.5 17.5 5.85786 17.5 10C17.5 14.1421 14.1421 17.5 10 17.5Z" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span id=estimated-time>Est. 30 seconds</span></div></div><div class=bulk-notification-content style="display: none;"><span class=bulk-notification-text id=bulk-notification-text></span></div><div id=bulk-progress-container class=progress-container style="display: none;"><div class=progress-bar><div class=progress-fill id=bulk-progress-fill></div></div><div class=progress-info><span id=bulk-progress-text></span><span id=bulk-progress-time></span></div></div></div><div class=bulk-footer-right><button class="bulk-btn primary" id=bulk-apply-all disabled>Apply Changes</button></div></div></div></div></div><div id=undo-changes-drawer style="display: none;"><div class=undo-drawer-overlay></div><div class=undo-drawer-content><div class=drawer-header><h2>Undo History</h2><button class=drawer-close id=undo-drawer-close><svg xmlns="http://www.w3.org/2000/svg" width=24 height=24 viewBox="0 0 24 24" fill=none><path d="M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></button></div><div class=drawer-content><div class=undo-content-container><div class=undo-description><p>Undo this bulk edit and roll back affected products to their state before these changes were made.</p></div><div class=undo-history-list id=undo-history-list></div></div></div><div class=drawer-footer id=undo-notification-footer><div class=bulk-footer-content><div class=bulk-footer-left><div class=undo-status-info><h4 id=undo-status-count>5 Changes Available</h4><div class=undo-info><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M4.16666 10H15.8333M4.16666 10L8.33333 5.83333M4.16666 10L8.33333 14.1667" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span id=undo-info-text>Choose a restore point</span></div></div><div class=bulk-notification-content style="display: none;"><span class=bulk-notification-text id=undo-notification-text></span></div><div id=undo-progress-container class=progress-container style="display: none;"><div class=progress-bar><div class=progress-fill id=undo-progress-fill></div></div><div class=progress-info><span id=undo-progress-text></span><span id=undo-progress-time></span></div></div></div><div class=bulk-footer-right><button class="bulk-btn secondary" id=undo-selected-btn disabled>Restore Selected</button></div></div></div></div></div></div>`;
+    const HTML_TEMPLATE = `<link rel=preconnect href="https://fonts.googleapis.com"><link rel=preconnect href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&family=Red+Hat+Text:ital,wght@0,300..700;1,300..700&display=swap" rel=stylesheet><div class=sh-product-manager><header class=sh-header><div class=logo><img src="https://cdn.jsdelivr.net/gh/squarehero-store/advanced-product-manager@latest/dist/sh-logo.png" alt="SquareHero Logo" class=logo-icon></div><div class=header-title-section><h2 class=sh-header-title>Advanced Product Manager</h2><span class=demo-mode-indicator id=demo-mode-indicator style="display: none;">Demo mode</span><div class="sh-status-indicator sh-active" id=activated-badge style="display: none;"><div class=sh-status-icon><svg width=11 height=8 viewBox="0 0 11 8" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M1.66539 3.83192L4.2107 6.16528L9.66539 1.16528" stroke=white stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></div>Activated</div></div><button class=preview-toggle-btn id=preview-toggle-btn title="Toggle Preview Mode"><svg width=16 height=16 viewBox="0 0 16 16" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M1 10H6V15M15 6H10V1" stroke=white stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></button></header><div class=gradient-strip></div><div class=container><main class=main-content><div class=content-header><div class=action-buttons><button class="sh-btn bulk-adjust"><svg width=19 height=17 viewBox="0 0 19 17" fill=none xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_224_2570)"><path d="M7.75 13.75H17.375M1.625 13.75H4.25M4.25 13.75V15.5M4.25 13.75V12M16.5 8.5H17.375M1.625 8.5H13M13 8.5V10.25M13 8.5V6.75M11.25 3.25H17.375M1.625 3.25H7.75M7.75 3.25V5M7.75 3.25V1.5" stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round/></g><defs><clipPath id=clip0_224_2570><rect width=19 height=17 fill=white/></clipPath></defs></svg><span>Bulk Adjust</span></button></div></div><div class=filters><div class=search-box><span class=search-icon><svg width=18 height=18 viewBox="0 0 18 18" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M7.53223 14.0332C3.72656 14.0332 0.615234 10.9219 0.615234 7.11621C0.615234 3.31055 3.73535 0.199219 7.53223 0.199219C11.3379 0.199219 14.4492 3.31055 14.4492 7.11621C14.4492 8.59277 13.9834 9.95508 13.1924 11.0801L17.0156 14.9209C17.2617 15.167 17.376 15.4922 17.376 15.8262C17.376 16.5469 16.8398 17.1182 16.1104 17.1182C15.7588 17.1182 15.4336 16.9951 15.1787 16.749L11.3291 12.8906C10.2393 13.6113 8.92969 14.0332 7.53223 14.0332ZM7.53223 12.1875C10.3184 12.1875 12.6035 9.90234 12.6035 7.11621C12.6035 4.33008 10.3184 2.04492 7.53223 2.04492C4.74609 2.04492 2.46094 4.33008 2.46094 7.11621C2.46094 9.90234 4.74609 12.1875 7.53223 12.1875Z" fill="#3C3C43" fill-opacity="0.6"/></svg></span><input type=text id=search-input placeholder="Search products by name or SKU"></div><div class=filter-dropdown id=category-filter-container><div class=select-trigger id=category-filter-trigger><span class=select-text id=category-filter-text>All categories</span><svg width=10 height=6 viewBox="0 0 10 6" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M9 1L5 5L1 1" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></div><div class=select-dropdown id=category-filter-dropdown><div class="select-option selected" data-value=all>All categories</div></div><select id=category-filter style="display: none;"><option value=all>All categories</option></select></div><div class=filter-dropdown id=type-filter-container><div class=select-trigger id=type-filter-trigger><span class=select-text id=type-filter-text>All types</span><svg width=10 height=6 viewBox="0 0 10 6" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M9 1L5 5L1 1" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></div><div class=select-dropdown id=type-filter-dropdown><div class="select-option selected" data-value=all>All types</div><div class=select-option data-value=Physical>Physical</div><div class=select-option data-value=Digital>Digital</div><div class=select-option data-value=Service>Service</div><div class=select-option data-value="Gift Card">Gift Card</div></div><select id=type-filter style="display: none;"><option value=all>All types</option><option value=Physical>Physical</option><option value=Digital>Digital</option><option value=Service>Service</option><option value="Gift Card">Gift Card</option></select></div><div class=filter-dropdown id=status-filter-container><div class=select-trigger id=status-filter-trigger><span class=select-text id=status-filter-text>All status</span><svg width=10 height=6 viewBox="0 0 10 6" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M9 1L5 5L1 1" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></div><div class=select-dropdown id=status-filter-dropdown><div class="select-option selected" data-value=all>All status</div><div class=select-option data-value=public>Public</div><div class=select-option data-value=hidden>Hidden</div><div class=select-option data-value=scheduled>Scheduled</div></div><select id=status-filter style="display: none;"><option value=all>All status</option><option value=public>Public</option><option value=hidden>Hidden</option><option value=scheduled>Scheduled</option></select></div><div class=filter-dropdown id=sort-filter-container><div class=select-trigger id=sort-filter-trigger><span class=select-text id=sort-filter-text>Sort by</span><svg width=10 height=6 viewBox="0 0 10 6" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M9 1L5 5L1 1" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></div><div class=select-dropdown id=sort-filter-dropdown><div class="select-option selected" data-value=default>Sort by</div><div class=select-option data-value="title:asc">Title (A-Z)</div><div class=select-option data-value="title:desc">Title (Z-A)</div><div class=select-option data-value="price:asc">Price (Low-High)</div><div class=select-option data-value="price:desc">Price (High-Low)</div><div class=select-option data-value="stock:asc">Stock (Low-High)</div><div class=select-option data-value="stock:desc">Stock (High-Low)</div></div><select id=sort-select style="display: none;"><option value=default>Sort by</option><option value="title:asc">Title (A-Z)</option><option value="title:desc">Title (Z-A)</option><option value="price:asc">Price (Low-High)</option><option value="price:desc">Price (High-Low)</option><option value="stock:asc">Stock (Low-High)</option><option value="stock:desc">Stock (High-Low)</option></select></div><button class=reset-filters-btn id=reset-filters-btn disabled><svg width=14 height=18 viewBox="0 0 14 18" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M7.75 3.98328H11.8C12.2201 3.98328 12.4307 3.98328 12.5911 4.06502C12.7322 4.13693 12.8461 4.25158 12.918 4.3927C12.9997 4.55313 13 4.76331 13 5.18335V5.74188C13 5.92161 13 6.01241 12.9795 6.09784C12.9612 6.17437 12.9304 6.24747 12.8893 6.31458C12.8429 6.39026 12.7782 6.45513 12.6486 6.58484L11.5 7.73337M3.62471 3.98328H2.19971C1.77967 3.98328 1.56986 3.98328 1.40942 4.06502C1.2683 4.13693 1.15365 4.25158 1.08174 4.3927C1 4.55313 1 4.76331 1 5.18335V5.7363C1 5.91974 1 6.01152 1.02072 6.09784C1.0391 6.17437 1.06947 6.24747 1.11059 6.31458C1.15696 6.39024 1.22193 6.45521 1.35156 6.58484L5.14862 10.3819C5.27832 10.5116 5.34283 10.5761 5.38921 10.6518C5.43033 10.7189 5.46112 10.7922 5.4795 10.8688C5.5 10.9542 5.5 11.0449 5.5 11.2247V14.7915C5.5 15.4344 5.5 15.7561 5.63541 15.9497C5.75364 16.1187 5.93605 16.2315 6.14014 16.2617C6.37385 16.2962 6.66153 16.1526 7.23657 15.8651L7.83655 15.5651C8.07738 15.4447 8.19745 15.3843 8.28542 15.2944C8.3632 15.215 8.42275 15.1197 8.45898 15.0145C8.5 14.8957 8.5 14.7608 8.5 14.4915V11.2302C8.5 11.0468 8.5 10.9551 8.5207 10.8688C8.53908 10.7922 8.56945 10.719 8.61063 10.6519C8.65683 10.5765 8.7214 10.5119 8.85017 10.3831L8.8516 10.3818L9.62508 9.60835M9.62508 9.60835L1.75 1.73328M9.62508 9.60835L12.25 12.2333" stroke="#011E45" stroke-width="1.5" stroke-linecap=round stroke-linejoin=round/></svg><span>Reset</span></button></div><div class=no-products-message id=no-products-message style="display: none;"><h3>No products found</h3><p>This usually means your store doesn't have any products yet. If you do have products and they're not showing up, please contact support.</p></div><div class=table-wrapper style="display: none;"><div class=table-header-controls><div class=products-selected-text id=products-selected-text>0 products selected</div><div class=table-scroll-arrows><button class="scroll-arrow scroll-arrow-left" id=scroll-left aria-label="Scroll table left"><svg width=9 height=16 viewBox="0 0 9 16" fill=none xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_181_2572_left)"><path d="M8 15L1 8L8 1" stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round/></g><defs><clipPath id=clip0_181_2572_left><rect width=9 height=16 fill=white/></clipPath></defs></svg></button><button class="scroll-arrow scroll-arrow-right" id=scroll-right aria-label="Scroll table right"><svg width=9 height=16 viewBox="0 0 9 16" fill=none xmlns="http://www.w3.org/2000/svg" style="transform: rotate(180deg);"><g clip-path="url(#clip0_181_2572_right)"><path d="M8 15L1 8L8 1" stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round/></g><defs><clipPath id=clip0_181_2572_right><rect width=9 height=16 fill=white/></clipPath></defs></svg></button></div></div><div class=table-container id=table-container><table><thead><tr><th><input type=checkbox id=select-all-checkbox></th><th>Title</th><th>URL</th><th>SKU</th><th>Categories</th><th id=price-header>Price</th><th id=sale-price-header>Sale Price</th><th>On Sale</th><th>Stock</th><th>Type</th><th>Status</th><th id=scheduled-header class="scheduled-column hidden">Scheduled</th></tr></thead><tbody id=product-container></tbody></table></div><div class=pagination><div class=pagination-info id=pagination-info></div><div class=pagination-controls><div class=page-numbers id=page-numbers></div><div class=show-select><span>Show</span><select id=items-per-page><option value=10>10</option><option value=20 selected>20</option><option value=50>50</option></select></div></div></div></main></div><div id=changes-footer class="changes-footer hidden"><div class=changes-footer-content><div class=changes-footer-left><div class=changes-info><span class=changes-icon><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 6.44971V10.4497M5.33173 1.9375L1.9375 5.33173L1.93442 5.33462C1.59057 5.67847 1.41824 5.85081 1.29492 6.05204C1.18526 6.23098 1.10425 6.4263 1.05526 6.63037C1 6.86055 1 7.10506 1 7.59424V12.4058C1 12.8949 1 13.1395 1.05526 13.3697C1.10425 13.5738 1.18526 13.7688 1.29492 13.9478C1.41857 14.1495 1.59182 14.3228 1.9375 14.6685L5.33173 18.0627C5.67763 18.4086 5.85021 18.5812 6.05204 18.7048C6.23099 18.8145 6.42581 18.8958 6.62988 18.9448C6.85971 19 7.10382 19 7.59151 19H12.4075C12.8952 19 13.1404 19 13.3702 18.9448C13.5743 18.8958 13.7693 18.8145 13.9482 18.7049C14.1501 18.5812 14.323 18.4086 14.6689 18.0627L18.0632 14.6685C18.4091 14.3226 18.5817 14.1496 18.7053 13.9478C18.815 13.7688 18.8953 13.5738 18.9443 13.3697C18.9996 13.1395 19 12.895 19 12.4058V7.59424C19 7.10506 18.9996 6.86055 18.9443 6.63037C18.8953 6.4263 18.815 6.23099 18.7053 6.05205C18.5817 5.85022 18.4091 5.67761 18.0632 5.33173L14.6689 1.9375C14.3233 1.59181 14.15 1.41857 13.9482 1.29492C13.7693 1.18526 13.5743 1.10425 13.3702 1.05526C13.14 1 12.8945 1 12.4053 1H7.59375C7.10457 1 6.86006 1 6.62988 1.05526C6.42581 1.10425 6.23099 1.18526 6.05204 1.29492C5.85204 1.41748 5.68106 1.58847 5.3414 1.92813L5.33173 1.9375ZM10.0498 13.4497V13.5497L9.9502 13.5499V13.4497H10.0498Z" stroke=white stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></span><span class=changes-text>You have unsaved changes</span><span class=changes-count id=changes-count>0 products modified</span></div><div class=changes-notification-content style="display: none;"><span class=changes-notification-text id=notification-text></span></div><div id=main-progress-container class=progress-container style="display: none;"><div class=progress-bar><div class=progress-fill id=main-progress-fill></div></div><div class=progress-info><span id=main-progress-text>Saving changes...</span><span id=main-progress-time></span></div></div></div><div class=changes-footer-right><button class=btn-discard id=discard-changes>Discard Changes</button><button class=apply-btn id=save-changes>Apply Changes</button></div></div></div><div id=url-suggestion-tooltip class="url-suggestion-tooltip hidden"><div class=url-suggestion-content><div class=url-suggestion-header><span class=url-suggestion-title>Update URL to match title?</span><button class=url-suggestion-close id=url-suggestion-close>×</button></div><div class=url-suggestion-body><span class=url-suggestion-text>New URL:</span><span class=url-suggestion-preview id=url-suggestion-preview></span><div class=url-redirect-option><label class=url-redirect-checkbox><input type=checkbox id=url-create-redirect checked><span class=url-redirect-checkmark></span><span class=url-redirect-text>Create redirect from old URL to new URL</span></label></div></div><div class=url-suggestion-actions><button class="url-suggestion-btn secondary" id=url-suggestion-cancel>Keep Current</button><button class="url-suggestion-btn primary" id=url-suggestion-apply>Update URL</button></div></div></div><div id=category-editor-popup class="category-editor-popup hidden"><div class=category-popup-content><div class=category-popup-body><div class=category-field-container><div class=category-field-wrapper><div id=category-tags-display class=category-tags-display></div><div class=category-input-section><input type=text id=category-popup-input class=category-popup-input placeholder="Type to add new category..."><div class=category-suggestions id=category-popup-suggestions></div></div></div><div class=category-existing-dropdown><div class=category-existing-select><div class=select-trigger><span class="select-text placeholder">Select an existing category</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown></div><select id=category-existing-select-hidden style="display: none;"></select></div></div></div><div class=category-popup-actions><button id=category-popup-discard class="category-popup-btn category-popup-discard">Discard</button><button id=category-popup-save class="category-popup-btn category-popup-save">Save Changes</button></div></div></div></div><div id=schedule-editor-popup class="schedule-editor-popup hidden"><div class=schedule-popup-content><div class=schedule-popup-body><h4>Schedule Publication Date & Time</h4><div class=schedule-field-container><label for=schedule-datetime-input class=schedule-label>When should this product be published?</label><input type=datetime-local id=schedule-datetime-input class=schedule-datetime-input><div class=schedule-note><svg width=14 height=14 viewBox="0 0 14 14" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M7 13C10.3137 13 13 10.3137 13 7C13 3.68629 10.3137 1 7 1C3.68629 1 1 3.68629 1 7C1 10.3137 3.68629 13 7 13Z" stroke="#666" stroke-width="1.5" stroke-linecap=round stroke-linejoin=round/><path d="M7 4.5V7L8.5 8.5" stroke="#666" stroke-width="1.5" stroke-linecap=round stroke-linejoin=round/></svg><span>Product will be automatically published at the specified date and time</span></div></div><div class=schedule-popup-actions><button id=schedule-popup-cancel class="schedule-popup-btn schedule-popup-cancel">Cancel</button><button id=schedule-popup-save class="schedule-popup-btn schedule-popup-save">Schedule</button></div></div></div></div><div id=stock-editor-popup class="stock-editor-popup hidden"><div class=stock-popup-content><div class=stock-popup-body><h4>Edit Stock Level</h4><div class=stock-field-container><div class=stock-input-section><label for=stock-quantity-input class=stock-label>Stock Quantity</label><input type=number id=stock-quantity-input class=stock-quantity-input min=0 placeholder=0></div><div class=stock-toggle-section><div class=section-header><span class=stock-toggle-label>Track Inventory</span><label class=toggle-switch><input type=checkbox id=stock-track-inventory class=stock-track-checkbox><span class=toggle-slider></span></label></div><div class=price-adjustment-tooltip><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>When disabled, shows unlimited stock (∞)</span></div></div></div><div class=stock-popup-actions><button id=stock-popup-cancel class="stock-popup-btn stock-popup-cancel">Cancel</button><button id=stock-popup-save class="stock-popup-btn stock-popup-save">Save Changes</button></div></div></div></div><div id=bulk-adjust-drawer class=bulk-adjust-drawer><div class=bulk-drawer-overlay></div><div class=bulk-drawer-content><div class=bulk-drawer-header><h3>Bulk Product Editor</h3><button class=bulk-drawer-close id=bulk-drawer-close><svg xmlns="http://www.w3.org/2000/svg" width=24 height=24 viewBox="0 0 24 24" fill=none><path d="M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></button></div><div class=bulk-drawer-body><div class=bulk-tabs-nav><button class="bulk-tab active" data-tab=pricing>Pricing</button><button class=bulk-tab data-tab=visibility>Visibility</button><button class=bulk-tab data-tab=inventory>Inventory</button></div><div class=bulk-drawer-main><div class=bulk-tabs-container><div class=bulk-tab-content><div id=pricing-tab class="tab-pane active"><div class=bulk-section><div class=section-header><h4>Regular Pricing</h4><label class=toggle-switch><input type=checkbox id=bulk-adjust-regular-prices><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-regular-price-options style="display: none;"><div class=price-adjustment-container><div class=price-controls-row><label class=price-adjustment-label>Price adjustment</label><div class=price-input-group><div class=price-value-input><input type=number id=bulk-regular-adjustment placeholder=0 step="0.01" value=0><span class=price-unit id=price-unit>%</span></div><div class=price-method-selector><div class=bulk-select-dropdown><div class=select-trigger id=price-method-trigger><span class=select-text id=price-method-text>Adjust by %</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown id=price-method-dropdown><div class="select-option selected" data-value=percentage>Adjust by %</div><div class=select-option data-value=fixed-adjustment>Adjust by amount</div><div class=select-option data-value=fixed-price>Fixed price</div></div><select id=bulk-regular-adjustment-type style="display: none;"><option value=percentage>Adjust by %</option><option value=fixed-adjustment>Adjust by amount</option><option value=fixed-price>Fixed price</option></select></div></div></div></div><div class=price-slider-row><div class=price-slider-container data-slider=regular><div class=price-slider-track><div class=price-slider-cover></div><div class=price-slider-handle></div></div></div></div></div><div class=price-adjustment-tooltip><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>If a price change reduces the value below $0, the product price will default to $0.</span></div></div></div><div class=bulk-section><div class=section-header><h4>Sale Pricing</h4><label class=toggle-switch><input type=checkbox id=bulk-adjust-sale-prices><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-sale-price-options style="display: none;"><div class=calculation-source-toggle><label class=calculation-source-label>Calculate discount from</label><div class=two-way-toggle><input type=radio name=sale-calculation-source id=sale-calc-regular-price value=regular-price checked><input type=radio name=sale-calculation-source id=sale-calc-current-sale value=current-sale><div class=toggle-buttons><label for=sale-calc-regular-price class="toggle-button active">Current regular price</label><label for=sale-calc-current-sale class=toggle-button>Current sale price</label></div></div><div class=calculation-source-tooltip id=sale-calculation-tooltip style="display: flex;"><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text id=sale-calculation-tooltip-text>Discount is calculated from each product's current regular price.</span></div></div><div class=bulk-form-group id=bulk-sale-pricing-controls><div class=price-adjustment-container><div class=price-controls-row><label class=price-adjustment-label>Price adjustment</label><div class=price-input-group><div class=price-value-input><input type=number id=bulk-sale-adjustment placeholder=0 step="0.01" value=0><span class=price-unit id=sale-price-unit>%</span></div><div class=price-method-selector><div class=bulk-select-dropdown><div class=select-trigger id=sale-price-method-trigger><span class=select-text id=sale-price-method-text>Adjust by %</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown id=sale-price-method-dropdown><div class="select-option selected" data-value=percentage>Adjust by %</div><div class=select-option data-value=fixed-adjustment>Adjust by amount</div><div class=select-option data-value=fixed-price>Fixed sale price</div></div><select id=bulk-sale-adjustment-type style="display: none;"><option value=percentage selected>Adjust by %</option><option value=fixed-adjustment>Adjust by amount</option><option value=fixed-price>Fixed sale price</option></select></div></div></div></div><div class=price-slider-row><div class=price-slider-container data-slider=sale><div class=price-slider-track><div class=price-slider-cover></div><div class=price-slider-handle></div></div></div></div></div><div class=price-adjustment-tooltip id=sale-adjustment-tooltip style="display: none;"><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>Sale prices that exceed the regular price will be capped at the regular price for affected products.</span></div></div><div style="display: none;"><input type=radio name=bulk-sale-action id=bulk-sale-keep-current value=keep-current checked><input type=radio name=bulk-sale-action id=bulk-sale-put-on value=put-on-sale><input type=radio name=bulk-sale-action id=bulk-sale-take-off value=take-off-sale></div></div></div><div class=bulk-section><div class=section-header><h4>Sale Off/On</h4><label class=toggle-switch><input type=checkbox id=bulk-adjust-sale-status><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-sale-status-options style="display: none;"><div class=bulk-form-group><label>Set products as on sale?</label><div class=two-way-toggle><button class="toggle-option active" data-value=on-sale>Yes</button><button class=toggle-option data-value=not-on-sale>No</button></div><input type=hidden id=bulk-sale-status value=on-sale></div><div style="display: none;"><input type=radio name=bulk-sale-status-action id=bulk-sale-status-keep-current value=keep-current><input type=radio name=bulk-sale-status-action id=bulk-sale-status-put-on value=put-on-sale checked><input type=radio name=bulk-sale-status-action id=bulk-sale-status-take-off value=take-off-sale></div></div></div><div class=bulk-section><div class=section-header><h4>Rounding</h4><label class=toggle-switch><input type=checkbox id=bulk-round-prices><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-rounding-options style="display: none;"><div class=bulk-form-group><label>Rounding type</label><div class=four-way-toggle><button class="toggle-option active" data-value=whole title="Round to nearest dollar (e.g., $24.60 becomes $25)">Whole</button><button class=toggle-option data-value=".99" title="Round to the nearest .99 (e.g. $24.60 becomes $24.99)">.99</button><button class=toggle-option data-value=".95" title="Round to the nearest .95 (e.g. $24.60 becomes $24.95)">.95</button><button class=toggle-option data-value=custom title="Round to custom cents value">Custom</button></div><input type=hidden id=bulk-rounding-type value=whole></div><div class=bulk-form-group id=bulk-rounding-description><div class=info-text><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span id=bulk-rounding-description-text>Round to the nearest dollar (e.g. $24.60 becomes $25)</span></div></div><div class=bulk-price-input-group id=bulk-custom-ending style="display: none; margin-top: 8px;"><label>Custom ending (2 digits):</label><div class=price-input-group><div class=price-value-input><span class=price-unit>.</span><input type=number id=bulk-custom-cents placeholder=99 min=0 max=99 step=1></div></div></div><div class=bulk-form-group style="margin-top: 16px;"><label>Apply rounding to</label><div class=three-way-toggle><button class="toggle-option active" data-value=all>All prices</button><button class=toggle-option data-value=regular>Regular price</button><button class=toggle-option data-value=sale>Sale price</button></div><input type=hidden id=bulk-rounding-target value=all></div></div></div></div><div id=visibility-tab class=tab-pane><div class=bulk-section><div class=section-header><h4>Product Status</h4><label class=toggle-switch><input type=checkbox id=bulk-product-status-toggle><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-product-status-options style="display: none;"><div class=bulk-form-group><label>Product status</label><div class=four-way-toggle><button class="toggle-option active" data-value=unchanged title="Keep current status">Unchanged</button><button class=toggle-option data-value=public title="Make products visible to customers">Public</button><button class=toggle-option data-value=hidden title="Hide products from customers">Hidden</button><button class=toggle-option data-value=scheduled title="Schedule products for future publication">Scheduled</button></div><input type=hidden id=bulk-product-status value=unchanged></div><div class=bulk-form-group id=bulk-scheduled-date-group style="display: none;"><label for=bulk-scheduled-date>Schedule publication date</label><input type=datetime-local id=bulk-scheduled-date class=bulk-datetime-input></div></div></div><div class=bulk-section><div class=section-header><h4>Categories</h4><label class=toggle-switch><input type=checkbox id=bulk-categories-toggle><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-categories-options style="display: none;"><div class=category-section><div class=category-field-container><div class=category-field-wrapper><div id=bulk-category-tags-display class=category-tags-display></div><div class=category-input-section><input type=text id=bulk-category-input class=category-popup-input placeholder="Type to add new category..."><div class=category-suggestions id=bulk-category-suggestions></div></div></div><div class=bulk-select-dropdown><div class=select-trigger id=bulk-category-add-trigger><span class="select-text placeholder">Select an existing category</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown id=bulk-category-add-dropdown></div></div><div class=bulk-select-dropdown><div class=select-trigger id=bulk-category-remove-trigger><span class="select-text placeholder">Select category to remove</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown id=bulk-category-remove-dropdown></div></div></div><div class=category-info-tooltip><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>When removing categories, a number in brackets next to a category shows how many selected products it applies to.</span></div></div></div></div></div><div id=inventory-tab class=tab-pane><div class=bulk-section><div class=section-header><h4>Stock management</h4><label class=toggle-switch><input type=checkbox id=bulk-enable-stock-tracking><span class=toggle-slider></span></label></div><div class=bulk-form-group id=bulk-stock-controls style="display: none;"><div class=two-way-toggle><div class="toggle-option active" data-value=limited>Limited stock</div><div class=toggle-option data-value=unlimited>Unlimited stock</div></div><input type=hidden id=bulk-stock-type value=limited><div class=bulk-form-group id=bulk-stock-adjustment-group><div class=price-adjustment-container><div class=price-controls-row><label class=price-adjustment-label>Stock adjustment</label><div class=price-input-group><div class=price-value-input><input type=number id=bulk-stock-adjustment placeholder=0 step=1 value=0></div><div class=price-method-selector><div class=bulk-select-dropdown><div class=select-trigger id=stock-method-trigger><span class=select-text id=stock-method-text>Adjust by amount</span><svg width=16 height=17 viewBox="0 0 16 17" fill=none xmlns="http://www.w3.org/2000/svg"><path fill-rule=evenodd clip-rule=evenodd d="M0.792969 5.70712L2.20718 4.29291L8.00008 10.0858L13.793 4.29291L15.2072 5.70712L8.00008 12.9142L0.792969 5.70712Z" fill="#1A1A1A"/></svg></div><div class=select-dropdown id=stock-method-dropdown><div class="select-option selected" data-value=adjust>Adjust by amount</div><div class=select-option data-value=fixed>Fixed amount</div></div><select id=bulk-stock-action style="display: none;"><option value=adjust>Adjust by amount</option><option value=fixed>Fixed amount</option></select></div></div></div></div><div class=price-slider-row><div class=price-slider-container data-slider=stock><div class=price-slider-track><div class=price-slider-cover></div><div class=price-slider-handle></div></div></div></div></div></div><div class=price-adjustment-tooltip id=stock-adjustment-tooltip style="display: none;"><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 9V14M10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10C19 14.9706 14.9706 19 10 19ZM10.0498 6V6.1L9.9502 6.1002V6H10.0498Z" stroke="#011E45" stroke-opacity="0.7" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span class=tooltip-text>Products where the adjustment would set stock below 0 will instead be set to 0.</span></div></div></div></div></div></div><div class=bulk-preview-pane><div class=group-pane><h4>Changes to Apply</h4><div id=changes-summary class=changes-list><div class=no-changes>No changes configured</div></div></div><div class=group-pane><h4>Product preview</h4><div id=sample-products class=sample-products-carousel></div></div></div></div></div><div id=bulk-notification-footer class=bulk-notification-footer><div class=bulk-footer-content><div class=bulk-footer-left><div class=products-selected-info><h4 id=products-selected-count>0 Products Selected</h4><div class=time-estimate><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M10 5.83333V10H14.1667M10 17.5C5.85786 17.5 2.5 14.1421 2.5 10C2.5 5.85786 5.85786 2.5 10 2.5C14.1421 2.5 17.5 5.85786 17.5 10C17.5 14.1421 14.1421 17.5 10 17.5Z" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span id=estimated-time>Est. 30 seconds</span></div></div><div class=bulk-notification-content style="display: none;"><span class=bulk-notification-text id=bulk-notification-text></span></div><div id=bulk-progress-container class=progress-container style="display: none;"><div class=progress-bar><div class=progress-fill id=bulk-progress-fill></div></div><div class=progress-info><span id=bulk-progress-text></span><span id=bulk-progress-time></span></div></div></div><div class=bulk-footer-right><button class="bulk-btn primary" id=bulk-apply-all disabled>Apply Changes</button></div></div></div></div></div><div id=undo-changes-drawer style="display: none;"><div class=undo-drawer-overlay></div><div class=undo-drawer-content><div class=drawer-header><h2>Undo History</h2><button class=drawer-close id=undo-drawer-close><svg xmlns="http://www.w3.org/2000/svg" width=24 height=24 viewBox="0 0 24 24" fill=none><path d="M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg></button></div><div class=drawer-content><div class=undo-content-container><div class=undo-description><p>Undo this bulk edit and roll back affected products to their state before these changes were made.</p></div><div class=undo-history-list id=undo-history-list></div></div></div><div class=drawer-footer id=undo-notification-footer><div class=bulk-footer-content><div class=bulk-footer-left><div class=undo-status-info><h4 id=undo-status-count>5 Changes Available</h4><div class=undo-info><svg width=20 height=20 viewBox="0 0 20 20" fill=none xmlns="http://www.w3.org/2000/svg"><path d="M4.16666 10H15.8333M4.16666 10L8.33333 5.83333M4.16666 10L8.33333 14.1667" stroke="#011E45" stroke-width=2 stroke-linecap=round stroke-linejoin=round/></svg><span id=undo-info-text>Choose a restore point</span></div></div><div class=bulk-notification-content style="display: none;"><span class=bulk-notification-text id=undo-notification-text></span></div><div id=undo-progress-container class=progress-container style="display: none;"><div class=progress-bar><div class=progress-fill id=undo-progress-fill></div></div><div class=progress-info><span id=undo-progress-text></span><span id=undo-progress-time></span></div></div></div><div class=bulk-footer-right><button class="bulk-btn secondary" id=undo-selected-btn disabled>Restore Selected</button></div></div></div></div></div></div>`;
     
     // Utilities
     // === API UTILITY ===
@@ -226,10 +226,18 @@ async function updateProductFields(product, changes, crumbToken) {
             if (changes.onSale === 'Yes' && salePrice >= 0 && salePrice < regularPrice) {
                 payload.onSale = true;
             } else if (changes.onSale === 'Yes' && salePrice >= regularPrice) {
-                // Sale price is invalid, set to slightly less than regular price
-                payload.salePrice.decimalValue = Math.max(0.01, regularPrice - 0.01).toFixed(2);
+                // Sale price is invalid, set to slightly less than regular price (allow $0.00)
+                payload.salePrice.decimalValue = Math.max(0, regularPrice - 0.01).toFixed(2);
                 payload.onSale = true;
                 console.warn(`⚠️ Sale price ${salePrice} was >= regular price ${regularPrice}, adjusted to ${payload.salePrice.decimalValue}`);
+            } else if (changes.onSale === 'Yes') {
+                // User explicitly wants onSale=Yes, respect it even for $0 sale price (free sales)
+                payload.onSale = true;
+                console.log(`🔒 Respecting explicit onSale=Yes (sale price: ${salePrice})`);
+            } else if (changes.onSale === 'No') {
+                // User explicitly wants onSale=No, respect it
+                payload.onSale = false;
+                console.log(`🔒 Respecting explicit onSale=No (sale price: ${salePrice})`);
             } else {
                 payload.onSale = false;
             }
@@ -238,8 +246,8 @@ async function updateProductFields(product, changes, crumbToken) {
             if (salePrice >= 0 && salePrice < regularPrice) {
                 payload.onSale = true;
             } else if (salePrice >= regularPrice && salePrice > 0) {
-                // Sale price is invalid, set to slightly less than regular price
-                payload.salePrice.decimalValue = Math.max(0.01, regularPrice - 0.01).toFixed(2);
+                // Sale price is invalid, set to slightly less than regular price (allow $0.00)
+                payload.salePrice.decimalValue = Math.max(0, regularPrice - 0.01).toFixed(2);
                 payload.onSale = true;
                 console.warn(`⚠️ Sale price ${salePrice} was >= regular price ${regularPrice}, adjusted to ${payload.salePrice.decimalValue}`);
             } else {
@@ -321,10 +329,18 @@ async function updateProductFields(product, changes, crumbToken) {
                 if (variantChanges.onSale === 'Yes' && salePrice > 0 && salePrice < regularPrice) {
                     updatedVariant.onSale = true;
                 } else if (variantChanges.onSale === 'Yes' && salePrice >= regularPrice) {
-                    // Sale price is invalid, set to slightly less than regular price
-                    updatedVariant.salePrice.decimalValue = String(Math.max(0.01, regularPrice - 0.01));
+                    // Sale price is invalid, set to slightly less than regular price (allow $0.00)
+                    updatedVariant.salePrice.decimalValue = String(Math.max(0, regularPrice - 0.01));
                     updatedVariant.onSale = true;
                     console.warn(`⚠️ Sale price ${salePrice} was >= regular price ${regularPrice} for variant ${variant.id}, adjusted to ${updatedVariant.salePrice.decimalValue}`);
+                } else if (variantChanges.onSale === 'Yes') {
+                    // User explicitly wants onSale=Yes, respect it even for $0 sale price (free sales)
+                    updatedVariant.onSale = true;
+                    console.log(`🔒 Respecting explicit variant onSale=Yes (sale price: ${salePrice})`);
+                } else if (variantChanges.onSale === 'No') {
+                    // User explicitly wants onSale=No, respect it
+                    updatedVariant.onSale = false;
+                    console.log(`🔒 Respecting explicit variant onSale=No (sale price: ${salePrice})`);
                 } else {
                     updatedVariant.onSale = false;
                 }
@@ -333,8 +349,8 @@ async function updateProductFields(product, changes, crumbToken) {
                 if (salePrice > 0 && salePrice < regularPrice) {
                     updatedVariant.onSale = true;
                 } else if (salePrice >= regularPrice && salePrice > 0) {
-                    // Sale price is invalid, set to slightly less than regular price
-                    updatedVariant.salePrice.decimalValue = String(Math.max(0.01, regularPrice - 0.01));
+                    // Sale price is invalid, set to slightly less than regular price (allow $0.00)
+                    updatedVariant.salePrice.decimalValue = String(Math.max(0, regularPrice - 0.01));
                     updatedVariant.onSale = true;
                     console.warn(`⚠️ Sale price ${salePrice} was >= regular price ${regularPrice} for variant ${variant.id}, adjusted to ${updatedVariant.salePrice.decimalValue}`);
                 } else {
@@ -1640,6 +1656,30 @@ async function saveChangesToSquarespace() {
             // Map field types to change properties
             if (fieldType === 'price') {
                 changesObject.price = newValue;
+                
+                // CRITICAL: When changing regular price individually, preserve existing onSale status
+                // to prevent auto-determination logic from overriding user's intent (especially for $0 sale prices)
+                
+                // Read current onSale status from the table cell (what user actually sees)
+                const onSaleCell = row.querySelector('.col-on-sale');
+                let currentOnSaleStatus = 'No'; // default
+                
+                if (onSaleCell) {
+                    const onSaleText = onSaleCell.textContent.trim();
+                    if (onSaleText.includes('Yes')) {
+                        currentOnSaleStatus = 'Yes';
+                    } else if (onSaleText.includes('No')) {
+                        currentOnSaleStatus = 'No';
+                    }
+                    // Note: Mixed status (for master products with mixed variants) is not preserved
+                    // as individual price changes apply to specific products/variants
+                }
+                
+                changesObject.onSale = currentOnSaleStatus;
+                console.log(`🔒 Preserving ${isVariantRow ? 'variant' : 'product'} onSale status: ${currentOnSaleStatus} (regular price: ${newValue})`);
+                
+                // Additional note: This preserves sale status when changing regular prices
+                // User intent: If they have a $0 sale price with onSale=Yes, changing regular price shouldn't disable the sale
             } else if (fieldType === 'title') {
                 if (!isVariantRow) changesObject.title = newValue;
             } else if (fieldType === 'url') {
@@ -1648,6 +1688,30 @@ async function saveChangesToSquarespace() {
                 changesObject.sku = newValue;
             } else if (fieldType === 'salePrice') {
                 changesObject.salePrice = newValue;
+                
+                // CRITICAL: When changing sale price individually, preserve existing onSale status
+                // to prevent auto-determination logic from overriding user's intent
+                
+                // Read current onSale status from the table cell (what user actually sees)
+                const onSaleCell = row.querySelector('.col-on-sale');
+                let currentOnSaleStatus = 'No'; // default
+                
+                if (onSaleCell) {
+                    const onSaleText = onSaleCell.textContent.trim();
+                    if (onSaleText.includes('Yes')) {
+                        currentOnSaleStatus = 'Yes';
+                    } else if (onSaleText.includes('No')) {
+                        currentOnSaleStatus = 'No';
+                    }
+                    // Note: Mixed status (for master products with mixed variants) is not preserved
+                    // as individual sale price changes apply to specific products/variants
+                }
+                
+                changesObject.onSale = currentOnSaleStatus;
+                console.log(`🔒 Preserving ${isVariantRow ? 'variant' : 'product'} onSale status: ${currentOnSaleStatus} (sale price: ${newValue})`);
+                
+                // Additional note: This preserves sale status even when setting sale price to 0
+                // User intent: If they set sale price to 0, they want a free sale, not to disable the sale
             } else if (fieldType === 'onSale') {
                 changesObject.onSale = newValue;
             } else if (fieldType === 'status') {
@@ -8484,6 +8548,10 @@ function initializeProgressTracking() {
                         // Small delay to ensure DOM elements are fully rendered before resetting filters
                         setTimeout(() => {
                             resetAllFilters();
+                            // Update bulk adjust button state after clearing selections
+                            if (typeof updateBulkAdjustButton === 'function') {
+                                updateBulkAdjustButton();
+                            }
                         }, 100);
                     }).catch(error => {
                         console.error('❌ COMPLETION: Failed to reload product table:', error);
@@ -9726,26 +9794,17 @@ function initializeProductUpdateAPI() {
                     // If onSale is explicitly set, respect the user's choice
                     if (variantChanges.onSale === 'Yes') {
                         updatedVariant.onSale = true;
-                        // Only adjust sale price if it's greater than or equal to regular price
-                        if (salePrice >= regularPrice && salePrice > 0) {
-                            updatedVariant.salePrice.decimalValue = String(Math.max(0.01, regularPrice - 0.01));
-                            console.warn(`⚠️ Sale price ${salePrice} was >= regular price ${regularPrice} for variant ${variant.id}, adjusted to ${updatedVariant.salePrice.decimalValue}`);
+                        // Only adjust sale price if it's greater than regular price (allow $0 sale prices)
+                        if (salePrice > regularPrice) {
+                            updatedVariant.salePrice.decimalValue = String(Math.max(0, regularPrice - 0.01));
+                            console.warn(`⚠️ Sale price ${salePrice} was > regular price ${regularPrice} for variant ${variant.id}, adjusted to ${updatedVariant.salePrice.decimalValue}`);
                         }
                     } else {
                         updatedVariant.onSale = false;
                     }
                 } else {
-                    // Auto-determine onSale based on valid sale price
-                    if (salePrice > 0 && salePrice < regularPrice) {
-                        updatedVariant.onSale = true;
-                    } else if (salePrice >= regularPrice && salePrice > 0) {
-                        // Sale price is invalid, set to slightly less than regular price
-                        updatedVariant.salePrice.decimalValue = String(Math.max(0.01, regularPrice - 0.01));
-                        updatedVariant.onSale = true;
-                        console.warn(`⚠️ Sale price ${salePrice} was >= regular price ${regularPrice} for variant ${variant.id}, adjusted to ${updatedVariant.salePrice.decimalValue}`);
-                    } else {
-                        updatedVariant.onSale = false;
-                    }
+                    // Preserve existing onSale status when not explicitly changed
+                    updatedVariant.onSale = variant?.onSale || false;
                 }
                 
                 // Handle stock - only add qtyInStock if not unlimited
@@ -9872,9 +9931,9 @@ function initializeProductUpdateAPI() {
                 const salePrice = variant.salePrice ? parseFloat(variant.salePrice.decimalValue) : 0;
                 
                 // Fix common issues that cause API errors
-                if (regularPrice <= 0) {
-                    console.warn(`⚠️ Variant ${index} has invalid regular price (${regularPrice}), setting to minimum 0.01`);
-                    variant.price.decimalValue = '0.01';
+                if (regularPrice < 0) {
+                    console.warn(`⚠️ Variant ${index} has invalid regular price (${regularPrice}), setting to 0.00`);
+                    variant.price.decimalValue = '0.00';
                 }
                 
                 // User can set any sale price they want - no validation needed for sale price vs regular price
@@ -9895,9 +9954,9 @@ function initializeProductUpdateAPI() {
             const regularPrice = parseFloat(payload.price.decimalValue);
             const salePrice = parseFloat(payload.salePrice.decimalValue);
             
-            if (regularPrice <= 0) {
-                console.warn(`⚠️ Digital product has invalid regular price (${regularPrice}), setting to minimum 0.01`);
-                payload.price.decimalValue = '0.01';
+            if (regularPrice < 0) {
+                console.warn(`⚠️ Digital product has invalid regular price (${regularPrice}), setting to 0.00`);
+                payload.price.decimalValue = '0.00';
             }
             
             
@@ -10225,13 +10284,18 @@ async function saveBulkChangesToSquarespace(selectedProducts) {
             }
             
             
-            // Handle $0 products for percentage adjustments
+            // Handle $0 products for different adjustment types
             if (currentPrice <= 0) {
                 if (currentBulkChanges.regularAdjustmentType === 'percentage') {
-                    const adjustment = 1 + (currentBulkChanges.priceAdjustment / 100);
-                    calculatedValue = (1 * adjustment).toFixed(2); // Use $1 as base for percentage
-                } else {
-                    console.warn(`⚠️ Invalid base price (${currentPrice}) for non-percentage adjustment, skipping price calculation`);
+                    // Percentage of $0 is always $0, so skip calculation
+                    calculatedValue = '0.00';
+                } else if (currentBulkChanges.regularAdjustmentType === 'fixed-adjustment') {
+                    // Fixed amount adjustment: $0 + amount = amount (but never below $0)
+                    const adjustedPrice = currentPrice + currentBulkChanges.priceAdjustment;
+                    calculatedValue = Math.max(0, adjustedPrice).toFixed(2);
+                } else if (currentBulkChanges.regularAdjustmentType === 'fixed-price') {
+                    // Fixed price setting works fine regardless of current price
+                    calculatedValue = currentBulkChanges.fixedPrice.toFixed(2);
                 }
             } else {
                 // Calculate new price based on bulk changes for non-zero prices
@@ -10328,7 +10392,8 @@ async function saveBulkChangesToSquarespace(selectedProducts) {
         }
         
         // ROUNDING-ONLY PROCESSING FOR SALE PRICES - Handle cases where only rounding is enabled for sale prices
-        if (currentBulkChanges.enableRounding && 
+        // Exclude Gift Cards from sale price rounding as they cannot have sale prices
+        if (currentBulkChanges.enableRounding && !isGiftCardProduct &&
             (currentBulkChanges.saleDiscount === null || currentBulkChanges.saleDiscount === undefined || currentBulkChanges.saleDiscount === '')) {
             
             let currentSalePrice = 0;
@@ -10395,8 +10460,10 @@ async function saveBulkChangesToSquarespace(selectedProducts) {
             }
         }
         
-        // BULK SALE PRICE PROCESSING - Handle sale price changes independently
-        if (currentBulkChanges.saleDiscount !== null && currentBulkChanges.saleDiscount !== undefined && currentBulkChanges.saleDiscount !== '') {
+            // BULK SALE PRICE PROCESSING - Handle sale price changes independently
+            // Exclude Gift Cards from sale price adjustments as they cannot be on sale
+            const isGiftCardProduct = originalProduct.storeItem?.productType === "GIFT_CARD";
+            if (currentBulkChanges.saleDiscount !== null && currentBulkChanges.saleDiscount !== undefined && currentBulkChanges.saleDiscount !== '' && !isGiftCardProduct) {
             
             // Determine the calculation source (regular price vs current sale price)
             const calculationSource = currentBulkChanges.saleCalculationSource || 'regular-price';
@@ -10406,6 +10473,18 @@ async function saveBulkChangesToSquarespace(selectedProducts) {
             // Check if this is a digital or service product
             const isDigitalProduct = originalProduct.storeItem?.productType === "DIGITAL";
             const isServiceProduct = originalProduct.storeItem?.productType === "SERVICE";
+            
+            // DEBUG: Log service product calculation details
+            if (isServiceProduct) {
+                console.log(`🔍 SERVICE PRODUCT DEBUG - ${originalProduct.title}:`);
+                console.log(`  Calculation source: ${calculationSource}`);
+                console.log(`  Product salePriceCents: ${originalProduct.storeItem?.salePriceCents}`);
+                console.log(`  Product variants:`, originalProduct.storeItem?.variants?.map(v => ({ 
+                    salePrice: v.salePrice, 
+                    price: v.price, 
+                    onSale: v.onSale 
+                })));
+            }
             
             if (calculationSource === 'regular-price') {
                 // Calculate from regular price
@@ -10454,15 +10533,37 @@ async function saveBulkChangesToSquarespace(selectedProducts) {
                     // For master products, get current sale price
                     if (isDigitalProduct || isServiceProduct) {
                         // Digital/Service products: check product-level sale price first
-                        if (originalProduct.storeItem?.salePriceCents !== null && originalProduct.storeItem?.salePriceCents !== undefined) {
+                        // For service products, skip product-level salePriceCents if it's 0 (queryProductItems API issue)
+                        if (originalProduct.storeItem?.salePriceCents !== null && originalProduct.storeItem?.salePriceCents !== undefined && 
+                            originalProduct.storeItem.salePriceCents > 0) {
                             basePrice = originalProduct.storeItem.salePriceCents / 100;
                         } else if (originalProduct.storeItem?.salePrice) {
                             basePrice = typeof originalProduct.storeItem.salePrice === 'object' && originalProduct.storeItem.salePrice.decimalValue ? 
                                 parseFloat(originalProduct.storeItem.salePrice.decimalValue) : 
                                 parseFloat(originalProduct.storeItem.salePrice);
+                        } else if (isServiceProduct && originalProduct.storeItem?.variants?.length > 0) {
+                            // Service products from queryProductItems API store sale price in variant data
+                            const serviceVariant = originalProduct.storeItem.variants[0];
+                            console.log(`🔍 SERVICE VARIANT CHECK:`, {
+                                salePrice: serviceVariant?.salePrice,
+                                salePriceType: typeof serviceVariant?.salePrice,
+                                onSale: serviceVariant?.onSale
+                            });
+                            if (serviceVariant?.salePrice !== null && serviceVariant?.salePrice !== undefined) {
+                                // Handle both API formats: number (queryProductItems) vs object (native API)
+                                const salePriceCents = typeof serviceVariant.salePrice === 'object' && serviceVariant.salePrice.value !== undefined ? 
+                                    serviceVariant.salePrice.value : serviceVariant.salePrice;
+                                basePrice = salePriceCents / 100;
+                                console.log(`✅ SERVICE SALE PRICE FOUND: ${salePriceCents} cents = $${basePrice}`);
+                            } else {
+                                // If no sale price exists, use $1 as base for calculation
+                                basePrice = 1;
+                                console.log(`❌ NO SERVICE SALE PRICE FOUND, using fallback: $${basePrice}`);
+                            }
                         } else {
                             // If no sale price exists, use $1 as base for calculation
                             basePrice = 1;
+                            console.log(`❌ NO SERVICE VARIANTS FOUND, using fallback: $${basePrice}`);
                         }
                     } else {
                         // Physical products: check variants first
@@ -10548,9 +10649,9 @@ async function saveBulkChangesToSquarespace(selectedProducts) {
                 // Percentage adjustment to current sale price (+ or - based on saleDiscount value)
                 const adjustmentFactor = 1 + (currentBulkChanges.saleDiscount / 100);
                 
-                // Handle $0 sale prices by using $1 as base for percentage calculations
+                // Keep $0 sale prices at $0 during percentage adjustments
                 if (currentSalePrice <= 0) {
-                    adjustedSalePrice = 1 * adjustmentFactor; // Use $1 as base for percentage
+                    adjustedSalePrice = 0; // Keep zero prices at zero
                 } else {
                     adjustedSalePrice = currentSalePrice * adjustmentFactor;
                 }
@@ -10606,7 +10707,8 @@ async function saveBulkChangesToSquarespace(selectedProducts) {
         }
         
         // BULK SALE STATUS PROCESSING - Handle sale status changes independently  
-        if (currentBulkChanges.saleToggle && currentBulkChanges.saleToggle !== 'keep-current' && currentBulkChanges.saleToggle !== 'no-change') {
+        // Exclude Gift Cards from sale status changes as they cannot be on sale
+        if (currentBulkChanges.saleToggle && currentBulkChanges.saleToggle !== 'keep-current' && currentBulkChanges.saleToggle !== 'no-change' && !isGiftCardProduct) {
             // Sale status handling - completely independent of sale price
             if (currentBulkChanges.saleToggle === 'put-on-sale') {
                 if (isVariantRow) {
@@ -11118,6 +11220,45 @@ function showBulkDrawer() {
     
     const drawer = document.getElementById('bulk-adjust-drawer');
     if (drawer) {
+        // Clear any unsaved changes from individual table edits before opening bulk drawer
+        // Mimic what clearProductModifications() does:
+        
+        // Clear global state variables if they exist
+        if (typeof changedProducts !== 'undefined') {
+            changedProducts.clear();
+        }
+        if (typeof originalData !== 'undefined') {
+            originalData.clear();
+        }
+        if (typeof hasUnsavedChanges !== 'undefined') {
+            hasUnsavedChanges = false;
+        }
+        
+        // Remove modified classes from table cells
+        const modifiedCells = document.querySelectorAll('.modified');
+        modifiedCells.forEach(cell => {
+            cell.classList.remove('modified');
+            cell.removeAttribute('data-new-value');
+            cell.removeAttribute('data-field-type');
+        });
+        
+        // Clear any row-level change indicators
+        const modifiedRows = document.querySelectorAll('.has-changes, .modified');
+        modifiedRows.forEach(row => {
+            row.classList.remove('has-changes', 'modified');
+        });
+        
+        // Update the main table changes footer to hide any unsaved changes prompt
+        if (typeof updateChangesFooter === 'function') {
+            updateChangesFooter();
+        } else {
+            // Directly hide the changes footer
+            const changesFooter = document.getElementById('changes-footer');
+            if (changesFooter) {
+                changesFooter.classList.add('hidden');
+            }
+        }
+        
         // Reset bulk changes to ensure fresh start
         resetBulkChanges();
         
@@ -11514,7 +11655,7 @@ function updateApplyAllButton() {
     const hasChanges = 
         bulkChanges.priceAdjustment !== null ||
         bulkChanges.fixedPrice !== null ||
-        (bulkChanges.saleToggle !== 'no-change' && bulkChanges.saleToggle !== 'keep-current') ||
+        (bulkChanges.saleToggle && bulkChanges.saleToggle !== 'no-change') ||
         (bulkChanges.saleDiscount !== null && bulkChanges.saleDiscount !== 0) ||
         bulkChanges.enableRounding ||
         bulkChanges.enableStockTracking ||
@@ -11865,6 +12006,16 @@ function resetBulkChanges() {
         regularInput.classList.add('hide-spinners');
         regularInput.value = '0'; // Reset slider input to 0
         regularInput.setAttribute('data-clamped', 'true'); // Default to percentage mode
+        
+        // Reset input placeholder to percentage mode
+        regularInput.placeholder = '10 (for +10%)';
+        regularInput.step = '1';
+    }
+    
+    // Reset price unit to percentage symbol
+    const priceUnit = document.getElementById('price-unit');
+    if (priceUnit) {
+        priceUnit.textContent = '%';
     }
     
     // Reset price slider position to 0%
@@ -11887,14 +12038,14 @@ function resetBulkChanges() {
     if (bulkAdjustSalePrices) bulkAdjustSalePrices.checked = false;
     if (bulkSalePriceOptions) bulkSalePriceOptions.style.display = 'none';
 
-    // Reset sale status three-way toggle to "unchanged"
-    const saleToggleButtons = document.querySelectorAll('#bulk-sale-price-options .three-way-toggle .toggle-option');
+    // Reset sale status two-way toggle to "on-sale"
+    const saleToggleButtons = document.querySelectorAll('#bulk-sale-price-options .two-way-toggle .toggle-option');
     saleToggleButtons.forEach(btn => btn.classList.remove('active'));
-    const unchangedButton = document.querySelector('#bulk-sale-price-options .three-way-toggle .toggle-option[data-value="unchanged"]');
-    if (unchangedButton) unchangedButton.classList.add('active');
+    const onSaleButton = document.querySelector('#bulk-sale-price-options .two-way-toggle .toggle-option[data-value="on-sale"]');
+    if (onSaleButton) onSaleButton.classList.add('active');
     
     const bulkSaleStatus = document.getElementById('bulk-sale-status');
-    if (bulkSaleStatus) bulkSaleStatus.value = 'unchanged';
+    if (bulkSaleStatus) bulkSaleStatus.value = 'on-sale';
 
     // Reset sale price adjustment controls
     const saleInput = document.getElementById('bulk-sale-adjustment');
@@ -11943,21 +12094,32 @@ function resetBulkChanges() {
         salePriceSliderContainer.removeAttribute('data-slider-initialized');
     }
 
+    // Reset calculation source toggle to "Regular Price"
+    const regularPriceRadio = document.getElementById('sale-calc-regular-price');
+    const currentSaleRadio = document.getElementById('sale-calc-current-sale');
+    if (regularPriceRadio && currentSaleRadio) {
+        regularPriceRadio.checked = true;
+        currentSaleRadio.checked = false;
+        // Update button visual states
+        const regularPriceButton = document.querySelector('label[for="sale-calc-regular-price"]');
+        const currentSaleButton = document.querySelector('label[for="sale-calc-current-sale"]');
+        if (regularPriceButton && currentSaleButton) {
+            regularPriceButton.classList.add('active');
+            currentSaleButton.classList.remove('active');
+        }
+    }
+
     // SALE ON/OFF TAB RESETS
     const bulkAdjustSaleStatus = document.getElementById('bulk-adjust-sale-status');
     const bulkSaleStatusOptions = document.getElementById('bulk-sale-status-options');
     if (bulkAdjustSaleStatus) bulkAdjustSaleStatus.checked = false;
     if (bulkSaleStatusOptions) bulkSaleStatusOptions.style.display = 'none';
 
-    // Reset sale status three-way toggle to "unchanged" in Sale On/Off section
-    const saleStatusToggleButtons = document.querySelectorAll('#bulk-sale-status-options .three-way-toggle .toggle-option');
+    // Reset sale status two-way toggle to "on-sale" in Sale On/Off section
+    const saleStatusToggleButtons = document.querySelectorAll('#bulk-sale-status-options .two-way-toggle .toggle-option');
     saleStatusToggleButtons.forEach(btn => btn.classList.remove('active'));
-    const saleStatusUnchangedButton = document.querySelector('#bulk-sale-status-options .three-way-toggle .toggle-option[data-value="unchanged"]');
-    if (saleStatusUnchangedButton) saleStatusUnchangedButton.classList.add('active');
-
-    // Reset sale status tooltip (show since "unchanged" is selected by default)
-    const saleStatusTooltip = document.getElementById('sale-status-tooltip');
-    if (saleStatusTooltip) saleStatusTooltip.style.display = 'flex';
+    const saleStatusOnSaleButton = document.querySelector('#bulk-sale-status-options .two-way-toggle .toggle-option[data-value="on-sale"]');
+    if (saleStatusOnSaleButton) saleStatusOnSaleButton.classList.add('active');
 
     // CATEGORIES TAB RESETS
     // Reset add category controls
@@ -12192,6 +12354,45 @@ function initializeBulkToggles() {
             
             // Initialize slider when section becomes visible
             if (bulkAdjustRegularPrices.checked) {
+                // Reset adjustment type to percentage when toggling on
+                bulkChanges.regularAdjustmentType = 'percentage';
+                
+                // Reset the hidden select to percentage
+                const hiddenSelect = document.getElementById('bulk-regular-adjustment-type');
+                if (hiddenSelect) {
+                    hiddenSelect.value = 'percentage';
+                }
+                
+                // Reset the visible dropdown UI to show percentage as selected
+                const percentageOption = document.querySelector('.bulk-select[data-select="bulk-regular-adjustment-type"] .select-option[data-value="percentage"]');
+                const selectText = document.querySelector('.bulk-select[data-select="bulk-regular-adjustment-type"] .select-text');
+                const allOptions = document.querySelectorAll('.bulk-select[data-select="bulk-regular-adjustment-type"] .select-option');
+                
+                if (percentageOption && selectText) {
+                    // Update dropdown display text
+                    selectText.textContent = percentageOption.textContent;
+                    selectText.classList.remove('placeholder');
+                    
+                    // Update selected state visual
+                    allOptions.forEach(opt => opt.classList.remove('selected'));
+                    percentageOption.classList.add('selected');
+                }
+                
+                // Reset input placeholder and attributes to percentage mode
+                const regularInput = document.getElementById('bulk-regular-adjustment');
+                if (regularInput) {
+                    regularInput.placeholder = '10 (for +10%)';
+                    regularInput.step = '1';
+                    regularInput.setAttribute('data-clamped', 'true');
+                    regularInput.value = '0';
+                }
+                
+                // Reset price unit to percentage symbol
+                const priceUnit = document.getElementById('price-unit');
+                if (priceUnit) {
+                    priceUnit.textContent = '%';
+                }
+                
                 setTimeout(() => {
                     initializeCustomSlider();
                 }, 100); // Small delay to ensure visibility
@@ -12224,6 +12425,34 @@ function initializeBulkToggles() {
             
             // Initialize sale pricing slider when section becomes visible
             if (bulkAdjustSalePrices.checked) {
+                // Set proper defaults when sale pricing is activated
+                if (!bulkChanges.saleCalculationSource) {
+                    bulkChanges.saleCalculationSource = 'regular-price';
+                }
+                if (!bulkChanges.saleAdjustmentType) {
+                    bulkChanges.saleAdjustmentType = 'percentage';
+                }
+                // Set the -25% default when sale pricing is actually toggled on
+                if (bulkChanges.saleDiscount === null || bulkChanges.saleDiscount === undefined) {
+                    const calculationSource = bulkChanges.saleCalculationSource;
+                    const adjustmentType = bulkChanges.saleAdjustmentType;
+                    
+                    if (calculationSource === 'regular-price' && (adjustmentType === 'percentage' || adjustmentType === 'fixed-adjustment')) {
+                        bulkChanges.saleDiscount = -25;
+                        // Also update the input field
+                        const saleInput = document.getElementById('bulk-sale-adjustment');
+                        if (saleInput) {
+                            saleInput.value = '-25';
+                        }
+                    } else {
+                        bulkChanges.saleDiscount = 0;
+                        const saleInput = document.getElementById('bulk-sale-adjustment');
+                        if (saleInput) {
+                            saleInput.value = '0';
+                        }
+                    }
+                }
+                
                 setTimeout(() => {
                     setupSalePriceSliderEventHandlers();
                     initializeSalePricingSlider();
@@ -12235,20 +12464,37 @@ function initializeBulkToggles() {
                 if (bulkSalePriceValue) bulkSalePriceValue.value = '';
                 if (bulkSalePriceMethod) bulkSalePriceMethod.value = 'percentage';
                 
+                // Reset bulkChanges sale pricing values
+                bulkChanges.saleDiscount = null;
+                bulkChanges.saleAdjustmentType = null;
+                bulkChanges.saleCalculationSource = null;
+                bulkChanges.saleToggle = 'no-change';
+                
+                // Reset calculation source toggle to "Regular Price"
+                const regularPriceRadio = document.getElementById('sale-calc-regular-price');
+                const currentSaleRadio = document.getElementById('sale-calc-current-sale');
+                if (regularPriceRadio && currentSaleRadio) {
+                    regularPriceRadio.checked = true;
+                    currentSaleRadio.checked = false;
+                    // Update button visual states
+                    const regularPriceButton = document.querySelector('label[for="sale-calc-regular-price"]');
+                    const currentSaleButton = document.querySelector('label[for="sale-calc-current-sale"]');
+                    if (regularPriceButton && currentSaleButton) {
+                        regularPriceButton.classList.add('active');
+                        currentSaleButton.classList.remove('active');
+                    }
+                }
+                
                 // Reset sale action radio buttons (Sale Pricing section)
-                const saleActionKeepCurrent = document.getElementById('bulk-sale-keep-current');
-                const saleActionEnable = document.getElementById('bulk-sale-enable');
-                const saleActionDisable = document.getElementById('bulk-sale-disable');
-                if (saleActionKeepCurrent) saleActionKeepCurrent.checked = true;
-                if (saleActionEnable) saleActionEnable.checked = false;
+                const saleActionEnable = document.getElementById('bulk-sale-put-on');
+                const saleActionDisable = document.getElementById('bulk-sale-take-off');
+                if (saleActionEnable) saleActionEnable.checked = true;
                 if (saleActionDisable) saleActionDisable.checked = false;
                 
-                // Reset sale status action radio buttons (Sale On/Off section)
-                const saleStatusKeepCurrent = document.getElementById('bulk-sale-status-keep-current');
+                // Reset sale status action radio buttons (Sale On/Off section)  
                 const saleStatusPutOn = document.getElementById('bulk-sale-status-put-on');
                 const saleStatusTakeOff = document.getElementById('bulk-sale-status-take-off');
-                if (saleStatusKeepCurrent) saleStatusKeepCurrent.checked = true;
-                if (saleStatusPutOn) saleStatusPutOn.checked = false;
+                if (saleStatusPutOn) saleStatusPutOn.checked = true;
                 if (saleStatusTakeOff) saleStatusTakeOff.checked = false;
                 
                 // Reset sale price slider
@@ -12280,16 +12526,16 @@ function initializeBulkToggles() {
             
             // Reset to unchanged when toggle is turned off
             if (!bulkAdjustSaleStatus.checked) {
-                const toggleButtons = document.querySelectorAll('#bulk-sale-status-options .three-way-toggle .toggle-option');
+                const toggleButtons = document.querySelectorAll('#bulk-sale-status-options .two-way-toggle .toggle-option');
                 toggleButtons.forEach(btn => btn.classList.remove('active'));
-                const unchangedButton = document.querySelector('#bulk-sale-status-options .three-way-toggle .toggle-option[data-value="unchanged"]');
-                if (unchangedButton) unchangedButton.classList.add('active');
+                const onSaleButton = document.querySelector('#bulk-sale-status-options .two-way-toggle .toggle-option[data-value="on-sale"]');
+                if (onSaleButton) onSaleButton.classList.add('active');
                 
                 const bulkSaleStatus = document.getElementById('bulk-sale-status');
-                if (bulkSaleStatus) bulkSaleStatus.value = 'unchanged';
+                if (bulkSaleStatus) bulkSaleStatus.value = 'on-sale';
                 
                 // Reset bulkChanges
-                bulkChanges.saleToggle = 'keep-current';
+                bulkChanges.saleToggle = 'put-on-sale';
             }
             
             updatePreviewPane();
@@ -12703,8 +12949,7 @@ function initializeBulkControls() {
                 }
                 
                 // Update legacy radio buttons for compatibility
-                const correspondingRadio = value === 'unchanged' ? 'bulk-sale-keep-current' :
-                                         value === 'on-sale' ? 'bulk-sale-put-on' : 'bulk-sale-take-off';
+                const correspondingRadio = value === 'on-sale' ? 'bulk-sale-put-on' : 'bulk-sale-take-off';
                 const radioElement = document.getElementById(correspondingRadio);
                 if (radioElement) {
                     radioElement.checked = true;
@@ -12717,9 +12962,9 @@ function initializeBulkControls() {
     }
 
     // Three-way toggle for sale status (in Sale On/Off section)
-    const saleStatusThreeWayToggle = document.querySelector('#bulk-sale-status-options .three-way-toggle');
-    if (saleStatusThreeWayToggle) {
-        const toggleOptions = saleStatusThreeWayToggle.querySelectorAll('.toggle-option');
+    const saleStatusTwoWayToggle = document.querySelector('#bulk-sale-status-options .two-way-toggle');
+    if (saleStatusTwoWayToggle) {
+        const toggleOptions = saleStatusTwoWayToggle.querySelectorAll('.toggle-option');
         const hiddenInput = document.getElementById('bulk-sale-status');
         
         toggleOptions.forEach(option => {
@@ -12736,22 +12981,14 @@ function initializeBulkControls() {
                     hiddenInput.value = value;
                 }
                 
-                // Update bulkChanges object
-                bulkChanges.saleToggle = value === 'unchanged' ? 'keep-current' : 
-                                       value === 'on-sale' ? 'put-on-sale' : 'take-off-sale';
+                // Update bulkChanges object (simplified for two-way toggle)
+                bulkChanges.saleToggle = value === 'on-sale' ? 'put-on-sale' : 'take-off-sale';
                 
                 // Update the NEW independent radio buttons for Sale On/Off section
-                const correspondingRadio = value === 'unchanged' ? 'bulk-sale-status-keep-current' :
-                                         value === 'on-sale' ? 'bulk-sale-status-put-on' : 'bulk-sale-status-take-off';
+                const correspondingRadio = value === 'on-sale' ? 'bulk-sale-status-put-on' : 'bulk-sale-status-take-off';
                 const radioElement = document.getElementById(correspondingRadio);
                 if (radioElement) {
                     radioElement.checked = true;
-                }
-                
-                // Show/hide tooltip based on selection
-                const saleStatusTooltip = document.getElementById('sale-status-tooltip');
-                if (saleStatusTooltip) {
-                    saleStatusTooltip.style.display = value === 'unchanged' ? 'flex' : 'none';
                 }
                 
                 updateApplyAllButton();
@@ -13057,28 +13294,9 @@ function initializeCustomSlider() {
     setValue(0, true);
     
     setupPriceSliderEventHandlers();
-    setupSalePriceSliderEventHandlers();
+    // Don't setup sale price handlers here - only when sale pricing is actually toggled on
     
-    // Set proper defaults for sale pricing before initialization
-    if (!bulkChanges.hasOwnProperty('saleCalculationSource')) {
-        bulkChanges.saleCalculationSource = 'regular-price';
-    }
-    if (!bulkChanges.hasOwnProperty('saleAdjustmentType')) {
-        bulkChanges.saleAdjustmentType = 'percentage';
-    }
-    if (!bulkChanges.hasOwnProperty('saleDiscount')) {
-        // Set default based on calculation source and adjustment type
-        if (bulkChanges.saleCalculationSource === 'regular-price' && (bulkChanges.saleAdjustmentType === 'percentage' || bulkChanges.saleAdjustmentType === 'fixed-adjustment')) {
-            bulkChanges.saleDiscount = -25;
-            // Also set the input value
-            const salePriceInput = document.getElementById('bulk-sale-adjustment');
-            if (salePriceInput) {
-                salePriceInput.value = '-25';
-            }
-        } else {
-            bulkChanges.saleDiscount = 0;
-        }
-    }
+    // Don't set sale pricing defaults here - let them be set only when sale pricing is activated
     
     initializeSalePricingSlider();
 }
@@ -13215,7 +13433,7 @@ function setupPriceSliderEventHandlers() {
                 }
             }
             
-            // Update input placeholder based on selection
+            // Update input placeholder and price unit based on selection
             if (regularInput) {
                 switch (adjustmentType) {
                     case 'percentage':
@@ -13232,6 +13450,22 @@ function setupPriceSliderEventHandlers() {
                         regularInput.placeholder = '29.99 (set to $29.99)';
                         regularInput.step = '1';
                         regularInput.removeAttribute('data-clamped');
+                        break;
+                }
+            }
+            
+            // Update price unit symbol based on adjustment type
+            const priceUnit = document.getElementById('price-unit');
+            if (priceUnit) {
+                switch (adjustmentType) {
+                    case 'percentage':
+                        priceUnit.textContent = '%';
+                        break;
+                    case 'fixed-adjustment':
+                    case 'fixed-price':
+                        // Use the global currency manager if available
+                        const currencyCode = window.currencyManager ? window.currencyManager.getCurrencyCode() : (window.getSystemCurrency?.() || 'USD');
+                        priceUnit.textContent = currencyCode;
                         break;
                 }
             }
@@ -13567,7 +13801,7 @@ function setupSaleCalculationSourceToggle() {
         if (selectedValue === 'regular-price') {
             tooltipText.textContent = "Discount is calculated from each product's original regular price.";
         } else {
-            tooltipText.textContent = "Discount is calculated from each product's current sale price. If the sale price is $0 or not set, calculation starts from $1.";
+            tooltipText.textContent = "Discount is calculated from each product's current sale price. Products with $0 sale prices will remain at $0.";
         }
     }
     
@@ -13856,20 +14090,11 @@ function initializeSalePricingSlider() {
         setSaleSliderValue(value, true); // Pass true to indicate this is from user input
     });
 
-    // Initialize with appropriate default value based on calculation source
-    const calculationSource = bulkChanges.saleCalculationSource || 'regular-price';
-    const adjustmentType = bulkChanges.saleAdjustmentType || 'percentage';
-    
-    let defaultValue;
-    if (calculationSource === 'regular-price' && (adjustmentType === 'percentage' || adjustmentType === 'fixed-adjustment')) {
-        // For regular price (percentage or fixed-adjustment): default to -25
-        defaultValue = bulkChanges.saleDiscount || -25;
-    } else {
-        // For current sale price or fixed-price: default to 0
-        defaultValue = bulkChanges.saleDiscount || 0;
+    // Initialize with current value if it exists, otherwise don't set any default
+    // This prevents setting defaults when sale pricing isn't actually being used
+    if (bulkChanges.saleDiscount !== null && bulkChanges.saleDiscount !== undefined) {
+        setSaleSliderValue(bulkChanges.saleDiscount);
     }
-    
-    setSaleSliderValue(defaultValue);
 }
 
 // Initialize custom dropdowns (EXACT from reference)
@@ -15994,6 +16219,7 @@ function calculateProductPreview(product) {
     if (product.storeItem) {
         const isDigitalProduct = product.storeItem.productType === "DIGITAL";
         const isServiceProduct = product.storeItem.productType === "SERVICE";
+        const isGiftCardProduct = product.storeItem.productType === "GIFT_CARD";
         
         
         if (isDigitalProduct) {
@@ -16013,17 +16239,42 @@ function calculateProductPreview(product) {
                 const serviceVariant = product.storeItem.variants[0];
                 currentPrice = serviceVariant?.price ? serviceVariant.price / 100 : 0;
                 
-                if (serviceVariant?.onSale && serviceVariant?.salePrice > 0) {
-                    currentSalePrice = serviceVariant.salePrice / 100;
-                    isOnSale = true;
+                if (serviceVariant?.salePrice !== null && serviceVariant?.salePrice !== undefined) {
+                    // Service products can store sale price as either:
+                    // 1. A number in cents (queryProductItems API)
+                    // 2. An object with value property (native API)
+                    const salePriceCents = typeof serviceVariant.salePrice === 'object' && serviceVariant.salePrice.value !== undefined ? 
+                        serviceVariant.salePrice.value : serviceVariant.salePrice;
+                    console.log(`🔍 PREVIEW SERVICE VARIANT: onSale=${serviceVariant?.onSale}, salePrice=${serviceVariant?.salePrice}, salePriceCents=${salePriceCents}`);
+                    if (salePriceCents > 0) {
+                        currentSalePrice = salePriceCents / 100;
+                        // Only set isOnSale if the product is actually on sale, but always extract the sale price for calculations
+                        isOnSale = serviceVariant?.onSale || false;
+                        console.log(`✅ PREVIEW SERVICE SALE PRICE SET: $${currentSalePrice}, isOnSale=${isOnSale}`);
+                    }
                 }
             }
             
-            // Check for service product sale pricing
-            if (product.storeItem?.onSale && product.storeItem?.salePriceCents > 0) {
+            // Check for service product sale pricing - skip if service product has salePriceCents: 0 (queryProductItems API issue)
+            // Also skip if we already found a valid sale price from variant data (don't override)
+            console.log(`🔍 PREVIEW PRODUCT LEVEL CHECK: onSale=${product.storeItem?.onSale}, salePriceCents=${product.storeItem?.salePriceCents}, isServiceProduct=${isServiceProduct}, currentSalePrice=${currentSalePrice}`);
+            if (currentSalePrice === null && product.storeItem?.onSale && product.storeItem?.salePriceCents > 0 && 
+                !(isServiceProduct && product.storeItem.salePriceCents === 0)) {
                 currentSalePrice = product.storeItem.salePriceCents / 100;
                 isOnSale = true;
+                console.log(`✅ PREVIEW PRODUCT LEVEL OVERRIDE: $${currentSalePrice}`);
+            } else {
+                console.log(`❌ PREVIEW PRODUCT LEVEL SKIPPED: already have sale price or condition failed`);
             }
+        } else if (isGiftCardProduct) {
+            // Gift cards - show variant pricing since they have different denominations
+            if (product.storeItem.variants?.length > 0) {
+                const giftCardVariant = product.storeItem.variants[0];
+                currentPrice = giftCardVariant?.price ? giftCardVariant.price / 100 : 0;
+            }
+            // Gift cards cannot have sale prices
+            currentSalePrice = null;
+            isOnSale = false;
         } else {
             // Physical products
             primaryVariant = product.storeItem.variants && product.storeItem.variants[0];
@@ -16070,7 +16321,7 @@ function calculateProductPreview(product) {
         if (bulkChanges.fixedPrice !== null) {
             newPrice = bulkChanges.fixedPrice;
             priceChanged = true;
-            if (bulkChanges.fixedApplyToSale && currentSalePrice) {
+            if (bulkChanges.fixedApplyToSale && currentSalePrice && !isGiftCardProduct) {
                 newSalePrice = bulkChanges.fixedPrice;
                 // Apply sale price validation constraints
                 if (newSalePrice < 0) {
@@ -16088,10 +16339,10 @@ function calculateProductPreview(product) {
             } else if (bulkChanges.regularAdjustmentType === 'fixed-price') {
                 newPrice = bulkChanges.priceAdjustment;
             } else {
-                // Percentage adjustment - handle $0 prices by using $1 as base
+                // Percentage adjustment - keep $0 prices at $0
                 const adjustment = 1 + (bulkChanges.priceAdjustment / 100);
                 if (currentPrice <= 0) {
-                    newPrice = 1 * adjustment; // Use $1 as base for percentage
+                    newPrice = 0; // Keep zero prices at zero
                 } else {
                     newPrice = currentPrice * adjustment;
                 }
@@ -16104,17 +16355,17 @@ function calculateProductPreview(product) {
             
             priceChanged = true;
             
-            if (bulkChanges.applyToSale && currentSalePrice) {
+            if (bulkChanges.applyToSale && currentSalePrice && !isGiftCardProduct) {
                 // Apply same adjustment to sale price
                 if (bulkChanges.regularAdjustmentType === 'fixed-adjustment') {
                     newSalePrice = currentSalePrice + bulkChanges.priceAdjustment;
                 } else if (bulkChanges.regularAdjustmentType === 'fixed-price') {
                     newSalePrice = bulkChanges.priceAdjustment;
                 } else {
-                    // Apply percentage adjustment with $1 base for $0 sale prices
+                    // Apply percentage adjustment - keep $0 sale prices at $0
                     const adjustment = 1 + (bulkChanges.priceAdjustment / 100);
                     if (currentSalePrice <= 0) {
-                        newSalePrice = 1 * adjustment; // Use $1 as base for percentage
+                        newSalePrice = 0; // Keep zero prices at zero
                     } else {
                         newSalePrice = currentSalePrice * adjustment;
                     }
@@ -16139,9 +16390,9 @@ function calculateProductPreview(product) {
             if (calculationSource === 'current-sale' && currentSalePrice !== null && currentSalePrice >= 0) {
                 // Calculate from current sale price
                 if (bulkChanges.saleAdjustmentType === 'percentage') {
-                    // Handle $0 sale prices by using $1 as base for percentage calculations
+                    // Keep $0 sale prices at $0 for percentage calculations
                     if (currentSalePrice <= 0) {
-                        newSalePrice = 1 * (1 + bulkChanges.saleDiscount / 100); // Use $1 as base
+                        newSalePrice = 0; // Keep zero prices at zero
                     } else {
                         newSalePrice = currentSalePrice * (1 + bulkChanges.saleDiscount / 100);
                     }
@@ -16152,12 +16403,13 @@ function calculateProductPreview(product) {
                 }
             } else {
                 // Calculate from regular price (default behavior)
-                const basePrice = priceChanged ? newPrice : currentPrice;
+                // Always use the CURRENT/ORIGINAL regular price, not the proposed new price
+                const basePrice = currentPrice;
                 
                 if (bulkChanges.saleAdjustmentType === 'percentage') {
-                    // Handle $0 regular prices by using $1 as base for percentage calculations
+                    // Keep $0 regular prices at $0 for percentage calculations
                     if (basePrice <= 0) {
-                        newSalePrice = 1 * (1 + bulkChanges.saleDiscount / 100); // Use $1 as base
+                        newSalePrice = 0; // Keep zero prices at zero
                     } else {
                         newSalePrice = basePrice * (1 + bulkChanges.saleDiscount / 100);
                     }
@@ -16864,9 +17116,10 @@ function convertProductToTableRow(product) {
     // Check product type
     const isDigitalProduct = product.storeItem?.productType === "DIGITAL";
     const isServiceProduct = product.storeItem?.productType === "SERVICE";
+    const isGiftCardProduct = product.storeItem?.productType === "GIFT_CARD";
     
     // Get primary variant for physical products
-    const primaryVariant = !isDigitalProduct && !isServiceProduct && product.storeItem?.variants?.length > 0 ? product.storeItem.variants[0] : null;
+    const primaryVariant = !isDigitalProduct && !isServiceProduct && !isGiftCardProduct && product.storeItem?.variants?.length > 0 ? product.storeItem.variants[0] : null;
     
     // Format price from cents
     const formatPrice = (priceCents, currencyCode = null) => {
@@ -16895,11 +17148,11 @@ function convertProductToTableRow(product) {
     // Get stock quantity - digital and service products have infinite stock
     let stockText = "0";
     // Check if this is a master product with multiple variants
-    const hasMultipleVariants = !isDigitalProduct && !isServiceProduct && 
+    const hasMultipleVariants = !isDigitalProduct && !isServiceProduct && !isGiftCardProduct && 
                                product.storeItem?.variants && 
                                product.storeItem.variants.length > 1;
     
-    if (isDigitalProduct || isServiceProduct) {
+    if (isDigitalProduct || isServiceProduct || isGiftCardProduct) {
         stockText = '<span class="stock-infinite">∞</span>';
     } else if (hasMultipleVariants) {
         // Master products with multiple variants show no stock data (like onSale field)
@@ -16913,9 +17166,9 @@ function convertProductToTableRow(product) {
     // Get URL slug
     const urlSlug = product.urlId || '';
 
-    // Get SKU - digital and service products don't have SKUs, physical products show variants count or single variant SKU
+    // Get SKU - digital, service and gift card products don't have SKUs, physical products show variants count or single variant SKU
     let sku;
-    if (isDigitalProduct || isServiceProduct) {
+    if (isDigitalProduct || isServiceProduct || isGiftCardProduct) {
         sku = 'N/A';
     } else {
         const variantCount = product.storeItem?.variants?.length || 0;
@@ -16944,6 +17197,16 @@ function convertProductToTableRow(product) {
         if (product.storeItem?.onSale) {
             onSale = true;
         }
+    } else if (isGiftCardProduct) {
+        // Gift cards - show variant pricing since they have different denominations
+        if (product.storeItem.variants?.length > 0) {
+            const giftCardVariant = product.storeItem.variants[0];
+            priceText = formatPrice(giftCardVariant?.price);
+        }
+        
+        // Gift cards cannot be on sale
+        salePriceText = 'N/A';
+        onSale = false;
     } else if (isServiceProduct) {
         // Service products - check multiple price sources like digital products
         if (product.storeItem?.priceCents) {
@@ -16954,7 +17217,18 @@ function convertProductToTableRow(product) {
             priceText = formatPrice(serviceVariant?.price);
             // Show sale price if it exists, regardless of onSale status (including $0.00 free products)
             if (serviceVariant?.salePrice !== null && serviceVariant?.salePrice !== undefined) {
-                salePriceText = formatPrice(serviceVariant.salePrice);
+                // Service products can store sale price as either:
+                // 1. A number in cents (queryProductItems API)
+                // 2. An object with value property (native API)
+                const salePriceCents = typeof serviceVariant.salePrice === 'object' && serviceVariant.salePrice.value !== undefined ? 
+                    serviceVariant.salePrice.value : serviceVariant.salePrice;
+                salePriceText = formatPrice(salePriceCents);
+                
+                // IMPORTANT: Sync salePriceCents to product.storeItem for API compatibility
+                // This ensures that later API calls can access the sale price correctly
+                if (!product.storeItem.salePriceCents) {
+                    product.storeItem.salePriceCents = salePriceCents;
+                }
             }
             // Check onSale status separately
             if (serviceVariant?.onSale) {
@@ -16963,7 +17237,8 @@ function convertProductToTableRow(product) {
         }
         
         // Check for service product sale pricing (including $0.00 free products)
-        if (product.storeItem?.salePriceCents !== null && product.storeItem?.salePriceCents !== undefined) {
+        // Only override if we haven't already extracted sale price from variant data
+        if (product.storeItem?.salePriceCents !== null && product.storeItem?.salePriceCents !== undefined && !salePriceText) {
             salePriceText = formatPrice(product.storeItem.salePriceCents);
         }
         // Check onSale status separately
@@ -17053,9 +17328,9 @@ function convertProductToTableRow(product) {
         salePrice: salePriceText || "N/A",
         onSale: onSale,
         stock: stockText,
-        stockEditable: !hasMultipleVariants && !isDigitalProduct && !isServiceProduct, // Stock is not editable for master products with multiple variants
-        onSaleEditable: !hasMultipleVariants, // OnSale is not editable for master products with multiple variants
-        type: isServiceProduct ? 'Service' : (isDigitalProduct ? 'Digital' : 'Physical'),
+        stockEditable: !hasMultipleVariants && !isDigitalProduct && !isServiceProduct && !isGiftCardProduct, // Stock is not editable for master products with multiple variants
+        onSaleEditable: !hasMultipleVariants && !isGiftCardProduct, // OnSale is not editable for master products with multiple variants or gift cards
+        type: isServiceProduct ? 'Service' : (isDigitalProduct ? 'Digital' : (isGiftCardProduct ? 'Gift Card' : 'Physical')),
         status: status,
         scheduledDate: scheduledDate,
         rawProduct: product // Keep reference to original product data
@@ -17129,6 +17404,7 @@ function createProductRow(rowData) {
         <td class="col-price">${rowData.price}</td>
         <td class="col-sale-price">${rowData.salePrice}</td>
         <td class="col-on-sale">${
+            rowData.type === 'Gift Card' ? '<span class="status-badge non-applicable">N/A</span>' :
             rowData.onSale === "mixed" ? '<span class="status-badge scheduled">Mixed</span>' :
             rowData.onSale ? '<span class="status-badge public">Yes</span>' : 
             '<span class="status-badge hidden">No</span>'
@@ -18120,10 +18396,15 @@ function toggleVariantRows(masterRow, product) {
             }
         }
         
-        if (variant.salePrice && variant.salePrice > 0) {
+        // Show sale price if it exists (including $0.00 free sales)
+        if (variant.salePrice !== null && variant.salePrice !== undefined) {
             if (typeof variant.salePrice === 'string') {
                 salePriceText = variant.salePrice;
+            } else if (typeof variant.salePrice === 'object' && variant.salePrice.value !== undefined) {
+                // Service products from native API store sale price as an object with value in cents
+                salePriceText = formatPrice(variant.salePrice.value);
             } else {
+                // Service products from queryProductItems API store sale price as number in cents
                 salePriceText = formatPrice(variant.salePrice);
             }
         }
@@ -19334,7 +19615,10 @@ function initializeTableInteractions() {
             const cell = e.target.closest('td');
             const row = cell.closest('tr');
             const cellText = cell.textContent.trim();
-            if (row && row.classList.contains('mix') && !cell.querySelector('input')) {
+            // Check if this is a Gift Card (cannot have sale prices)
+            const typeCell = row.querySelector('.col-type');
+            const isGiftCard = typeCell && typeCell.textContent.trim() === 'Gift Card';
+            if (row && row.classList.contains('mix') && !cell.querySelector('input') && !isGiftCard) {
                 makeFieldEditable(cell, row, 'salePrice');
             }
         }
@@ -19344,7 +19628,10 @@ function initializeTableInteractions() {
             const row = cell.closest('tr');
             // Don't allow editing if it shows "Mixed" status for master products
             const isMixedStatus = cell.textContent.includes('Mixed');
-            if (row && row.classList.contains('mix') && !isMixedStatus) {
+            // Check if this is a Gift Card (cannot be on sale)
+            const typeCell = row.querySelector('.col-type');
+            const isGiftCard = typeCell && typeCell.textContent.trim() === 'Gift Card';
+            if (row && row.classList.contains('mix') && !isMixedStatus && !isGiftCard) {
                 makeFieldEditable(cell, row, 'onSale');
             }
         }
@@ -19397,7 +19684,13 @@ function initializeTableInteractions() {
         } else if (priceCell && priceCell.closest('.mix') && !priceCell.querySelector('input')) {
             priceCell.title = 'Click to edit price';
         } else if (salePriceCell && salePriceCell.closest('.mix') && !salePriceCell.querySelector('input')) {
-            salePriceCell.title = 'Click to edit sale price';
+            // Check if this is a Gift Card (cannot have sale prices)
+            const row = salePriceCell.closest('tr');
+            const typeCell = row.querySelector('.col-type');
+            const isGiftCard = typeCell && typeCell.textContent.trim() === 'Gift Card';
+            if (!isGiftCard) {
+                salePriceCell.title = 'Click to edit sale price';
+            }
         } else if (stockCell && stockCell.closest('.mix') && !stockCell.classList.contains('non-editable')) {
             stockCell.title = 'Click to edit stock level';
         } else if (statusCell && statusCell.closest('.mix') && !statusCell.querySelector('select')) {
@@ -19785,6 +20078,9 @@ function makeFieldEditable(cell, row, fieldType) {
                 // Track changes globally when confirmed or for status fields
                 if (typeof trackChanges === 'function') {
                     trackChanges(cell, row);
+                } else {
+                    // Handle individual product updates directly
+                    handleIndividualProductUpdate(cell, row);
                 }
             }
             
@@ -20944,6 +21240,70 @@ window.saveScheduledDate = saveScheduledDate;
 window.initializeSchedulePopup = initializeSchedulePopup;
 window.updateScheduledColumnVisibility = updateScheduledColumnVisibility;
 window.addScheduledDateToRow = addScheduledDateToRow;
+
+// Function to handle individual product updates without auto-toggling sale status
+async function handleIndividualProductUpdate(cell, row) {
+    try {
+        const productId = row.getAttribute('data-product-id');
+        const isVariantRow = row.classList.contains('variant-row');
+        
+        if (!productId) {
+            console.error('Product ID not found for individual update');
+            return;
+        }
+        
+        // Find the product in global data
+        const product = globalProductsData ? globalProductsData.find(p => p.id === productId) : null;
+        if (!product) {
+            console.error('Product not found in global data for individual update');
+            return;
+        }
+        
+        // Get field information from the cell
+        const fieldType = cell.getAttribute('data-field-type');
+        const newValue = cell.getAttribute('data-new-value');
+        
+        console.log(`📝 Marked product field ${fieldType} as changed: ${cell.getAttribute('data-original-value')} → ${newValue}`);
+        
+        // Build changes object for the specific field only
+        const changes = {};
+        changes[fieldType] = newValue;
+        
+        // For variant rows, we need to track which variant was changed
+        let variantChanges = {};
+        if (isVariantRow) {
+            const variantId = row.getAttribute('data-variant-id');
+            if (variantId) {
+                variantChanges[variantId] = changes;
+            }
+        }
+        
+        // Get crumb token
+        const crumb = getCrumbToken ? getCrumbToken() : null;
+        if (!crumb) {
+            console.error('No crumb token available for individual update');
+            return;
+        }
+        
+        // Call the update function with only the changed field
+        // This should preserve existing onSale status since we're not including it in changes
+        if (typeof window.updateProductFields === 'function') {
+            const updateData = {
+                changes: isVariantRow ? {} : changes,
+                variantChanges: isVariantRow ? variantChanges : {}
+            };
+            
+            console.log('🔄 Applying individual product update:', updateData);
+            await window.updateProductFields(product, updateData, crumb);
+            console.log('✅ Individual product update completed');
+        } else {
+            console.error('updateProductFields function not available');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error in individual product update:', error);
+    }
+}
 window.showStockPopup = showStockPopup;
 window.hideStockPopup = hideStockPopup;
 
@@ -22022,6 +22382,9 @@ let licenseValidationInProgress = false;
 // Main initialization function
 async function startApplication() {
     
+    // Clear any URL parameters that might interfere with the plugin
+    clearUrlParameters();
+    
     // Check for Chrome extension activation trigger
     const urlParams = new URLSearchParams(window.location.search);
     const siteActivated = urlParams.has('siteActivated');
@@ -22203,6 +22566,45 @@ function _0xe5da8364() {
     };
 }
 
+/**
+ * Clear URL parameters that might interfere with the plugin
+ * This prevents onboarding and other triggers from running incorrectly
+ */
+function clearUrlParameters() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const parametersToRemove = [
+            'onboard',
+            'sh-onboard', 
+            'siteActivated',
+            'welcome',
+            'tour',
+            'guide',
+            'setup'
+        ];
+        
+        let hasChanges = false;
+        
+        // Check if any parameters need to be removed
+        parametersToRemove.forEach(param => {
+            if (urlParams.has(param)) {
+                urlParams.delete(param);
+                hasChanges = true;
+            }
+        });
+        
+        // Only update URL if there were changes
+        if (hasChanges) {
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + 
+                          (urlParams.toString() ? '?' + urlParams.toString() : '');
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+            console.log('🧹 Cleared URL parameters to prevent interference');
+        }
+    } catch (error) {
+        console.warn('⚠️ Could not clear URL parameters:', error);
+    }
+}
+
 // Note: DOMContentLoaded initialization is handled by build.js, not here
 function showMessage(message, type = 'info') {
     
@@ -22286,6 +22688,7 @@ window.showMessage = showMessage;
 window.updateCurrencyHeaders = updateCurrencyHeaders;
 window.initializeLicensing = initializeLicensing;
 window._0xe5da8364 = _0xe5da8364;
+window.clearUrlParameters = clearUrlParameters;
 
     
     // Function to inject HTML and start the application
