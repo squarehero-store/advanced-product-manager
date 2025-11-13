@@ -22399,24 +22399,6 @@ async function startApplication() {
         window.history.replaceState({ path: newUrl }, '', newUrl);
     }
     
-    // Initialize and validate license first
-    try {
-        const licenseResult = await initializeLicensing();
-        
-        if (licenseResult === 'blocked') {
-            console.warn('Site not connected - app blocked');
-            return; // Don't initialize the app at all
-        } else if (licenseResult === 'demo') {
-            // Site is connected with demo token - continue in demo mode
-            console.log('Site isnt activated. Running in demo mode.');
-        } else if (licenseResult === true) {
-            // License validated - proceeding with full initialization
-        }
-    } catch (error) {
-        console.error('❌ License initialization failed:', error);
-        return;
-    }
-    
     // Initialize currency detection early
     if (window.currencyManager) {
         
@@ -22442,6 +22424,12 @@ async function startApplication() {
     
     // Setup preview toggle functionality
     setupPreviewToggle();
+    
+    // Initialize license validation in background - don't block UI
+    initializeLicensingAsync();
+    
+    // Continue with the rest of the initialization without waiting for license
+    console.log('🚀 Starting app initialization (license validation in background)');
     
     // Wait a bit to ensure all DOM elements are ready
     setTimeout(() => {
@@ -22506,7 +22494,36 @@ async function startApplication() {
             console.log('🚀 SquareHero.store Advanced Product Manager loaded');
         }, 1000);
     }, 100); // Small delay to ensure DOM is ready
-    
+}
+
+/**
+ * Initialize licensing system asynchronously without blocking UI
+ */
+async function initializeLicensingAsync() {
+    try {
+        const licenseResult = await initializeLicensing();
+        
+        if (licenseResult === 'blocked') {
+            console.warn('Site not connected - showing connection message');
+            // Could show a non-blocking notification here instead of blocking the app
+            if (window.showMessage) {
+                window.showMessage('This site is not connected to a SquareHero account. Some features may be limited.', 'warning');
+            }
+        } else if (licenseResult === 'demo') {
+            console.log('Site running in demo mode');
+            if (window.showMessage) {
+                window.showMessage('Running in demo mode. Upgrade to unlock all features.', 'info');
+            }
+        } else if (licenseResult === true) {
+            console.log('✅ License validated - full functionality enabled');
+        }
+    } catch (error) {
+        console.error('❌ License initialization failed:', error);
+        // Don't block the app, just show a warning
+        if (window.showMessage) {
+            window.showMessage('License validation failed. Running in limited mode.', 'warning');
+        }
+    }
 }
 
 /**
