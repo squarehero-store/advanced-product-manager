@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v0.9.40
+ * SquareHero Advanced Product Manager v0.9.41
  * https://squarehero.store
- * Build Date: 2025-11-17T23:27:37.084Z
+ * Build Date: 2025-11-17T23:37:36.588Z
  */
 (function() {
     'use strict';
@@ -272,11 +272,6 @@ async function updateProductFields(product, changes, crumbToken) {
         const isLegacyVariantUpdate = isVariantUpdate; // Rename for clarity
         
         // Physical product - use native Squarespace format that matches the working example
-        console.log(`🔍 Building variants array for product ${productId}:`);
-        console.log(`   - isLegacyVariantUpdate: ${isLegacyVariantUpdate}`);
-        console.log(`   - isBatchedVariantUpdate: ${isBatchedVariantUpdate}`);
-        console.log(`   - changes:`, changes);
-        
         const updatedVariants = product.storeItem?.variants?.map(variant => {
             // Determine which changes to apply to this variant
             let variantChanges;
@@ -293,18 +288,14 @@ async function updateProductFields(product, changes, crumbToken) {
                 // New: For batched variant updates, check if this variant has changes
                 if (changes.batchedVariantChanges[variant.id]) {
                     variantChanges = changes.batchedVariantChanges[variant.id];
-                    console.log(`   ✏️ Variant ${variant.id} HAS changes:`, variantChanges);
                 } else {
                     // For variants without changes, keep existing values
                     variantChanges = {};
-                    console.log(`   ⏭️ Variant ${variant.id} has NO changes (preserving original values)`);
                 }
             } else {
                 // For master product updates, apply changes to all variants
                 variantChanges = changes;
             }
-            
-            console.log(`   📦 Variant ${variant.id}: original onSale=${variant.onSale}, variantChanges.onSale=${variantChanges.onSale}`);
             
             // Build variant in native Squarespace format (matching working example)
             const updatedVariant = {
@@ -337,8 +328,6 @@ async function updateProductFields(product, changes, crumbToken) {
             // Validate sale price vs regular price and set onSale accordingly
             const regularPrice = parseFloat(updatedVariant.price.decimalValue);
             const salePrice = parseFloat(updatedVariant.salePrice.decimalValue);
-            
-            console.log(`   🔍 Before validation - Variant ${variant.id}: onSale=${updatedVariant.onSale}, variantChanges.onSale=${variantChanges.onSale}`);
             
             if (variantChanges.onSale !== undefined) {
                 // If onSale is explicitly set, use it but validate sale price
@@ -379,8 +368,6 @@ async function updateProductFields(product, changes, crumbToken) {
                 }
             }
             // else: batched update with no changes for this variant - keep original onSale value (already set on line 309)
-            
-            console.log(`   ✅ After validation - Variant ${variant.id}: FINAL onSale=${updatedVariant.onSale}`);
             
             // Handle stock - only add qtyInStock if not unlimited
             if (!updatedVariant.unlimited && variantChanges.stock !== undefined && variantChanges.stock !== '∞') {
@@ -1289,7 +1276,6 @@ function markProductAsChanged(productId, fieldName, newValue, oldValue = null) {
         originalData.set(key, oldValue);
     }
     
-    console.log(`📝 Marked product ${productId} field ${fieldName} as changed: ${oldValue} → ${newValue}`);
     
     // Update changes counter in UI
     updateChangesFooter();
@@ -1375,7 +1361,6 @@ function clearProductModifications() {
     });
     
     updateChangesFooter();
-    console.log('✅ Cleared all product modifications');
     
     // Refresh the table to reflect any updates from the server
     if (typeof loadProducts === 'function') {
@@ -1620,7 +1605,6 @@ async function saveChangesToSquarespace() {
     }
     
     const changedRows = document.querySelectorAll('.mix .modified');
-    console.log('📝 Found changed rows:', changedRows.length);
     
     const productUpdates = new Map();
     
@@ -1631,7 +1615,6 @@ async function saveChangesToSquarespace() {
         const fieldType = cell.getAttribute('data-field-type');
         const newValue = cell.getAttribute('data-new-value');
         
-        console.log(`📦 Processing change: ProductID="${productId}", Field="${fieldType}", Value="${newValue}"`);
         
         // Check if this is a variant row
         const isVariantRow = row.classList.contains('variant-row');
@@ -1784,7 +1767,6 @@ async function saveChangesToSquarespace() {
     let errorCount = 0;
 
     // PHASE 1: Create new categories first (sequential, as they're dependencies)
-    console.log('🏷️ Phase 1: Creating new categories...');
     const newCategoriesToCreate = new Set();
     
     // Collect all new categories that need to be created
@@ -1823,7 +1805,6 @@ async function saveChangesToSquarespace() {
     }
 
     // PHASE 2: Process product updates with controlled concurrency
-    console.log('📦 Phase 2: Processing product updates with concurrent requests...');
     
     // Function to process a single product update
     const processProductUpdate = async (entry, itemIndex) => {
@@ -1832,8 +1813,6 @@ async function saveChangesToSquarespace() {
         const displayName = hasVariantChanges ? 
             `${updateData.product.title} (${Object.keys(updateData.variantChanges).length} variant${Object.keys(updateData.variantChanges).length > 1 ? 's' : ''})` : 
             updateData.product.title;
-        
-        console.log(`🚀 Updating: ${displayName}`);
         
         // Update progress if available
         if (typeof globalProgress !== 'undefined' && globalProgress) {
@@ -1854,15 +1833,11 @@ async function saveChangesToSquarespace() {
                 // Add batched variant changes if any exist
                 if (hasVariantChanges) {
                     allChanges.batchedVariantChanges = updateData.variantChanges;
-                    console.log(`🔍 DEBUG: Sending batched variant changes for ${updateData.product.title}:`, JSON.stringify(updateData.variantChanges, null, 2));
                 }
-                
-                console.log(`🔍 DEBUG: allChanges being sent to API:`, JSON.stringify(allChanges, null, 2));
                 
                 productUpdateSuccess = await updateProductFields(updateData.product, allChanges, crumb);
                 
                 if (productUpdateSuccess) {
-                    console.log(`✅ Successfully updated regular fields for ${updateData.product.title}`);
                 } else {
                     console.error(`❌ Failed to update regular fields for ${updateData.product.title}`);
                 }
@@ -1902,7 +1877,6 @@ async function saveChangesToSquarespace() {
             const overallSuccess = productUpdateSuccess && categoryUpdateSuccess;
             
             if (overallSuccess) {
-                console.log(`✅ Successfully completed all updates for ${updateData.product.title}`);
                 return { success: true, updateKey, displayName };
             } else {
                 console.error(`❌ Some updates failed for ${updateData.product.title}`);
@@ -1922,7 +1896,6 @@ async function saveChangesToSquarespace() {
         let completedCount = 0;
         const totalCount = entries.length;
         
-        console.log(`🚀 Starting concurrent processing of ${totalCount} products (max ${MAX_CONCURRENT_REQUESTS} concurrent)`);
 
         const startNextRequest = async () => {
             if (entryIndex >= entries.length) return;
@@ -2001,7 +1974,6 @@ async function saveChangesToSquarespace() {
             try {
                 const redirectResult = await applyUrlRedirects();
                 if (redirectResult) {
-                    console.log('✅ URL redirects applied successfully');
                 } else {
                     console.warn('⚠️ Some URL redirects may not have been applied');
                 }
@@ -2009,7 +1981,6 @@ async function saveChangesToSquarespace() {
                 console.error('❌ Error applying URL redirects:', error);
             }
         } else {
-            console.log('ℹ️ No URL redirects to apply (size: ' + (window.urlRedirects ? window.urlRedirects.size : 0) + ')');
         }
     }
 
@@ -2145,15 +2116,10 @@ function initializeDataUtilities() {
                 const discardBtn = document.getElementById('discard-changes');
                 if (discardBtn) {
                     discardBtn.style.display = '';
-                    console.log('💾 Restored discard button display');
                 }
                 
                 // Keep the changes info hidden after save completion - it will only show again when new changes are made
                 const changesInfo = document.querySelector('.changes-info');
-                if (changesInfo) {
-                    // Keep it hidden until new changes are made
-                    console.log('💾 Keeping changes info hidden after save - will only show when new changes are made');
-                }
                 
                 // Don't call updateChangesFooter immediately - changes info will only show when new unsaved changes are made
             }
