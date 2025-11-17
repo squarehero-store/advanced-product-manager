@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v0.9.41
+ * SquareHero Advanced Product Manager v1.0.0
  * https://squarehero.store
- * Build Date: 2025-11-17T23:37:36.588Z
+ * Build Date: 2025-11-17T23:41:35.360Z
  */
 (function() {
     'use strict';
@@ -341,7 +341,6 @@ async function updateProductFields(product, changes, crumbToken) {
                 } else if (variantChanges.onSale === 'Yes') {
                     // User explicitly wants onSale=Yes, respect it even for $0 sale price (free sales)
                     updatedVariant.onSale = true;
-                    console.log(`🔒 Respecting explicit variant onSale=Yes (sale price: ${salePrice})`);
                 } else if (variantChanges.onSale === 'No') {
                     // User explicitly wants onSale=No, respect it
                     updatedVariant.onSale = false;
@@ -1993,7 +1992,6 @@ async function saveChangesToSquarespace() {
         }
     }
     
-    console.log(`📈 Save results: ${successCount} successful, ${errorCount} failed`);
     return { successCount, errorCount };
 }
 
@@ -22421,7 +22419,6 @@ async function startApplication() {
     initializeLicensingAsync();
     
     // Continue with the rest of the initialization without waiting for license
-    console.log('🚀 Starting app initialization (license validation in background)');
     
     // Wait a bit to ensure all DOM elements are ready
     setTimeout(() => {
