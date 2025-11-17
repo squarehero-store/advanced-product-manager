@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.0
+ * SquareHero Advanced Product Manager v1.0.1
  * https://squarehero.store
- * Build Date: 2025-11-17T23:41:35.360Z
+ * Build Date: 2025-11-17T23:50:25.374Z
  */
 (function() {
     'use strict';
@@ -7107,6 +7107,17 @@ function initializeSalePriceControls() {
             updateBulkChanges();
         });
     });
+    
+    // Initialize with the currently checked radio button value
+    const checkedSaleAction = document.querySelector('input[name="bulk-sale-action"]:checked');
+    if (checkedSaleAction) {
+        if (salePricingControls) {
+            salePricingControls.style.display = 
+                checkedSaleAction.value === 'put-on-sale' ? 'block' : 'none';
+        }
+        // Trigger initial updateBulkChanges to capture default value
+        updateBulkChanges();
+    }
     
     if (salePriceInput) {
         salePriceInput.addEventListener('input', debounce(updateBulkChanges, 300));
