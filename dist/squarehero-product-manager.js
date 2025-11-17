@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v0.9.39
+ * SquareHero Advanced Product Manager v0.9.40
  * https://squarehero.store
- * Build Date: 2025-11-17T23:24:23.061Z
+ * Build Date: 2025-11-17T23:27:37.084Z
  */
 (function() {
     'use strict';
@@ -360,7 +360,12 @@ async function updateProductFields(product, changes, crumbToken) {
                 } else {
                     updatedVariant.onSale = false;
                 }
-            } else {
+            } else if (!isBatchedVariantUpdate || Object.keys(variantChanges).length > 0) {
+                // Only auto-determine onSale if:
+                // 1. This is NOT a batched update (master product change), OR
+                // 2. This variant has OTHER changes (price/salePrice changed, so recalculate onSale)
+                // If it's a batched update with NO changes for this variant, keep the original onSale value
+                
                 // Auto-determine onSale based on valid sale price
                 if (salePrice > 0 && salePrice < regularPrice) {
                     updatedVariant.onSale = true;
@@ -373,6 +378,7 @@ async function updateProductFields(product, changes, crumbToken) {
                     updatedVariant.onSale = false;
                 }
             }
+            // else: batched update with no changes for this variant - keep original onSale value (already set on line 309)
             
             console.log(`   ✅ After validation - Variant ${variant.id}: FINAL onSale=${updatedVariant.onSale}`);
             
