@@ -2,7 +2,7 @@
 /*!
  * SquareHero Advanced Product Manager v0.9.38
  * https://squarehero.store
- * Build Date: 2025-11-17T23:17:47.105Z
+ * Build Date: 2025-11-17T23:23:16.814Z
  */
 (function() {
     'use strict';
@@ -272,6 +272,11 @@ async function updateProductFields(product, changes, crumbToken) {
         const isLegacyVariantUpdate = isVariantUpdate; // Rename for clarity
         
         // Physical product - use native Squarespace format that matches the working example
+        console.log(`🔍 Building variants array for product ${productId}:`);
+        console.log(`   - isLegacyVariantUpdate: ${isLegacyVariantUpdate}`);
+        console.log(`   - isBatchedVariantUpdate: ${isBatchedVariantUpdate}`);
+        console.log(`   - changes:`, changes);
+        
         const updatedVariants = product.storeItem?.variants?.map(variant => {
             // Determine which changes to apply to this variant
             let variantChanges;
@@ -288,14 +293,18 @@ async function updateProductFields(product, changes, crumbToken) {
                 // New: For batched variant updates, check if this variant has changes
                 if (changes.batchedVariantChanges[variant.id]) {
                     variantChanges = changes.batchedVariantChanges[variant.id];
+                    console.log(`   ✏️ Variant ${variant.id} HAS changes:`, variantChanges);
                 } else {
                     // For variants without changes, keep existing values
                     variantChanges = {};
+                    console.log(`   ⏭️ Variant ${variant.id} has NO changes (preserving original values)`);
                 }
             } else {
                 // For master product updates, apply changes to all variants
                 variantChanges = changes;
             }
+            
+            console.log(`   📦 Variant ${variant.id}: original onSale=${variant.onSale}, variantChanges.onSale=${variantChanges.onSale}`);
             
             // Build variant in native Squarespace format (matching working example)
             const updatedVariant = {
@@ -328,6 +337,8 @@ async function updateProductFields(product, changes, crumbToken) {
             // Validate sale price vs regular price and set onSale accordingly
             const regularPrice = parseFloat(updatedVariant.price.decimalValue);
             const salePrice = parseFloat(updatedVariant.salePrice.decimalValue);
+            
+            console.log(`   🔍 Before validation - Variant ${variant.id}: onSale=${updatedVariant.onSale}, variantChanges.onSale=${variantChanges.onSale}`);
             
             if (variantChanges.onSale !== undefined) {
                 // If onSale is explicitly set, use it but validate sale price
@@ -362,6 +373,8 @@ async function updateProductFields(product, changes, crumbToken) {
                     updatedVariant.onSale = false;
                 }
             }
+            
+            console.log(`   ✅ After validation - Variant ${variant.id}: FINAL onSale=${updatedVariant.onSale}`);
             
             // Handle stock - only add qtyInStock if not unlimited
             if (!updatedVariant.unlimited && variantChanges.stock !== undefined && variantChanges.stock !== '∞') {
@@ -1835,7 +1848,10 @@ async function saveChangesToSquarespace() {
                 // Add batched variant changes if any exist
                 if (hasVariantChanges) {
                     allChanges.batchedVariantChanges = updateData.variantChanges;
+                    console.log(`🔍 DEBUG: Sending batched variant changes for ${updateData.product.title}:`, JSON.stringify(updateData.variantChanges, null, 2));
                 }
+                
+                console.log(`🔍 DEBUG: allChanges being sent to API:`, JSON.stringify(allChanges, null, 2));
                 
                 productUpdateSuccess = await updateProductFields(updateData.product, allChanges, crumb);
                 
