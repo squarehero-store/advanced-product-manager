@@ -1,4 +1,9 @@
 
+/*!
+ * SquareHero Advanced Product Manager v0.9.38
+ * https://squarehero.store
+ * Build Date: 2025-11-17T23:17:47.105Z
+ */
 (function() {
     'use strict';
     
@@ -1589,7 +1594,6 @@ function parseCurrency(currencyString) {
 async function saveChangesToSquarespace() {
     
     const crumb = getCsrfToken();
-    console.log('🔑 Crumb token:', crumb ? 'Found' : 'NOT FOUND');
     if (!crumb) {
         console.error('❌ No crumb token found');
         alert('Unable to get authentication token. Please refresh and try again.');
