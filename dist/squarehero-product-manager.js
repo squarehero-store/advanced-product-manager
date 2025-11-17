@@ -21270,11 +21270,11 @@ async function handleIndividualProductUpdate(cell, row) {
         changes[fieldType] = newValue;
         
         // For variant rows, we need to track which variant was changed
-        let variantChanges = {};
+        let batchedVariantChanges = {};
         if (isVariantRow) {
             const variantId = row.getAttribute('data-variant-id');
             if (variantId) {
-                variantChanges[variantId] = changes;
+                batchedVariantChanges[variantId] = changes;
             }
         }
         
@@ -21290,7 +21290,7 @@ async function handleIndividualProductUpdate(cell, row) {
         if (typeof window.updateProductFields === 'function') {
             const updateData = {
                 changes: isVariantRow ? {} : changes,
-                variantChanges: isVariantRow ? variantChanges : {}
+                batchedVariantChanges: isVariantRow ? batchedVariantChanges : {}
             };
             
             console.log('🔄 Applying individual product update:', updateData);
