@@ -311,7 +311,7 @@ async function updateProductFields(product, changes, crumbToken) {
                 unlimited: variantChanges.stock !== undefined ? 
                     (variantChanges.stock === '∞') : 
                     (variant.unlimited || false),
-                onSale: false, // Will be set below after price validation
+                onSale: variant.onSale || false, // Preserve original onSale value (will be updated below if explicitly changed)
                 optionValues: variant.optionalValues || [], // Use optionalValues from Squarespace data, rename to optionValues for API
                 // Preserve original dimensions - don't default to 0 as this causes validation issues
                 width: variant.width || variant.width === 0 ? variant.width : 1,
