@@ -2,7 +2,7 @@
 /*!
  * SquareHero Advanced Product Manager v1.0.1
  * https://squarehero.store
- * Build Date: 2025-11-17T23:50:25.374Z
+ * Build Date: 2025-11-18T09:26:13.206Z
  */
 (function() {
     'use strict';
