@@ -469,27 +469,29 @@ Without them, our plugins are no longer super!
                 enabled: true,
                 deleted: false,
                 folder: false,
-                homepage: false,
-                navigationTitle: 'Product Manager 7qk3z8pl',
-                ordinal: 999,
-                publicCommentCount: 0,
-                starred: false,
+                regionName: 'default',
+                dirty: false,
+                body: null,
+                collectionType: 10,
+                typeName: 'page',
                 title: 'Advanced Product Manager',
-                type: 1,
-                typeLabel: 'page',
+                newTitle: 'Advanced Product Manager',
+                ordering: 3,
+                icon: 'page',
+                navigationTitle: 'Product Manager 7qk3z8pl',
                 urlId: CONFIG.pageUrlId,
-                fullUrl: `/${CONFIG.pageUrlId}`,
-                password: password,
-                passwordChangeRequired: false,
-                passwordProtected: true
+                type: 10,
+                headerInjectCode: headerCode,
+                passwordProtected: true,
+                password: password
             },
-            pageLevelCustomCss: '',
-            pageLevelHeaderInjection: headerCode,
-            pageLevelFooterInjection: ''
+            memberAreaData: {
+                memberAreaIds: []
+            }
         };
         
         // Create the page
-        const createResponse = await fetch(`${window.location.origin}/api/pages/CreatePage`, {
+        const createResponse = await fetch(`${window.location.origin}/api/commondata/SaveCollectionSettings`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json',
