@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.5
+ * SquareHero Advanced Product Manager v1.0.6
  * https://squarehero.store
- * Build Date: 2025-11-23T21:25:29.387Z
+ * Build Date: 2025-11-23T21:35:41.102Z
  */
 (function() {
     'use strict';
@@ -7696,7 +7696,6 @@ function applyRounding(price, roundingType, customCents) {
 
 // Helper function to reset all filters to their default state after bulk operations
 function resetAllFilters() {
-    console.log('🔄 Resetting all filters to default state');
     
     // Reset Type Filter
     const typeFilter = document.getElementById('type-filter');
@@ -7788,7 +7787,6 @@ function resetAllFilters() {
     if (sortSelect) sortSelect.dispatchEvent(new Event('change', { bubbles: true }));
     if (categoryFilter) categoryFilter.dispatchEvent(new Event('change', { bubbles: true }));
     
-    console.log('✅ All filters reset to default state');
 }
 
 // Category operation throttling system to prevent API conflicts
@@ -9945,9 +9943,7 @@ function initializeProductUpdateAPI() {
                 },
                 tags: (product.tags || []).map(tag => typeof tag === 'string' ? tag : tag.name || tag),
                 categories: (() => {
-                    console.log('🔍 DEBUG product.categories:', product.categories);
                     const result = processCategoryChanges(product);
-                    console.log('🔍 DEBUG processCategoryChanges result:', result);
                     return result;
                 })(),
                 newImageOrder: product.storeItem?.itemImages?.map(img => img.id) || [], // Preserve existing image order
@@ -11774,7 +11770,6 @@ function initializeBulkDrawer() {
     const applyAllBtn = document.getElementById('bulk-apply-all');
     if (applyAllBtn) {
         applyAllBtn.addEventListener('click', async () => {
-            console.log('🚀 Apply button clicked - starting bulk changes...');
             
             // Check if we're in demo mode
             const isDemoMode = window.licenseManager && window.licenseManager.getLicenseStatus().status === 'demo';
@@ -11795,9 +11790,6 @@ function initializeBulkDrawer() {
                 }
                 return;
             }
-            
-            console.log(`📦 Applying bulk changes to ${selectedProducts.length} selected products`);
-            console.log('🔧 Current bulk changes configuration:', bulkChanges);
             
             // Disable the apply button during processing
             applyAllBtn.disabled = true;
@@ -11844,20 +11836,17 @@ function hideBulkAdjustDrawer() {
             if (selectAllCheckbox) {
                 selectAllCheckbox.checked = false;
                 selectAllCheckbox.indeterminate = false;
-                console.log('✅ Reset select-all checkbox and cleared indeterminate state when closing drawer');
             }
             
             // Update the selected products count display
             if (typeof window.updateSelectedProductsCount === 'function') {
                 window.updateSelectedProductsCount();
-                console.log('✅ Updated selected products count when closing drawer');
             }
             
             // Reset search field (fix for dropdowns resetting but not search field)
             const searchInput = document.getElementById('search-input');
             if (searchInput) {
                 searchInput.value = '';
-                console.log('✅ Reset search field when closing drawer');
                 
                 // Trigger input event to update the filtering
                 const inputEvent = new Event('input', { bubbles: true });
@@ -11871,7 +11860,6 @@ function hideBulkAdjustDrawer() {
             const productsSelectedInfo = document.querySelector('.products-selected-info');
             if (productsSelectedInfo) {
                 productsSelectedInfo.style.display = 'flex';
-                console.log('✅ Restored products-selected-info when closing drawer');
             }
             
             // Close categories section and reset toggle
