@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.4
+ * SquareHero Advanced Product Manager v1.0.5
  * https://squarehero.store
- * Build Date: 2025-11-23T21:17:48.648Z
+ * Build Date: 2025-11-23T21:25:29.387Z
  */
 (function() {
     'use strict';
@@ -9839,10 +9839,18 @@ function initializeProductUpdateAPI() {
                 } else {
                     // Preserve existing onSale status when not explicitly changed
                     updatedVariant.onSale = variant?.onSale || false;
-                    // If onSale is false, validate sale price doesn't exceed regular price
-                    if (!updatedVariant.onSale && salePrice > regularPrice) {
-                        updatedVariant.salePrice.decimalValue = String(regularPrice);
-                        console.warn(`⚠️ Variant ${variant.id} has onSale=false but sale price ${salePrice} > regular price ${regularPrice}, adjusted to ${regularPrice}`);
+                    
+                    // Validate sale price regardless of onSale status
+                    if (salePrice > regularPrice) {
+                        if (updatedVariant.onSale) {
+                            // If on sale, adjust sale price to just below regular price
+                            updatedVariant.salePrice.decimalValue = String(Math.max(0, regularPrice - 0.01));
+                            console.warn(`⚠️ Variant ${variant.id} has onSale=true but sale price ${salePrice} > regular price ${regularPrice}, adjusted to ${updatedVariant.salePrice.decimalValue}`);
+                        } else {
+                            // If not on sale, cap sale price at regular price
+                            updatedVariant.salePrice.decimalValue = String(regularPrice);
+                            console.warn(`⚠️ Variant ${variant.id} has onSale=false but sale price ${salePrice} > regular price ${regularPrice}, adjusted to ${regularPrice}`);
+                        }
                     }
                 }
                 
