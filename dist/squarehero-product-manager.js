@@ -2,7 +2,7 @@
 /*!
  * SquareHero Advanced Product Manager v1.0.3
  * https://squarehero.store
- * Build Date: 2025-11-19T23:38:13.905Z
+ * Build Date: 2025-11-23T21:12:18.786Z
  */
 (function() {
     'use strict';
@@ -318,11 +318,11 @@ async function updateProductFields(product, changes, crumbToken) {
                     (variant.unlimited || false),
                 onSale: variant.onSale || false, // Preserve original onSale value (will be updated below if explicitly changed)
                 optionValues: variant.optionalValues || [], // Use optionalValues from Squarespace data, rename to optionValues for API
-                // Preserve original dimensions - don't default to 0 as this causes validation issues
-                width: variant.width || variant.width === 0 ? variant.width : 1,
-                height: variant.height || variant.height === 0 ? variant.height : 1, 
-                length: variant.length || variant.length === 0 ? variant.length : 1,
-                weight: variant.weight || variant.weight === 0 ? variant.weight : 1 // Preserve original weight including 0
+                // Preserve original dimensions exactly as they are (including 0)
+                width: typeof variant.width === 'number' ? variant.width : 0,
+                height: typeof variant.height === 'number' ? variant.height : 0, 
+                length: typeof variant.length === 'number' ? variant.length : 0,
+                weight: typeof variant.weight === 'number' ? variant.weight : 0
             };
             
             // Validate sale price vs regular price and set onSale accordingly
@@ -420,7 +420,10 @@ async function updateProductFields(product, changes, crumbToken) {
             },
             ...(masterProductChanges.status === 'scheduled' && visibleOn ? { publishOn: visibleOn } : {}),
             tags: (product.tags || []).map(tag => typeof tag === 'string' ? tag : tag.name), // Ensure tags are strings
-            categories: product.categories || [],
+            categories: Array.isArray(product.categories) ? 
+                product.categories
+                    .map(cat => typeof cat === 'string' ? cat : (cat.name || cat))
+                    .filter(cat => cat !== '' && cat != null) : [],
             newImageOrder: [], // Keep empty array for now - this is product images
             variantOptionOrdering: product.storeItem?.variants?.length > 0 ? 
                 [...new Set(product.storeItem.variants.flatMap(v => 
@@ -432,7 +435,7 @@ async function updateProductFields(product, changes, crumbToken) {
             customAddButtonText: 'Add To Cart', // Match successful format with capital T
             featuredProduct: false, // Keep simple default
             shareStates: [], // Keep empty array for now
-            relatedProductsConfiguration: { relatedCategories: [], relatedCategoryIds: [], strategy: "CATEGORIES" }, // Add missing relatedProductsConfiguration
+            relatedProductsConfiguration: { strategy: "CATEGORIES" }, // Match native Squarespace format
             urlId: masterProductChanges.url !== undefined ? masterProductChanges.url : product.urlId,
             regenerateUrlId: false, // Don't regenerate URL
             productAddOnsConfiguration: { productAddOns: [] } // Keep simple default
@@ -8366,6 +8369,17 @@ function convertScheduledDateToISO(scheduledDateValue) {
 function processCategoryChanges(product) {
     let currentCategories = product.categories || [];
     
+    // Extract category names if they're objects
+    if (Array.isArray(currentCategories)) {
+        currentCategories = currentCategories.map(cat => typeof cat === 'string' ? cat : (cat.name || cat));
+    }
+    
+    // Filter out empty/null categories only - keep "All" as it's a valid category
+    currentCategories = currentCategories.filter(cat => 
+        cat !== '' &&
+        cat != null
+    );
+    
     // If we have category changes configured
     if (bulkChanges.categories && ((bulkChanges.categories.toAdd && bulkChanges.categories.toAdd.length > 0) || (bulkChanges.categories.toRemove && bulkChanges.categories.toRemove.length > 0))) {
         // Start with current categories
@@ -9370,6 +9384,20 @@ function initializeProductUpdateAPI() {
         
         const productTypeText = isServiceProduct ? 'Service' : (isDigitalProduct ? 'Digital' : 'Physical');
         
+        // ⚠️ CRITICAL: Enrich product.categories from globalCategoryTreeData if missing
+        // This must happen BEFORE payload construction
+        if ((!product.categories || product.categories.length === 0) && typeof window.globalCategoryTreeData !== 'undefined' && window.globalCategoryTreeData) {
+            const productCategories = [];
+            window.globalCategoryTreeData.forEach(category => {
+                if (category.productIds && category.productIds.includes(productId)) {
+                    productCategories.push(category.name);
+                }
+            });
+            if (productCategories.length > 0) {
+                product.categories = productCategories;
+            }
+        }
+        
         if (isVariantUpdate) {
             // Legacy single variant update (shouldn't happen with new batching, but kept for compatibility)
             
@@ -9802,10 +9830,20 @@ function initializeProductUpdateAPI() {
                         }
                     } else {
                         updatedVariant.onSale = false;
+                        // When onSale is false, ensure sale price doesn't exceed regular price
+                        if (salePrice > regularPrice) {
+                            updatedVariant.salePrice.decimalValue = String(regularPrice);
+                            console.warn(`⚠️ OnSale=false but sale price ${salePrice} > regular price ${regularPrice} for variant ${variant.id}, set sale price to ${regularPrice}`);
+                        }
                     }
                 } else {
                     // Preserve existing onSale status when not explicitly changed
                     updatedVariant.onSale = variant?.onSale || false;
+                    // If onSale is false, validate sale price doesn't exceed regular price
+                    if (!updatedVariant.onSale && salePrice > regularPrice) {
+                        updatedVariant.salePrice.decimalValue = String(regularPrice);
+                        console.warn(`⚠️ Variant ${variant.id} has onSale=false but sale price ${salePrice} > regular price ${regularPrice}, adjusted to ${regularPrice}`);
+                    }
                 }
                 
                 // Handle stock - only add qtyInStock if not unlimited
@@ -9898,7 +9936,12 @@ function initializeProductUpdateAPI() {
                     ...(visibleOn ? { visibleOn } : {}) // Always include visibleOn if it exists
                 },
                 tags: (product.tags || []).map(tag => typeof tag === 'string' ? tag : tag.name || tag),
-                categories: processCategoryChanges(product),
+                categories: (() => {
+                    console.log('🔍 DEBUG product.categories:', product.categories);
+                    const result = processCategoryChanges(product);
+                    console.log('🔍 DEBUG processCategoryChanges result:', result);
+                    return result;
+                })(),
                 newImageOrder: product.storeItem?.itemImages?.map(img => img.id) || [], // Preserve existing image order
                 variantOptionOrdering: product.storeItem?.variants?.length > 0 ? 
                     [...new Set(product.storeItem.variants.flatMap(v => 
@@ -9913,11 +9956,7 @@ function initializeProductUpdateAPI() {
                 customAddButtonText: product.storeItem?.customAddButtonText || 'Add to Cart',
                 featuredProduct: product.storeItem?.featuredProduct || false,
                 shareStates: product.shareStates || [],
-                relatedProductsConfiguration: product.storeItem?.relatedProductsConfiguration || {
-                    relatedCategories: [],
-                    relatedCategoryIds: [],
-                    strategy: "CATEGORIES"
-                },
+                relatedProductsConfiguration: { strategy: "CATEGORIES" },
                 urlId: masterProductChanges.url !== undefined ? masterProductChanges.url : product.urlId,
                 regenerateUrlId: false, // Don't regenerate URL
                 ...(product.storeItem?.productFormId ? { productFormId: product.storeItem.productFormId } : {}), // Include productFormId if it exists
@@ -9974,31 +10013,6 @@ function initializeProductUpdateAPI() {
         
         // Use the reliable commerce API for updates
         const apiUrl = `${window.location.origin}/api/commerce/products/${productId}`;
-        
-        // ⚠️ CRITICAL: Get current categories from globalCategoryTreeData if available
-        let currentCategories = product.categories || [];
-        if ((!currentCategories || currentCategories.length === 0) && typeof globalCategoryTreeData !== 'undefined' && globalCategoryTreeData) {
-            
-            // Find this product in the category tree to get its current categories
-            const productCategories = [];
-            globalCategoryTreeData.forEach(category => {
-                if (category.productIds && category.productIds.includes(productId)) {
-                    productCategories.push(category.name);
-                }
-            });
-            
-            if (productCategories.length > 0) {
-                currentCategories = productCategories;
-            } else {
-            }
-        } else {
-        }
-        
-        // Update payload with current categories
-        if (payload.categories !== undefined) {
-            payload.categories = currentCategories;
-        }
-        
         
         try {
             const response = await fetch(apiUrl, {
@@ -10876,10 +10890,18 @@ async function saveBulkChangesToSquarespace(selectedProducts) {
                 return { success: true, productId: masterProductId, displayName };
             } else {
                 console.error(`❌ Failed to update ${displayName}`);
+                // Ensure API call is counted even on failure
+                if (globalProgress) {
+                    globalProgress.incrementApiCall('Product Update (Failed)', displayName);
+                }
                 return { success: false, productId: masterProductId, displayName };
             }
         } catch (error) {
             console.error(`💥 Error updating ${displayName}:`, error);
+            // Ensure API call is counted even on error
+            if (globalProgress) {
+                globalProgress.incrementApiCall('Product Update (Error)', displayName);
+            }
             return { success: false, productId: masterProductId, displayName, error };
         }
     };
