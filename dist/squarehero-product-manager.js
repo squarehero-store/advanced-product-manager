@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.7
+ * SquareHero Advanced Product Manager v1.0.8
  * https://squarehero.store
- * Build Date: 2025-11-24T22:05:35.300Z
+ * Build Date: 2025-11-26T07:45:49.341Z
  */
 (function() {
     'use strict';
@@ -6202,6 +6202,95 @@ if (document.readyState === 'loading') {
 } else {
     window.licenseManager = new _0x21c74a45();
 }
+
+
+// === PLUGIN-TRACKING UTILITY ===
+/**
+ * Plugin Tracking Utility
+ * Tracks when the plugin is opened for drip campaign purposes
+ * Only updates Firebase if it's a different day to minimize writes
+ */
+
+(function() {
+    'use strict';
+
+    /**
+     * Track plugin open by updating lastOpen in Firebase
+     * Only updates if it's a different day from the previous lastOpen
+     */
+    async function trackPluginOpen() {
+        try {
+            // Get websiteId from Squarespace
+            const websiteId = await getWebsiteId();
+            if (!websiteId) {
+                console.log('Could not get websiteId for tracking');
+                return;
+            }
+
+            // Call Firebase Cloud Function to track plugin open
+            const response = await fetch('https://trackpluginopen-n6bvhzbxla-uc.a.run.app', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    websiteId: websiteId 
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                if (result.updated) {
+                    console.log('✅ Plugin open tracked (new day)');
+                } else {
+                    console.log('ℹ️ Plugin open not tracked (same day)');
+                }
+            } else {
+                console.log('Plugin tracking response:', result.message);
+            }
+            
+        } catch (error) {
+            console.log('Error tracking plugin open:', error);
+        }
+    }
+
+    /**
+     * Get websiteId from Squarespace API
+     */
+    async function getWebsiteId() {
+        try {
+            const crumb = document.cookie.split(';')
+                .find(c => c.trim().startsWith('crumb='))
+                ?.split('=')[1];
+
+            if (!crumb) {
+                console.log('No crumb found for websiteId fetch');
+                return null;
+            }
+
+            const response = await fetch('/api/websiteInfo/GetWebsiteInfo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ crumb })
+            });
+
+            const data = await response.json();
+            return data?.websiteId || null;
+        } catch (error) {
+            console.error('Error getting websiteId:', error);
+            return null;
+        }
+    }
+
+    // Export functions
+    window.pluginTracking = {
+        trackPluginOpen
+    };
+
+})();
 
 
 // === RESPONSIVE UTILITY ===
@@ -22446,6 +22535,11 @@ async function startApplication() {
     
     // Initialize license validation in background - don't block UI
     initializeLicensingAsync();
+    
+    // Track plugin open for drip campaigns (only updates if different day)
+    if (window.pluginTracking && typeof window.pluginTracking.trackPluginOpen === 'function') {
+        window.pluginTracking.trackPluginOpen();
+    }
     
     // Continue with the rest of the initialization without waiting for license
     
