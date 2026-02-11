@@ -2,7 +2,7 @@
 /*!
  * SquareHero Advanced Product Manager v1.0.9
  * https://squarehero.store
- * Build Date: 2025-12-03T02:20:32.951Z
+ * Build Date: 2026-02-11T20:18:37.542Z
  */
 (function() {
     'use strict';
@@ -5161,6 +5161,8 @@ class _0x21c74a45 {
                 return null;
             }
 
+            console.log(`🔄 Attempting JWT refresh for site: ${siteInfo.id}`);
+
             // Call the refresh endpoint
             const response = await fetch(`${this.firebaseConfig._0x7cc61b43}/refreshJWT`, {
                 method: 'POST',
@@ -5173,6 +5175,8 @@ class _0x21c74a45 {
             const result = await response.json();
 
             if (response.ok && result.success && result.jwt) {
+                console.log(`✅ JWT refreshed successfully, expires: ${result.expiresAt}`);
+                
                 // Store the new JWT
                 const updatedLicense = {
                     ...this.currentLicense,
@@ -5187,6 +5191,13 @@ class _0x21c74a45 {
                 return result.jwt;
                 
             } else {
+                // Log detailed error information
+                console.error('❌ JWT refresh failed:', {
+                    status: response.status,
+                    licenseStatus: result.licenseStatus,
+                    error: result.error,
+                    siteId: siteInfo.id
+                });
                 return null;
             }
 
@@ -6106,9 +6117,14 @@ class _0x21c74a45 {
      * Reset site to demo mode when validation fails
      */
     async resetToDemo(reason = 'Validation failed') {
+        console.warn(`⚠️ Resetting site to demo mode. Reason: ${reason}`);
+        
         try {
             // Update Firebase to set siteActivated = false
             const siteId = await this.getSiteId();
+            
+            console.log(`📤 Updating Firebase for site ${siteId} - setting siteActivated: false`);
+            
             const response = await fetch(`${this.firebaseConfig._0x7cc61b43}/verifySiteLicense`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -6121,6 +6137,8 @@ class _0x21c74a45 {
 
             if (!response.ok) {
                 console.warn('Failed to update Firebase, proceeding with local reset');
+            } else {
+                console.log('✅ Firebase updated with reset status');
             }
         } catch (error) {
             console.error('Error updating Firebase:', error);
