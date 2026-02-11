@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.9
+ * SquareHero Advanced Product Manager v1.0.10
  * https://squarehero.store
- * Build Date: 2026-02-11T20:18:37.542Z
+ * Build Date: 2026-02-11T20:21:19.708Z
  */
 (function() {
     'use strict';
