@@ -2,7 +2,7 @@
 /*!
  * SquareHero Advanced Product Manager v1.0.11
  * https://squarehero.store
- * Build Date: 2026-02-11T20:55:29.604Z
+ * Build Date: 2026-03-09T22:47:30.396Z
  */
 (function() {
     'use strict';
@@ -1580,7 +1580,11 @@ function formatCurrency(value, currency = null) {
     }
     
     const currencyCode = currency || window.getSystemCurrency?.();
-    return currencyCode ? `${currencyCode}$${parseFloat(value).toFixed(2)}` : `$${parseFloat(value).toFixed(2)}`;
+    if (currencyCode && window.currencyManager) {
+        const symbol = window.currencyManager.getCurrencySymbol(currencyCode);
+        return `${symbol}${parseFloat(value).toFixed(2)}`;
+    }
+    return `$${parseFloat(value).toFixed(2)}`;
 }
 
 // Parse currency string to number
@@ -16387,8 +16391,8 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice) : `$${card.currentPrice.toFixed(2)}`}</span>` : ''}
-                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice) : `$${card.newPrice.toFixed(2)}`}</span>
+                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice) : `$${card.currentPrice.toFixed(2)}`)}</span>` : ''}
+                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice) : `$${card.newPrice.toFixed(2)}`)}</span>
                 </div>
             </div>
             
@@ -16396,9 +16400,9 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Sale price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow) : `$${card.oldPriceToShow.toFixed(2)}`}</span>` : ''}
+                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow) : `$${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
                     <span class="new-price changed">
-                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice) : `$${card.newSalePrice.toFixed(2)}`) : 'N/A'}
+                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice) : `$${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
                     </span>
                 </div>
             </div>` : ''}
