@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.22
+ * SquareHero Advanced Product Manager v1.0.24
  * https://squarehero.store
- * Build Date: 2026-03-10T01:46:42.864Z
+ * Build Date: 2026-03-10T01:53:23.742Z
  */
 (function() {
     'use strict';
@@ -16255,6 +16255,8 @@ function updateSampleProductCards(providedProducts = null) {
             oldPriceToShow: preview.currentSalePrice, // Show actual current sale price as old price
             newStock: preview.stockDisplay.replace('<span class="stock-display">', '').replace('</span>', ''),
             saleStatusBadge: generateSaleStatusIndicator(preview.currentPrice, preview.currentSalePrice, preview.newPrice, preview.salePrice),
+        
+        console.log('🔍 CARD currency being passed to buildProductCard:', cardData.currency, 'for:', cardData.productName);
             isOnSale: preview.currentSalePrice !==null
         };
         
@@ -16397,8 +16399,8 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice, card.currency) :  (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice, null) : `${card.currentPrice.toFixed(2)}`)}</span>` : ''}
-                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice, null) : `${card.newPrice.toFixed(2)}`)}</span>
+                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice, null) :  (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice, null) : `${card.currentPrice.toFixed(2)}`)}</span>` : ''}
+                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice, null) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice, null) : `${card.newPrice.toFixed(2)}`)}</span>
                 </div>
             </div>
             
@@ -16406,9 +16408,9 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Sale price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow, null) : `${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
+                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow, null) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow, null) : `${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
                     <span class="new-price changed">
-                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice, null) : `${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
+                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice, null) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice, null) : `${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
                     </span>
                 </div>
             </div>` : ''}
@@ -16439,6 +16441,12 @@ function calculateProductPreview(product) {
                           product.storeItem?.variants?.[0]?.price?.currencyCode || 
                           product.storeItem?.priceCurrency ||
                           null;
+    console.log('🔍 PREVIEW productCurrency extracted:', productCurrency, 'for product:', product.title);
+    console.log('🔍 Product data:', {
+        'price.currencyCode': product.storeItem?.price?.currencyCode,
+        'variants[0].price.currencyCode': product.storeItem?.variants?.[0]?.price?.currencyCode,
+        'priceCurrency': product.storeItem?.priceCurrency
+    });
     
     // Extract current price from product data structure
     let currentPrice = 0;
