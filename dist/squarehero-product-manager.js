@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.25
+ * SquareHero Advanced Product Manager v1.0.26
  * https://squarehero.store
- * Build Date: 2026-03-10T01:54:34.628Z
+ * Build Date: 2026-03-10T01:56:09.794Z
  */
 (function() {
     'use strict';
@@ -1083,6 +1083,12 @@ class CurrencyManager {
     getCurrencySymbol(currency = null) {
         const code = currency || this.getCurrencySync();
         
+        console.log('🔍 getCurrencySymbol called with:', { 
+            inputCurrency: currency, 
+            detectedCurrency: this.getCurrencySync(), 
+            finalCode: code 
+        });
+        
         // Complete mapping based on Squarespace supported currencies
         const symbols = {
             // From the Squarespace API response: supportedCurrencies
@@ -1115,7 +1121,9 @@ class CurrencyManager {
             'BRL': 'R$'      // Brazilian Real
         };
 
-        return symbols[code] || code;
+        const symbol = symbols[code] || code;
+        console.log('🔍 getCurrencySymbol returning:', symbol, 'for code:', code);
+        return symbol;
     }
 
     /**
@@ -1569,10 +1577,16 @@ function deepClone(obj) {
 
 // Format currency value
 function formatCurrency(value, currency = null) {
+    console.log('🔍 data-utilities formatCurrency called:', { value, currency, hasCurrencyManager: !!window.currencyManager });
+    
     // Use the global currency manager if available
     if (window.currencyManager) {
-        return window.currencyManager.formatCurrency(value, currency);
+        const result = window.currencyManager.formatCurrency(value, currency);
+        console.log('🔍 data-utilities formatCurrency returning from currencyManager:', result);
+        return result;
     }
+    
+    console.log('⚠️ data-utilities formatCurrency: No currencyManager available!');
     
     // Fallback for backwards compatibility
     if (value === null || value === undefined || isNaN(value)) {
