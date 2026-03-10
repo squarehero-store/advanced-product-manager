@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.17
+ * SquareHero Advanced Product Manager v1.0.18
  * https://squarehero.store
- * Build Date: 2026-03-10T01:21:16.160Z
+ * Build Date: 2026-03-10T01:27:21.913Z
  */
 (function() {
     'use strict';
@@ -1126,7 +1126,6 @@ class CurrencyManager {
      * @returns {string} Formatted currency string
      */
     formatCurrency(value, currency = null, showCode = false) {
-        console.log('💷 CurrencyManager.formatCurrency called - value:', value, 'currency param:', currency, 'detected:', this.detectedCurrency);
         if (value === null || value === undefined || isNaN(value)) {
             return 'N/A';
         }
@@ -1139,7 +1138,6 @@ class CurrencyManager {
 
         const symbol = this.getCurrencySymbol(code);
         const formattedValue = parseFloat(value).toFixed(2);
-        console.log('💷 Using symbol:', symbol, 'for code:', code);
         
         if (showCode && symbol !== code) {
             return `${symbol}${formattedValue} (${code})`;
@@ -1571,7 +1569,6 @@ function deepClone(obj) {
 
 // Format currency value
 function formatCurrency(value, currency = null) {
-    console.log('💰 formatCurrency called with value:', value, 'currency:', currency);
     // Use the global currency manager if available
     if (window.currencyManager) {
         return window.currencyManager.formatCurrency(value, currency);
@@ -16331,7 +16328,6 @@ function updateSampleProductCards(providedProducts = null) {
 
 // Build individual product card (EXACT reference implementation)
 function buildProductCard(card) {
-    console.log('🎯 buildProductCard called with currency:', card.currency);
     const hasOnSale = card.newSalePrice || card.currentSalePrice;
     
     // Enhanced stock display with change indicators
@@ -16952,7 +16948,6 @@ function generateProductStatusIndicator(product) {
 
 // Enhanced buildProductCard with sale status
 function buildProductCardEnhanced(preview) {
-    console.log('🎯 buildProductCardEnhanced called with currency:', preview.currency);
     const hasOnSale = preview.salePrice || preview.currentSalePrice;
     
     // Format currency using the currency manager with the product's currency
@@ -20236,10 +20231,23 @@ function makeFieldEditable(cell, row, fieldType) {
             } else {
                 const numValue = parseFloat(rawValue);
                 if (!isNaN(numValue) && numValue >= 0) {
+                    // Get product currency from the product data
+                    const productId = row.getAttribute('data-product-id');
+                    let productCurrency = null;
+                    if (productId && window.allProducts) {
+                        const product = window.allProducts.find(p => p.id === productId);
+                        if (product) {
+                            productCurrency = product.storeItem?.price?.currencyCode || 
+                                            product.storeItem?.variants?.[0]?.price?.currencyCode || 
+                                            product.storeItem?.priceCurrency ||
+                                            null;
+                        }
+                    }
+                    
                     if (window.formatCurrency) {
-                        displayValue = window.formatCurrency(numValue);
+                        displayValue = window.formatCurrency(numValue, productCurrency);
                     } else if (window.currencyManager) {
-                        displayValue = window.currencyManager.formatCurrency(numValue);
+                        displayValue = window.currencyManager.formatCurrency(numValue, productCurrency);
                     } else {
                         displayValue = `$${numValue.toFixed(2)}`;
                     }
