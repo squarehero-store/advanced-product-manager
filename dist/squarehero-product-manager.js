@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.19
+ * SquareHero Advanced Product Manager v1.0.21
  * https://squarehero.store
- * Build Date: 2026-03-10T01:37:07.089Z
+ * Build Date: 2026-03-10T01:40:36.017Z
  */
 (function() {
     'use strict';
@@ -16250,13 +16250,8 @@ function updateSampleProductCards(providedProducts = null) {
             oldPriceToShow: preview.currentSalePrice, // Show actual current sale price as old price
             newStock: preview.stockDisplay.replace('<span class="stock-display">', '').replace('</span>', ''),
             saleStatusBadge: generateSaleStatusIndicator(preview.currentPrice, preview.currentSalePrice, preview.newPrice, preview.salePrice),
-            isOnSale: preview.currentSalePrice !== null
+            isOnSale: preview.currentSalePrice !==null
         };
-        
-        console.log('📋 cardData created from preview:', {
-            'preview.currency': preview.currency,
-            'cardData.currency': cardData.currency
-        });
         
         
         return cardData;
@@ -16397,8 +16392,8 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice, card.currency) : `$${card.currentPrice.toFixed(2)}`)}</span>` : ''}
-                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice, card.currency) : `$${card.newPrice.toFixed(2)}`)}</span>
+                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice, card.currency) :  (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice, null) : `$${card.currentPrice.toFixed(2)}`)}</span>` : ''}
+                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice, null) : `$${card.newPrice.toFixed(2)}`)}</span>
                 </div>
             </div>
             
@@ -16406,9 +16401,9 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Sale price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow, card.currency) : `$${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
+                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow, null) : `$${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
                     <span class="new-price changed">
-                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice, card.currency) : `$${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
+                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice, null) : `$${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
                     </span>
                 </div>
             </div>` : ''}
@@ -16687,15 +16682,6 @@ function calculateProductPreview(product) {
             statusBadge: generateProductStatusIndicator(product),
             hasChanges: priceChanged || salePriceChanged
         };
-        
-        console.log('📦 preview object CREATED:', {
-            productName: preview.productName,
-            currency: preview.currency,
-            productCurrency,
-            'product.storeItem FULL': JSON.stringify(product.storeItem, null, 2),
-            'price obj': product.storeItem?.price,
-            'variants[0] obj': product.storeItem?.variants?.[0]
-        });
         
 
         // Debug SKU issue
@@ -20245,35 +20231,14 @@ function makeFieldEditable(cell, row, fieldType) {
             } else {
                 const numValue = parseFloat(rawValue);
                 if (!isNaN(numValue) && numValue >= 0) {
-                    // Get product currency from the product data
-                    const productId = row.getAttribute('data-product-id');
-                    let productCurrency = null;
-                    console.log('💰 INLINE EDIT - productId:', productId, 'globalProductsData exists:', !!globalProductsData);
-                    if (productId && globalProductsData) {
-                        const product = globalProductsData.find(p => p.id === productId);
-                        console.log('💰 INLINE EDIT - found product:', !!product);
-                        if (product) {
-                            productCurrency = product.storeItem?.price?.currencyCode || 
-                                            product.storeItem?.variants?.[0]?.price?.currencyCode || 
-                                            product.storeItem?.priceCurrency ||
-                                            null;
-                            console.log('💰 INLINE EDIT - extracted currency:', productCurrency, 'from:', {
-                                'price.currencyCode': product.storeItem?.price?.currencyCode,
-                                'variants[0].price.currencyCode': product.storeItem?.variants?.[0]?.price?.currencyCode,
-                                'priceCurrency': product.storeItem?.priceCurrency
-                            });
-                        }
-                    }
-                    
-                    console.log('💰 INLINE EDIT - formatting numValue:', numValue, 'with currency:', productCurrency);
+                    // Use globally detected currency from currency manager
                     if (window.formatCurrency) {
-                        displayValue = window.formatCurrency(numValue, productCurrency);
+                        displayValue = window.formatCurrency(numValue, null);
                     } else if (window.currencyManager) {
-                        displayValue = window.currencyManager.formatCurrency(numValue, productCurrency);
+                        displayValue = window.currencyManager.formatCurrency(numValue, null);
                     } else {
                         displayValue = `$${numValue.toFixed(2)}`;
                     }
-                    console.log('💰 INLINE EDIT - final displayValue:', displayValue);
                     dataValue = numValue.toString();
                 } else {
                     // Invalid value, restore original
