@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.29
+ * SquareHero Advanced Product Manager v1.0.30
  * https://squarehero.store
- * Build Date: 2026-03-10T02:07:10.545Z
+ * Build Date: 2026-03-10T02:10:41.359Z
  */
 (function() {
     'use strict';
@@ -1083,12 +1083,6 @@ class CurrencyManager {
     getCurrencySymbol(currency = null) {
         const code = currency || this.getCurrencySync();
         
-        console.log('🔍 getCurrencySymbol called with:', { 
-            inputCurrency: currency, 
-            detectedCurrency: this.getCurrencySync(), 
-            finalCode: code 
-        });
-        
         // Complete mapping based on Squarespace supported currencies
         const symbols = {
             // From the Squarespace API response: supportedCurrencies
@@ -1121,9 +1115,7 @@ class CurrencyManager {
             'BRL': 'R$'      // Brazilian Real
         };
 
-        const symbol = symbols[code] || code;
-        console.log('🔍 getCurrencySymbol returning:', symbol, 'for code:', code);
-        return symbol;
+        return symbols[code] || code;
     }
 
     /**
@@ -1577,16 +1569,10 @@ function deepClone(obj) {
 
 // Format currency value
 function formatCurrency(value, currency = null) {
-    console.log('🔍 data-utilities formatCurrency called:', { value, currency, hasCurrencyManager: !!window.currencyManager });
-    
     // Use the global currency manager if available
     if (window.currencyManager) {
-        const result = window.currencyManager.formatCurrency(value, currency);
-        console.log('🔍 data-utilities formatCurrency returning from currencyManager:', result);
-        return result;
+        return window.currencyManager.formatCurrency(value, currency);
     }
-    
-    console.log('⚠️ data-utilities formatCurrency: No currencyManager available!');
     
     // Fallback for backwards compatibility
     if (value === null || value === undefined || isNaN(value)) {
@@ -16269,8 +16255,6 @@ function updateSampleProductCards(providedProducts = null) {
             isOnSale: preview.currentSalePrice !==null
         };
         
-        console.log('🔍 CARD currency being passed to buildProductCard:', cardData.currency, 'for:', cardData.productName);
-        
         return cardData;
     });
     
@@ -16451,12 +16435,6 @@ function calculateProductPreview(product) {
                           product.storeItem?.variants?.[0]?.price?.currencyCode || 
                           product.storeItem?.priceCurrency ||
                           null;
-    console.log('🔍 PREVIEW productCurrency extracted:', productCurrency, 'for product:', product.title);
-    console.log('🔍 Product data:', {
-        'price.currencyCode': product.storeItem?.price?.currencyCode,
-        'variants[0].price.currencyCode': product.storeItem?.variants?.[0]?.price?.currencyCode,
-        'priceCurrency': product.storeItem?.priceCurrency
-    });
     
     // Extract current price from product data structure
     let currentPrice = 0;
@@ -20259,23 +20237,16 @@ function makeFieldEditable(cell, row, fieldType) {
             } else {
                 const numValue = parseFloat(rawValue);
                 if (!isNaN(numValue) && numValue >= 0) {
-                    console.log('🔍 TABLE EDIT: Formatting price', numValue, 'with formatCurrency');
-                    console.log('🔍 TABLE EDIT: window.formatCurrency is:', window.formatCurrency);
-                    console.log('🔍 TABLE EDIT: window.formatCurrency.toString():', window.formatCurrency.toString().substring(0, 200));
                     // Use globally detected currency from currency manager
                     if (window.formatCurrency) {
                         displayValue = window.formatCurrency(numValue, null);
-                        console.log('🔍 TABLE EDIT: formatCurrency returned:', displayValue);
                     } else if (window.currencyManager) {
                         displayValue = window.currencyManager.formatCurrency(numValue, null);
-                        console.log('🔍 TABLE EDIT: currencyManager.formatCurrency returned:', displayValue);
                     } else {
                         // Final fallback - just show the number without currency symbol
                         displayValue = numValue.toFixed(2);
-                        console.log('🔍 TABLE EDIT: Using fallback, no currency manager available');
                     }
                     dataValue = numValue.toString();
-                    console.log('🔍 TABLE EDIT: Final displayValue:', displayValue);
                 } else {
                     // Invalid value, restore original
                     cell.innerHTML = originalValue;
