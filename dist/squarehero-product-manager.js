@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.21
+ * SquareHero Advanced Product Manager v1.0.22
  * https://squarehero.store
- * Build Date: 2026-03-10T01:40:36.017Z
+ * Build Date: 2026-03-10T01:46:42.864Z
  */
 (function() {
     'use strict';
@@ -1584,7 +1584,12 @@ function formatCurrency(value, currency = null) {
         const symbol = window.currencyManager.getCurrencySymbol(currencyCode);
         return `${symbol}${parseFloat(value).toFixed(2)}`;
     }
-    return `$${parseFloat(value).toFixed(2)}`;
+    // Final fallback - use currency manager's detected currency
+    if (window.currencyManager) {
+        const symbol = window.currencyManager.getCurrencySymbol(window.currencyManager.getCurrencySync());
+        return `${symbol}${parseFloat(value).toFixed(2)}`;
+    }
+    return `${parseFloat(value).toFixed(2)}`;
 }
 
 // Parse currency string to number
@@ -16392,8 +16397,8 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice, card.currency) :  (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice, null) : `$${card.currentPrice.toFixed(2)}`)}</span>` : ''}
-                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice, null) : `$${card.newPrice.toFixed(2)}`)}</span>
+                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice, card.currency) :  (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice, null) : `${card.currentPrice.toFixed(2)}`)}</span>` : ''}
+                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice, null) : `${card.newPrice.toFixed(2)}`)}</span>
                 </div>
             </div>
             
@@ -16401,9 +16406,9 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Sale price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow, null) : `$${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
+                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow, null) : `${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
                     <span class="new-price changed">
-                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice, null) : `$${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
+                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice, null) : `${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
                     </span>
                 </div>
             </div>` : ''}
@@ -16952,10 +16957,10 @@ function buildProductCardEnhanced(preview) {
     
     // Format currency using the currency manager with the product's currency
     const formatPrice = (value) => {
-        if (window.currencyManager && preview.currency) {
-            return window.currencyManager.formatCurrency(value, preview.currency);
+        if (window.currencyManager) {
+            return window.currencyManager.formatCurrency(value, null);
         }
-        return `$${(value || 0).toFixed(2)}`;
+        return `${(value || 0).toFixed(2)}`;
     };
     
     // Generate sale status indicator
@@ -17378,7 +17383,12 @@ function convertProductToTableRow(product) {
             const symbol = window.currencyManager.getCurrencySymbol(currency);
             return `${symbol}${decimalValue}`;
         }
-        return `$${decimalValue}`;
+        // Final fallback - use currency manager's detected currency
+        if (window.currencyManager) {
+            const symbol = window.currencyManager.getCurrencySymbol(window.currencyManager.getCurrencySync());
+            return `${symbol}${decimalValue}`;
+        }
+        return `${decimalValue}`;
     };    // Determine status based on workflow state
     let status = 'hidden';
     if (product.workflowState === 'PUBLISHED') {
@@ -20237,7 +20247,8 @@ function makeFieldEditable(cell, row, fieldType) {
                     } else if (window.currencyManager) {
                         displayValue = window.currencyManager.formatCurrency(numValue, null);
                     } else {
-                        displayValue = `$${numValue.toFixed(2)}`;
+                        // Final fallback - just show the number without currency symbol
+                        displayValue = numValue.toFixed(2);
                     }
                     dataValue = numValue.toString();
                 } else {
