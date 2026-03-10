@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.16
+ * SquareHero Advanced Product Manager v1.0.17
  * https://squarehero.store
- * Build Date: 2026-03-10T01:15:31.592Z
+ * Build Date: 2026-03-10T01:21:16.160Z
  */
 (function() {
     'use strict';
@@ -1126,6 +1126,7 @@ class CurrencyManager {
      * @returns {string} Formatted currency string
      */
     formatCurrency(value, currency = null, showCode = false) {
+        console.log('💷 CurrencyManager.formatCurrency called - value:', value, 'currency param:', currency, 'detected:', this.detectedCurrency);
         if (value === null || value === undefined || isNaN(value)) {
             return 'N/A';
         }
@@ -1138,6 +1139,7 @@ class CurrencyManager {
 
         const symbol = this.getCurrencySymbol(code);
         const formattedValue = parseFloat(value).toFixed(2);
+        console.log('💷 Using symbol:', symbol, 'for code:', code);
         
         if (showCode && symbol !== code) {
             return `${symbol}${formattedValue} (${code})`;
@@ -1569,6 +1571,7 @@ function deepClone(obj) {
 
 // Format currency value
 function formatCurrency(value, currency = null) {
+    console.log('💰 formatCurrency called with value:', value, 'currency:', currency);
     // Use the global currency manager if available
     if (window.currencyManager) {
         return window.currencyManager.formatCurrency(value, currency);
@@ -16328,6 +16331,7 @@ function updateSampleProductCards(providedProducts = null) {
 
 // Build individual product card (EXACT reference implementation)
 function buildProductCard(card) {
+    console.log('🎯 buildProductCard called with currency:', card.currency);
     const hasOnSale = card.newSalePrice || card.currentSalePrice;
     
     // Enhanced stock display with change indicators
@@ -16392,8 +16396,8 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice, card.currency) : `$${card.currentPrice.toFixed(2)}`)}</span>` : ''}
-                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice, card.currency) : `$${card.newPrice.toFixed(2)}`)}</span>
+                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice, card.currency) : `$${card.currentPrice.toFixed(2)}`)}</span>` : ''}
+                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice, card.currency) : `$${card.newPrice.toFixed(2)}`)}</span>
                 </div>
             </div>
             
@@ -16401,9 +16405,9 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Sale price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow, card.currency) : `$${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
+                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow, card.currency) : `$${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
                     <span class="new-price changed">
-                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice, card.currency) : `$${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
+                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice, card.currency) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice, card.currency) : `$${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
                     </span>
                 </div>
             </div>` : ''}
@@ -16948,6 +16952,7 @@ function generateProductStatusIndicator(product) {
 
 // Enhanced buildProductCard with sale status
 function buildProductCardEnhanced(preview) {
+    console.log('🎯 buildProductCardEnhanced called with currency:', preview.currency);
     const hasOnSale = preview.salePrice || preview.currentSalePrice;
     
     // Format currency using the currency manager with the product's currency
