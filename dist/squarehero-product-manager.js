@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.18
+ * SquareHero Advanced Product Manager v1.0.19
  * https://squarehero.store
- * Build Date: 2026-03-10T01:27:21.913Z
+ * Build Date: 2026-03-10T01:34:32.556Z
  */
 (function() {
     'use strict';
@@ -16253,6 +16253,11 @@ function updateSampleProductCards(providedProducts = null) {
             isOnSale: preview.currentSalePrice !== null
         };
         
+        console.log('📋 cardData created from preview:', {
+            'preview.currency': preview.currency,
+            'cardData.currency': cardData.currency
+        });
+        
         
         return cardData;
     });
@@ -16682,6 +16687,13 @@ function calculateProductPreview(product) {
             statusBadge: generateProductStatusIndicator(product),
             hasChanges: priceChanged || salePriceChanged
         };
+        
+        console.log('📦 preview object CREATED:', {
+            productName: preview.productName,
+            currency: preview.currency,
+            productCurrency,
+            'product.storeItem': product.storeItem
+        });
         
 
         // Debug SKU issue
@@ -20234,16 +20246,24 @@ function makeFieldEditable(cell, row, fieldType) {
                     // Get product currency from the product data
                     const productId = row.getAttribute('data-product-id');
                     let productCurrency = null;
+                    console.log('💰 INLINE EDIT - productId:', productId, 'window.allProducts exists:', !!window.allProducts);
                     if (productId && window.allProducts) {
                         const product = window.allProducts.find(p => p.id === productId);
+                        console.log('💰 INLINE EDIT - found product:', !!product);
                         if (product) {
                             productCurrency = product.storeItem?.price?.currencyCode || 
                                             product.storeItem?.variants?.[0]?.price?.currencyCode || 
                                             product.storeItem?.priceCurrency ||
                                             null;
+                            console.log('💰 INLINE EDIT - extracted currency:', productCurrency, 'from:', {
+                                'price.currencyCode': product.storeItem?.price?.currencyCode,
+                                'variants[0].price.currencyCode': product.storeItem?.variants?.[0]?.price?.currencyCode,
+                                'priceCurrency': product.storeItem?.priceCurrency
+                            });
                         }
                     }
                     
+                    console.log('💰 INLINE EDIT - formatting numValue:', numValue, 'with currency:', productCurrency);
                     if (window.formatCurrency) {
                         displayValue = window.formatCurrency(numValue, productCurrency);
                     } else if (window.currencyManager) {
@@ -20251,6 +20271,7 @@ function makeFieldEditable(cell, row, fieldType) {
                     } else {
                         displayValue = `$${numValue.toFixed(2)}`;
                     }
+                    console.log('💰 INLINE EDIT - final displayValue:', displayValue);
                     dataValue = numValue.toString();
                 } else {
                     // Invalid value, restore original
