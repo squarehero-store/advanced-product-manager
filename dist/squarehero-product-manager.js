@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.24
+ * SquareHero Advanced Product Manager v1.0.25
  * https://squarehero.store
- * Build Date: 2026-03-10T01:53:23.742Z
+ * Build Date: 2026-03-10T01:54:34.628Z
  */
 (function() {
     'use strict';
@@ -16255,11 +16255,10 @@ function updateSampleProductCards(providedProducts = null) {
             oldPriceToShow: preview.currentSalePrice, // Show actual current sale price as old price
             newStock: preview.stockDisplay.replace('<span class="stock-display">', '').replace('</span>', ''),
             saleStatusBadge: generateSaleStatusIndicator(preview.currentPrice, preview.currentSalePrice, preview.newPrice, preview.salePrice),
-        
-        console.log('🔍 CARD currency being passed to buildProductCard:', cardData.currency, 'for:', cardData.productName);
             isOnSale: preview.currentSalePrice !==null
         };
         
+        console.log('🔍 CARD currency being passed to buildProductCard:', cardData.currency, 'for:', cardData.productName);
         
         return cardData;
     });
