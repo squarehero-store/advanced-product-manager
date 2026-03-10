@@ -2,7 +2,7 @@
 /*!
  * SquareHero Advanced Product Manager v1.0.19
  * https://squarehero.store
- * Build Date: 2026-03-10T01:34:32.556Z
+ * Build Date: 2026-03-10T01:37:07.089Z
  */
 (function() {
     'use strict';
@@ -16692,7 +16692,9 @@ function calculateProductPreview(product) {
             productName: preview.productName,
             currency: preview.currency,
             productCurrency,
-            'product.storeItem': product.storeItem
+            'product.storeItem FULL': JSON.stringify(product.storeItem, null, 2),
+            'price obj': product.storeItem?.price,
+            'variants[0] obj': product.storeItem?.variants?.[0]
         });
         
 
@@ -20246,9 +20248,9 @@ function makeFieldEditable(cell, row, fieldType) {
                     // Get product currency from the product data
                     const productId = row.getAttribute('data-product-id');
                     let productCurrency = null;
-                    console.log('💰 INLINE EDIT - productId:', productId, 'window.allProducts exists:', !!window.allProducts);
-                    if (productId && window.allProducts) {
-                        const product = window.allProducts.find(p => p.id === productId);
+                    console.log('💰 INLINE EDIT - productId:', productId, 'globalProductsData exists:', !!globalProductsData);
+                    if (productId && globalProductsData) {
+                        const product = globalProductsData.find(p => p.id === productId);
                         console.log('💰 INLINE EDIT - found product:', !!product);
                         if (product) {
                             productCurrency = product.storeItem?.price?.currencyCode || 
