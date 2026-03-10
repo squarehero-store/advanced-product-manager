@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.26
+ * SquareHero Advanced Product Manager v1.0.27
  * https://squarehero.store
- * Build Date: 2026-03-10T01:56:09.794Z
+ * Build Date: 2026-03-10T02:02:48.138Z
  */
 (function() {
     'use strict';
@@ -20262,16 +20262,21 @@ function makeFieldEditable(cell, row, fieldType) {
             } else {
                 const numValue = parseFloat(rawValue);
                 if (!isNaN(numValue) && numValue >= 0) {
+                    console.log('🔍 TABLE EDIT: Formatting price', numValue, 'with formatCurrency');
                     // Use globally detected currency from currency manager
                     if (window.formatCurrency) {
                         displayValue = window.formatCurrency(numValue, null);
+                        console.log('🔍 TABLE EDIT: formatCurrency returned:', displayValue);
                     } else if (window.currencyManager) {
                         displayValue = window.currencyManager.formatCurrency(numValue, null);
+                        console.log('🔍 TABLE EDIT: currencyManager.formatCurrency returned:', displayValue);
                     } else {
                         // Final fallback - just show the number without currency symbol
                         displayValue = numValue.toFixed(2);
+                        console.log('🔍 TABLE EDIT: Using fallback, no currency manager available');
                     }
                     dataValue = numValue.toString();
+                    console.log('🔍 TABLE EDIT: Final displayValue:', displayValue);
                 } else {
                     // Invalid value, restore original
                     cell.innerHTML = originalValue;
