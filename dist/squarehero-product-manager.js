@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.28
+ * SquareHero Advanced Product Manager v1.0.29
  * https://squarehero.store
- * Build Date: 2026-03-10T02:04:16.369Z
+ * Build Date: 2026-03-10T02:07:10.545Z
  */
 (function() {
     'use strict';
@@ -4267,10 +4267,7 @@ window.initializeCustomDropdowns = initializeCustomDropdowns;
 // Interactive utilities for the Product Manager
 let currentEditingCell = null;
 
-// Helper function to format currency values
-function formatCurrency(value) {
-    return `$${parseFloat(value).toFixed(2)}`;
-}
+// Note: formatCurrency is defined in data-utilities.js and uses CurrencyManager
 
 // Make price field editable
 function makePriceFieldEditable(cell, row, fieldType, originalText, productId) {
