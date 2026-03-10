@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.27
+ * SquareHero Advanced Product Manager v1.0.28
  * https://squarehero.store
- * Build Date: 2026-03-10T02:02:48.138Z
+ * Build Date: 2026-03-10T02:04:16.369Z
  */
 (function() {
     'use strict';
@@ -20263,6 +20263,8 @@ function makeFieldEditable(cell, row, fieldType) {
                 const numValue = parseFloat(rawValue);
                 if (!isNaN(numValue) && numValue >= 0) {
                     console.log('🔍 TABLE EDIT: Formatting price', numValue, 'with formatCurrency');
+                    console.log('🔍 TABLE EDIT: window.formatCurrency is:', window.formatCurrency);
+                    console.log('🔍 TABLE EDIT: window.formatCurrency.toString():', window.formatCurrency.toString().substring(0, 200));
                     // Use globally detected currency from currency manager
                     if (window.formatCurrency) {
                         displayValue = window.formatCurrency(numValue, null);
