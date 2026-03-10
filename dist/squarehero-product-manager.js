@@ -2,7 +2,7 @@
 /*!
  * SquareHero Advanced Product Manager v1.0.15
  * https://squarehero.store
- * Build Date: 2026-03-10T00:57:48.918Z
+ * Build Date: 2026-03-10T01:06:35.853Z
  */
 (function() {
     'use strict';
@@ -16240,6 +16240,7 @@ function updateSampleProductCards(providedProducts = null) {
         const cardData = {
             productName: preview.productName,
             sku: preview.sku,
+            currency: preview.currency, // Pass through currency code
             currentPrice: preview.currentPrice,
             newPrice: preview.newPrice,
             priceChanged: preview.newPrice !== preview.currentPrice,
@@ -16391,8 +16392,8 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice) : `$${card.currentPrice.toFixed(2)}`)}</span>` : ''}
-                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice) : `$${card.newPrice.toFixed(2)}`)}</span>
+                    ${card.priceChanged ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.currentPrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.currentPrice, card.currency) : `$${card.currentPrice.toFixed(2)}`)}</span>` : ''}
+                    <span class="new-price ${card.priceChanged ? 'changed' : ''}">${window.formatCurrency ? window.formatCurrency(card.newPrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newPrice, card.currency) : `$${card.newPrice.toFixed(2)}`)}</span>
                 </div>
             </div>
             
@@ -16400,9 +16401,9 @@ function buildProductCard(card) {
             <div class="price-line">
                 <span class="price-label">Sale price${currencyLabel}</span>
                 <div class="price-values">
-                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow) : `$${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
+                    ${card.oldPriceToShow !== null && card.oldPriceToShow !== undefined ? `<span class="old-price">${window.formatCurrency ? window.formatCurrency(card.oldPriceToShow) : (window.currencyManager ? window.currencyManager.formatCurrency(card.oldPriceToShow, card.currency) : `$${card.oldPriceToShow.toFixed(2)}`)}</span>` : ''}
                     <span class="new-price changed">
-                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice) : `$${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
+                        ${card.newSalePrice !== null && card.newSalePrice !== undefined ? (window.formatCurrency ? window.formatCurrency(card.newSalePrice) : (window.currencyManager ? window.currencyManager.formatCurrency(card.newSalePrice, card.currency) : `$${card.newSalePrice.toFixed(2)}`)) : 'N/A'}
                     </span>
                 </div>
             </div>` : ''}
@@ -16427,6 +16428,12 @@ function createProductPreviewCard(product, index) {
 
 // Calculate preview values for a product
 function calculateProductPreview(product) {
+    
+    // Extract currency code from product
+    const productCurrency = product.storeItem?.price?.currencyCode || 
+                          product.storeItem?.variants?.[0]?.price?.currencyCode || 
+                          product.storeItem?.priceCurrency ||
+                          null;
     
     // Extract current price from product data structure
     let currentPrice = 0;
@@ -16663,6 +16670,7 @@ function calculateProductPreview(product) {
         const preview = {
             productName: product.title,
             sku: product.storeItem?.sku || product.storeItem?.variants?.[0]?.sku || 'N/A',
+            currency: productCurrency, // Add currency to preview object
             currentPrice: currentPrice,
             currentSalePrice: currentSalePrice,
             newPrice: newPrice,
@@ -16941,7 +16949,14 @@ function generateProductStatusIndicator(product) {
 // Enhanced buildProductCard with sale status
 function buildProductCardEnhanced(preview) {
     const hasOnSale = preview.salePrice || preview.currentSalePrice;
-    const currencySymbol = '$'; // Could be enhanced to detect currency
+    
+    // Format currency using the currency manager with the product's currency
+    const formatPrice = (value) => {
+        if (window.currencyManager && preview.currency) {
+            return window.currencyManager.formatCurrency(value, preview.currency);
+        }
+        return `$${(value || 0).toFixed(2)}`;
+    };
     
     // Generate sale status indicator
     const saleStatusHtml = generateSaleStatusIndicator(
@@ -16964,12 +16979,12 @@ function buildProductCardEnhanced(preview) {
             <div class="price-section">
                 <div class="price-row">
                     <span class="label">Price:</span>
-                    <span class="value">${currencySymbol}${(preview.newPrice || 0).toFixed(2)}</span>
+                    <span class="value">${formatPrice(preview.newPrice || 0)}</span>
                 </div>
                 ${hasOnSale ? `
                 <div class="price-row sale-price">
                     <span class="label">Sale Price:</span>
-                    <span class="value">${currencySymbol}${(preview.salePrice || 0).toFixed(2)}</span>
+                    <span class="value">${formatPrice(preview.salePrice || 0)}</span>
                 </div>
                 ` : ''}
             </div>
@@ -17340,6 +17355,12 @@ function convertProductToTableRow(product) {
     // Get primary variant for physical products
     const primaryVariant = !isDigitalProduct && !isServiceProduct && !isGiftCardProduct && product.storeItem?.variants?.length > 0 ? product.storeItem.variants[0] : null;
     
+    // Extract currency code from product
+    const productCurrency = product.storeItem?.price?.currencyCode || 
+                          product.storeItem?.variants?.[0]?.price?.currencyCode || 
+                          product.storeItem?.priceCurrency ||
+                          null;
+    
     // Format price from cents
     const formatPrice = (priceCents, currencyCode = null) => {
         if (priceCents === null || priceCents === undefined) return 'N/A';
@@ -17411,10 +17432,10 @@ function convertProductToTableRow(product) {
     
     if (isDigitalProduct) {
         // Digital products have price directly on the storeItem
-        priceText = formatPrice(product.storeItem?.priceCents);
+        priceText = formatPrice(product.storeItem?.priceCents, productCurrency);
         // Always show sale price if it exists, regardless of onSale status (including $0.00 free products)
         if (product.storeItem?.salePriceCents !== null && product.storeItem?.salePriceCents !== undefined) {
-            salePriceText = formatPrice(product.storeItem.salePriceCents);
+            salePriceText = formatPrice(product.storeItem.salePriceCents, productCurrency);
         }
         // Determine onSale status separately
         if (product.storeItem?.onSale) {
@@ -17424,7 +17445,7 @@ function convertProductToTableRow(product) {
         // Gift cards - show variant pricing since they have different denominations
         if (product.storeItem.variants?.length > 0) {
             const giftCardVariant = product.storeItem.variants[0];
-            priceText = formatPrice(giftCardVariant?.price);
+            priceText = formatPrice(giftCardVariant?.price, productCurrency);
         }
         
         // Gift cards cannot be on sale
@@ -17433,11 +17454,11 @@ function convertProductToTableRow(product) {
     } else if (isServiceProduct) {
         // Service products - check multiple price sources like digital products
         if (product.storeItem?.priceCents) {
-            priceText = formatPrice(product.storeItem.priceCents);
+            priceText = formatPrice(product.storeItem.priceCents, productCurrency);
         } else if (product.storeItem?.variants?.length > 0) {
             // Service products might have a single variant with pricing
             const serviceVariant = product.storeItem.variants[0];
-            priceText = formatPrice(serviceVariant?.price);
+            priceText = formatPrice(serviceVariant?.price, productCurrency);
             // Show sale price if it exists, regardless of onSale status (including $0.00 free products)
             if (serviceVariant?.salePrice !== null && serviceVariant?.salePrice !== undefined) {
                 // Service products can store sale price as either:
@@ -17445,7 +17466,7 @@ function convertProductToTableRow(product) {
                 // 2. An object with value property (native API)
                 const salePriceCents = typeof serviceVariant.salePrice === 'object' && serviceVariant.salePrice.value !== undefined ? 
                     serviceVariant.salePrice.value : serviceVariant.salePrice;
-                salePriceText = formatPrice(salePriceCents);
+                salePriceText = formatPrice(salePriceCents, productCurrency);
                 
                 // IMPORTANT: Sync salePriceCents to product.storeItem for API compatibility
                 // This ensures that later API calls can access the sale price correctly
@@ -17462,7 +17483,7 @@ function convertProductToTableRow(product) {
         // Check for service product sale pricing (including $0.00 free products)
         // Only override if we haven't already extracted sale price from variant data
         if (product.storeItem?.salePriceCents !== null && product.storeItem?.salePriceCents !== undefined && !salePriceText) {
-            salePriceText = formatPrice(product.storeItem.salePriceCents);
+            salePriceText = formatPrice(product.storeItem.salePriceCents, productCurrency);
         }
         // Check onSale status separately
         if (product.storeItem?.onSale) {
@@ -17483,10 +17504,10 @@ function convertProductToTableRow(product) {
                 
                 if (minPrice === maxPrice) {
                     // All variants have same price
-                    priceText = formatPrice(minPrice);
+                    priceText = formatPrice(minPrice, productCurrency);
                 } else {
                     // Price range exists
-                    priceText = `from ${formatPrice(minPrice)}`;
+                    priceText = `from ${formatPrice(minPrice, productCurrency)}`;
                 }
             }
             
@@ -17497,10 +17518,10 @@ function convertProductToTableRow(product) {
                 
                 if (minSalePrice === maxSalePrice) {
                     // All variants have same sale price
-                    salePriceText = formatPrice(minSalePrice);
+                    salePriceText = formatPrice(minSalePrice, productCurrency);
                 } else {
                     // Sale price range exists
-                    salePriceText = `from ${formatPrice(minSalePrice)}`;
+                    salePriceText = `from ${formatPrice(minSalePrice, productCurrency)}`;
                 }
             }
             
@@ -17520,10 +17541,10 @@ function convertProductToTableRow(product) {
             }
         } else {
             // Single variant - use original logic
-            priceText = formatPrice(primaryVariant?.price);
+            priceText = formatPrice(primaryVariant?.price, productCurrency);
             // Only show sale price if it's meaningful (> 0) and not null/undefined
             if (primaryVariant?.salePrice !== null && primaryVariant?.salePrice !== undefined && primaryVariant.salePrice > 0) {
-                salePriceText = formatPrice(primaryVariant.salePrice);
+                salePriceText = formatPrice(primaryVariant.salePrice, productCurrency);
             }
             // Determine onSale status separately
             if (primaryVariant?.onSale) {
