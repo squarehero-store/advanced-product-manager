@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.13
+ * SquareHero Advanced Product Manager v1.0.14
  * https://squarehero.store
- * Build Date: 2026-03-09T23:36:06.955Z
+ * Build Date: 2026-03-10T00:41:37.312Z
  */
 (function() {
     'use strict';
@@ -17350,10 +17350,14 @@ function convertProductToTableRow(product) {
             return window.currencyManager.formatCurrency(priceValue, currencyCode);
         }
         
-        // Use detected currency or return basic format without currency prefix
+        // Fallback: use detected currency symbol
         const currency = currencyCode || window.getSystemCurrency?.();
         const decimalValue = (priceCents / 100).toFixed(2);
-        return currency ? `${currency}$${decimalValue}` : `$${decimalValue}`;
+        if (currency && window.currencyManager) {
+            const symbol = window.currencyManager.getCurrencySymbol(currency);
+            return `${symbol}${decimalValue}`;
+        }
+        return `$${decimalValue}`;
     };    // Determine status based on workflow state
     let status = 'hidden';
     if (product.workflowState === 'PUBLISHED') {
@@ -20206,7 +20210,13 @@ function makeFieldEditable(cell, row, fieldType) {
             } else {
                 const numValue = parseFloat(rawValue);
                 if (!isNaN(numValue) && numValue >= 0) {
-                    displayValue = `$${numValue.toFixed(2)}`;
+                    if (window.formatCurrency) {
+                        displayValue = window.formatCurrency(numValue);
+                    } else if (window.currencyManager) {
+                        displayValue = window.currencyManager.formatCurrency(numValue);
+                    } else {
+                        displayValue = `$${numValue.toFixed(2)}`;
+                    }
                     dataValue = numValue.toString();
                 } else {
                     // Invalid value, restore original
