@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.30
+ * SquareHero Advanced Product Manager v1.0.31
  * https://squarehero.store
- * Build Date: 2026-03-10T02:10:41.359Z
+ * Build Date: 2026-03-12T02:52:16.239Z
  */
 (function() {
     'use strict';
@@ -17677,6 +17677,187 @@ function createProductRow(rowData) {
     return tr;
 }
 
+// Create a variant row element
+function createVariantRow(variant, parentProductId, index) {
+    
+    // Format price from cents - use CurrencyManager for proper currency symbol
+    const formatPrice = (priceCents) => {
+        if (priceCents === null || priceCents === undefined) return "—";
+        const priceValue = priceCents / 100;
+        
+        // Use currency manager if available
+        if (window.currencyManager) {
+            return window.currencyManager.formatCurrency(priceValue, null);
+        }
+        
+        // Fallback
+        return `${priceValue.toFixed(2)}`;
+    };
+
+    // Format variant attributes - handle array of objects with optionName and value
+    let variantName = 'Variant';
+    if (variant.optionalValues && variant.optionalValues.length > 0) {
+        variantName = variant.optionalValues.map(opt => `${opt.optionName}: <span>${opt.value}</span>`).join(', ');
+    }
+
+    // Format prices - check if it's in cents or direct value
+    let priceText = "—";
+    let salePriceText = "Not set";
+    
+    if (variant.price !== null && variant.price !== undefined) {
+        // If price is already formatted as a string, use it directly
+        if (typeof variant.price === 'string') {
+            priceText = variant.price;
+        } else {
+            // If it's a number, treat it as cents
+            priceText = formatPrice(variant.price);
+        }
+    }
+    
+    // Show sale price if it exists (including $0.00 free sales)
+    if (variant.salePrice !== null && variant.salePrice !== undefined) {
+        if (typeof variant.salePrice === 'string') {
+            salePriceText = variant.salePrice;
+        } else if (typeof variant.salePrice === 'object' && variant.salePrice.value !== undefined) {
+            // Service products from native API store sale price as an object with value in cents
+            salePriceText = formatPrice(variant.salePrice.value);
+        } else {
+            // Service products from queryProductItems API store sale price as number in cents
+            salePriceText = formatPrice(variant.salePrice);
+        }
+    }
+
+
+    const htmlResult = `<tr class="variant-row mix" data-variant-id="${variant.id}" data-parent-product="${parentProductId}" data-product-id="${variant.id}" style="display: table-row; opacity: 1; transition: opacity 0.3s;">
+        <td class="col-checkbox variant-checkbox-cell"><!-- No checkbox for variants --></td>
+        <td class="col-title col-url variant-name non-editable" colspan="2">↳ ${variantName}</td>
+        <td class="col-sku" title="Click to edit SKU">${variant.sku || '—'}</td>
+        <td class="col-categories non-editable">—</td>
+        <td class="col-price">${priceText}</td>
+        <td class="col-sale-price">${salePriceText}</td>
+        <td class="col-on-sale non-editable"><span class="status-badge ${variant.onSale ? 'public' : 'hidden'}">${variant.onSale ? 'Yes' : 'No'}</span></td>
+        <td class="col-stock">${getVariantStockDisplay(variant)}</td>
+        <td class="col-type variant-type non-editable">Variant</td>
+        <td class="col-status non-editable">—</td>
+        <td class="col-scheduled scheduled-date-cell scheduled-column non-editable">—</td>
+    </tr>`;
+    
+    return htmlResult;
+}
+
+// Toggle variant rows (expand/collapse)
+function toggleVariantRows(masterRow, product) {
+    const expandBtn = masterRow.querySelector('.expand-btn');
+    if (!expandBtn) return;
+
+    const isExpanded = expandBtn.getAttribute('data-expanded') === 'true';
+    const variants = product.storeItem?.variants || [];
+
+    if (isExpanded) {
+        // Collapse - remove variant rows
+        let nextRow = masterRow.nextElementSibling;
+        while (nextRow && nextRow.classList.contains('variant-row')) {
+            const rowToRemove = nextRow;
+            nextRow = nextRow.nextElementSibling;
+            rowToRemove.remove();
+        }
+        expandBtn.setAttribute('data-expanded', 'false');
+    } else {
+        // Expand - create and insert variant rows
+        
+        // Before expanding, preserve any existing variant changes
+        const preservedChanges = {};
+        let nextRow = masterRow.nextElementSibling;
+        while (nextRow && nextRow.classList.contains('variant-row')) {
+            const variantId = nextRow.getAttribute('data-variant-id');
+            // Check for modified cells in this variant row
+            const modifiedCells = nextRow.querySelectorAll('td.modified');
+            if (modifiedCells.length > 0) {
+                preservedChanges[variantId] = {};
+                modifiedCells.forEach(cell => {
+                    const fieldType = cell.getAttribute('data-field-type');
+                    if (fieldType) {
+                        preservedChanges[variantId][fieldType] = {
+                            originalValue: cell.getAttribute('data-original-value'),
+                            newValue: cell.getAttribute('data-new-value'),
+                            cellContent: cell.innerHTML
+                        };
+                    }
+                });
+            }
+            nextRow = nextRow.nextElementSibling;
+        }
+        
+        // Store preserved changes on the master row
+        if (Object.keys(preservedChanges).length > 0) {
+            masterRow.setAttribute('data-preserved-variant-changes', JSON.stringify(preservedChanges));
+        }
+        
+        // Retrieve preserved changes from master row
+        const preservedChangesJson = masterRow.getAttribute('data-preserved-variant-changes');
+        
+        variants.forEach((variant, index) => {
+            const variantRowHTML = createVariantRow(variant, product.id, index);
+            // Convert HTML string to DOM element using proper table structure
+            const tempTable = document.createElement('table');
+            const tempTbody = document.createElement('tbody');
+            tempTbody.innerHTML = variantRowHTML;
+            tempTable.appendChild(tempTbody);
+            const variantRow = tempTbody.firstElementChild;
+            
+            
+            if (variantRow && variantRow.tagName === 'TR') {
+                masterRow.parentNode.insertBefore(variantRow, masterRow.nextSibling);
+                
+                // Restore preserved changes for this variant if any exist
+                const variantId = variant.id;
+                if (preservedChanges[variantId]) {
+                    
+                    Object.entries(preservedChanges[variantId]).forEach(([fieldType, changeData]) => {
+                        // Find the corresponding cell in the restored row
+                        let targetCell = null;
+                        
+                        // Map field types to column classes
+                        const fieldMap = {
+                            'sku': 'col-sku',
+                            'price': 'col-price', 
+                            'salePrice': 'col-sale-price',
+                            'onSale': 'col-on-sale',
+                            'stock': 'col-stock'
+                        };
+                        
+                        const columnClass = fieldMap[fieldType];
+                        if (columnClass) {
+                            targetCell = variantRow.querySelector(`.${columnClass}`);
+                        }
+                        
+                        if (targetCell) {
+                            // Restore the modified state and data attributes
+                            targetCell.classList.add('modified');
+                            targetCell.setAttribute('data-field-type', fieldType);
+                            targetCell.setAttribute('data-original-value', changeData.originalValue);
+                            targetCell.setAttribute('data-new-value', changeData.newValue);
+                            targetCell.innerHTML = changeData.cellContent;
+                            
+                            // Re-track the change in the system
+                            if (typeof trackChanges === 'function') {
+                                trackChanges(targetCell, variantRow);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+        
+        // Clear the preserved changes since they've been restored
+        if (preservedChangesJson) {
+            masterRow.removeAttribute('data-preserved-variant-changes');
+        }
+        
+        expandBtn.setAttribute('data-expanded', 'true');
+    }
+}
+
 // Get website ID from URL or API
 async function getWebsiteId(crumbToken) {
     try {
@@ -18622,11 +18803,18 @@ function toggleVariantRows(masterRow, product) {
 // Create a variant row element
     function createVariantRow(variant, parentProductId, index) {
         
-        // Format price from cents (without currency code for variants)
+        // Format price from cents - use CurrencyManager for proper currency symbol
         const formatPrice = (priceCents) => {
             if (priceCents === null || priceCents === undefined) return "—";
-            const decimalValue = (priceCents / 100).toFixed(2);
-            return `$${decimalValue}`;
+            const priceValue = priceCents / 100;
+            
+            // Use currency manager if available
+            if (window.currencyManager) {
+                return window.currencyManager.formatCurrency(priceValue, null);
+            }
+            
+            // Fallback
+            return `${priceValue.toFixed(2)}`;
         };
 
         // Format variant attributes - handle array of objects with optionName and value
