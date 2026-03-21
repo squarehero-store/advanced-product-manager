@@ -2,7 +2,7 @@
 /*!
  * SquareHero Advanced Product Manager v1.0.31
  * https://squarehero.store
- * Build Date: 2026-03-12T02:52:16.239Z
+ * Build Date: 2026-03-21T07:02:48.233Z
  */
 (function() {
     'use strict';
@@ -526,9 +526,11 @@ async function updateProductCategories(productId, categoryNames, crumbToken) {
 
 // Helper function to get category IDs from category names
 async function getCategoryIdsByNames(categoryNames) {
+    console.log(`🔍 getCategoryIdsByNames called with:`, categoryNames);
     
     // Access global categories data
     const globalCategories = window.globalCategoriesData || [];
+    console.log(`📊 Global categories data has ${globalCategories.length} categories`);
     
     if (globalCategories.length === 0) {
         console.warn(`⚠️ No global categories data available`);
@@ -538,16 +540,21 @@ async function getCategoryIdsByNames(categoryNames) {
     const categoryIds = [];
     
     for (const categoryName of categoryNames) {
+        console.log(`🔎 Looking for category: "${categoryName}"`);
         let category = globalCategories.find(cat => cat.name === categoryName);
         
         if (category) {
+            console.log(`✅ Found existing category: "${categoryName}" with ID: ${category.id}`);
             categoryIds.push(category.id);
         } else {
+            console.log(`⚠️ Category "${categoryName}" not found in global data. Available categories:`, globalCategories.map(c => c.name));
             
             // Create new category
+            console.log(`🆕 Attempting to create new category: "${categoryName}"`);
             const newCategoryId = await createNewCategory(categoryName);
             
             if (newCategoryId) {
+                console.log(`✅ Created new category "${categoryName}" with ID: ${newCategoryId}`);
                 categoryIds.push(newCategoryId);
                 
                 // Add to global categories data for future use
@@ -568,6 +575,7 @@ async function getCategoryIdsByNames(categoryNames) {
         }
     }
     
+    console.log(`🎯 getCategoryIdsByNames returning ${categoryIds.length} IDs:`, categoryIds);
     return categoryIds;
 }
 
@@ -771,13 +779,17 @@ async function updateProductCategories(productId, categoryNames, crumbToken) {
 
 // Unassign categories from a product
 async function unassignProductCategories(productId, categoryNames, crumbToken) {
+    console.log(`🗑️ unassignProductCategories called for product ${productId} with categories:`, categoryNames);
     
     if (!categoryNames || categoryNames.length === 0) {
+        console.log(`ℹ️ No categories to unassign, returning true`);
         return true;
     }
     
     // Get category IDs from category names
+    console.log(`🔍 Looking up category IDs...`);
     const categoryIds = await getCategoryIdsByNames(categoryNames);
+    console.log(`🔑 Got category IDs:`, categoryIds);
     
     if (!categoryIds || categoryIds.length === 0) {
         console.error(`❌ Could not get category IDs for categories to unassign:`, categoryNames);
@@ -785,12 +797,14 @@ async function unassignProductCategories(productId, categoryNames, crumbToken) {
     }
     
     // Unassign categories one by one
+    console.log(`🔄 Starting to unassign ${categoryIds.length} categories...`);
     
     let successCount = 0;
     for (let i = 0; i < categoryIds.length; i++) {
         const categoryId = categoryIds[i];
         const url = `/api/commerce/products/${productId}/categories/unassign?categoryIds=${categoryId}`;
         
+        console.log(`📌 [${i+1}/${categoryIds.length}] Unassigning category ${categoryId} via: ${url}`);
         
         try {
             const response = await fetch(url, {
@@ -803,10 +817,12 @@ async function unassignProductCategories(productId, categoryNames, crumbToken) {
             });
             
             if (response.ok) {
+                console.log(`✅ Successfully unassigned category ${categoryId}`);
                 successCount++;
             } else {
                 const errorText = await response.text();
-                console.error(`❌ Category unassignment failed for category ${categoryId}:`, response.status, errorText);
+                console.error(`❌ Category unassignment failed for category ${categoryId}: HTTP ${response.status}`);
+                console.error(`💥 Response body:`, errorText);
             }
         } catch (error) {
             console.error(`💥 Error unassigning category ${categoryId} from product ${productId}:`, error);
@@ -819,6 +835,7 @@ async function unassignProductCategories(productId, categoryNames, crumbToken) {
     }
     
     if (successCount === categoryIds.length) {
+        console.log(`✅ Successfully unassigned all ${successCount} categories`);
         return true;
     } else {
         console.error(`❌ Only unassigned ${successCount}/${categoryIds.length} categories from product ${productId}`);
@@ -1607,6 +1624,9 @@ function parseCurrency(currencyString) {
 
 // Save changes to Squarespace
 async function saveChangesToSquarespace() {
+    console.log(`🎯 === saveChangesToSquarespace STARTED ===`);
+    console.log(`📊 Changed products count: ${changedProducts.size}`);
+    console.log(`🔍 globalProgress status: ${typeof globalProgress !== 'undefined' ? 'available' : 'undefined'}`);
     
     const crumb = getCsrfToken();
     if (!crumb) {
@@ -1753,10 +1773,12 @@ async function saveChangesToSquarespace() {
                     // Use detailed change tracking if available
                     const addedCategories = cell.getAttribute('data-categories-added');
                     const removedCategories = cell.getAttribute('data-categories-removed');
+                    const removedCategoryIds = cell.getAttribute('data-categories-removed-ids');
                     
                     productUpdate.categoryChanges = {
                         added: addedCategories ? addedCategories.split(',').map(cat => cat.trim()).filter(cat => cat) : [],
-                        removed: removedCategories ? removedCategories.split(',').map(cat => cat.trim()).filter(cat => cat) : []
+                        removed: removedCategories ? removedCategories.split(',').map(cat => cat.trim()).filter(cat => cat) : [],
+                        removedIds: removedCategoryIds ? removedCategoryIds.split(',').map(id => id.trim()).filter(id => id) : []
                     };
                     
                 }
@@ -1825,8 +1847,11 @@ async function saveChangesToSquarespace() {
             `${updateData.product.title} (${Object.keys(updateData.variantChanges).length} variant${Object.keys(updateData.variantChanges).length > 1 ? 's' : ''})` : 
             updateData.product.title;
         
+        console.log(`🔄 [${itemIndex}] Processing: ${displayName}`);
+        
         // Update progress if available
         if (typeof globalProgress !== 'undefined' && globalProgress) {
+            console.log(`📊 [${itemIndex}] Updating progress UI`);
             globalProgress.updateMainItem(itemIndex, displayName);
         }
         
@@ -1838,6 +1863,7 @@ async function saveChangesToSquarespace() {
             const hasRegularChanges = Object.keys(updateData.changes).length > 0 || hasVariantChanges;
             
             if (hasRegularChanges) {
+                console.log(`📝 [${itemIndex}] Updating fields for ${updateData.product.title}`);
                 // Prepare changes object with batched variant changes
                 let allChanges = { ...updateData.changes };
                 
@@ -1846,7 +1872,9 @@ async function saveChangesToSquarespace() {
                     allChanges.batchedVariantChanges = updateData.variantChanges;
                 }
                 
+                console.log(`🌐 [${itemIndex}] Calling updateProductFields API...`);
                 productUpdateSuccess = await updateProductFields(updateData.product, allChanges, crumb);
+                console.log(`${productUpdateSuccess ? '✅' : '❌'} [${itemIndex}] updateProductFields returned: ${productUpdateSuccess}`);
                 
                 if (productUpdateSuccess) {
                 } else {
@@ -1866,7 +1894,19 @@ async function saveChangesToSquarespace() {
                 // First, remove categories that need to be removed
                 if (updateData.categoryChanges.removed && updateData.categoryChanges.removed.length > 0) {
                     console.log(`🗑️ Removing categories:`, updateData.categoryChanges.removed);
-                    unassignSuccess = await unassignProductCategories(updateData.product.id, updateData.categoryChanges.removed, crumb);
+                    // Use the actual category IDs from the product if available, otherwise fall back to name lookup
+                    const categoryIdsToRemove = updateData.categoryChanges.removedIds && updateData.categoryChanges.removedIds.length > 0
+                        ? updateData.categoryChanges.removedIds
+                        : null;  // Will trigger name lookup in unassignProductCategories
+                    
+                    if (categoryIdsToRemove) {
+                        console.log(`🔑 Using direct category IDs for removal:`, categoryIdsToRemove);
+                        // Call API directly with IDs
+                        unassignSuccess = await unassignProductCategoriesByIds(updateData.product.id, categoryIdsToRemove, crumb);
+                    } else {
+                        console.log(`🔍 Falling back to name lookup for category removal`);
+                        unassignSuccess = await unassignProductCategories(updateData.product.id, updateData.categoryChanges.removed, crumb);
+                    }
                 }
                 
                 // Then, add categories that need to be added (these should now exist)
@@ -1887,6 +1927,8 @@ async function saveChangesToSquarespace() {
             // Overall success if both operations succeeded (or didn't need to run)
             const overallSuccess = productUpdateSuccess && categoryUpdateSuccess;
             
+            console.log(`🎯 [${itemIndex}] Completed with overallSuccess=${overallSuccess}`);
+            
             if (overallSuccess) {
                 return { success: true, updateKey, displayName };
             } else {
@@ -1901,6 +1943,7 @@ async function saveChangesToSquarespace() {
     
     // Process products with controlled concurrency (same pattern as bulk logic)
     const processConcurrentBatch = async (entries) => {
+        console.log(`🔀 processConcurrentBatch started with ${entries.length} entries`);
         const results = [];
         const activeRequests = new Set();
         let entryIndex = 0;
@@ -1913,26 +1956,32 @@ async function saveChangesToSquarespace() {
             
             const currentIndex = entryIndex++;
             const entry = entries[currentIndex];
+            console.log(`⏱️ Starting request ${currentIndex + 1}/${totalCount}`);
             
             // Add staggered delay to prevent overwhelming the server
             await new Promise(r => setTimeout(r, currentIndex * MIN_REQUEST_DELAY));
 
             const requestPromise = processProductUpdate(entry, currentIndex);
             activeRequests.add(requestPromise);
+            console.log(`📌 Added to activeRequests. Active count: ${activeRequests.size}`);
             
             try {
                 const result = await requestPromise;
                 results[currentIndex] = result;
                 completedCount++;
+                console.log(`✅ Request ${currentIndex + 1} completed. Total completed: ${completedCount}/${totalCount}`);
             } catch (error) {
                 console.error(`💥 Unexpected error processing product:`, error);
                 results[currentIndex] = { success: false, error };
                 completedCount++;
+                console.log(`❌ Request ${currentIndex + 1} failed. Total completed: ${completedCount}/${totalCount}`);
             } finally {
                 activeRequests.delete(requestPromise);
+                console.log(`🗑️ Removed from activeRequests. Active count: ${activeRequests.size}`);
                 
                 // Start the next request if there are more
                 if (entryIndex < entries.length) {
+                    console.log(`➡️ Starting next request (index ${entryIndex})`);
                     startNextRequest();
                 }
             }
@@ -1940,6 +1989,7 @@ async function saveChangesToSquarespace() {
 
         // Start initial concurrent requests
         const initialConcurrency = Math.min(MAX_CONCURRENT_REQUESTS, entries.length);
+        console.log(`🚀 Starting ${initialConcurrency} initial concurrent requests`);
         for (let i = 0; i < initialConcurrency; i++) {
             // Don't await here - we want them to run concurrently
             startNextRequest().catch(error => {
@@ -1949,13 +1999,25 @@ async function saveChangesToSquarespace() {
 
         // Give a small delay to allow the async functions to add to activeRequests
         await new Promise(resolve => setTimeout(resolve, 10));
+        console.log(`⏳ Initial delay complete, activeRequests.size = ${activeRequests.size}`);
 
-        // Wait for all requests to complete
-        while (activeRequests.size > 0) {
-            await Promise.race(activeRequests);
+        // Wait for all requests to complete using completedCount instead of activeRequests.size
+        console.log(`⏳ Entering wait loop (completedCount = ${completedCount}/${totalCount})`);
+        while (completedCount < totalCount) {
+            console.log(`⏳ Waiting... completedCount = ${completedCount}/${totalCount}, activeRequests.size = ${activeRequests.size}`);
+            // Wait for any active request to complete, or check every 100ms if all are done
+            if (activeRequests.size > 0) {
+                await Promise.race([...activeRequests, new Promise(resolve => setTimeout(resolve, 100))]);
+            } else {
+                // No active requests but not all completed yet - wait a bit for async operations
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+            console.log(`🔄 Check complete, completedCount = ${completedCount}/${totalCount}, activeRequests.size = ${activeRequests.size}`);
         }
+        console.log(`✅ All requests completed! Completed: ${completedCount}/${totalCount}`);
 
         const filteredResults = results.filter(r => r !== undefined);
+        console.log(`📦 Returning ${filteredResults.length} filtered results`);
         return filteredResults;
     };
     
@@ -1965,6 +2027,7 @@ async function saveChangesToSquarespace() {
     if (productUpdateEntries.length > 0) {
         console.log(`🚀 Starting concurrent processing of ${productUpdateEntries.length} products (max ${MAX_CONCURRENT_REQUESTS} concurrent)`);
         const results = await processConcurrentBatch(productUpdateEntries);
+        console.log(`✅ Concurrent processing completed, got ${results.length} results`);
         
         // Calculate final results
         const productSuccessCount = results.filter(r => r && r.success).length;
@@ -1973,7 +2036,7 @@ async function saveChangesToSquarespace() {
         successCount += productSuccessCount;
         errorCount += productErrorCount;
         
-        console.log(` Product update results: ${productSuccessCount} successful, ${productErrorCount} failed`);
+        console.log(`📊 Product update results: ${productSuccessCount} successful, ${productErrorCount} failed`);
     } else {
         console.log('📝 No product updates to process');
     }
@@ -1996,14 +2059,19 @@ async function saveChangesToSquarespace() {
     }
 
     // Complete progress if available
+    console.log(`🏁 Completing progress UI... (globalProgress exists: ${typeof globalProgress !== 'undefined' && globalProgress ? 'yes' : 'no'})`);
     if (typeof globalProgress !== 'undefined' && globalProgress) {
         if (errorCount === 0) {
+            console.log(`✅ Calling globalProgress.completeMain() with success message`);
             globalProgress.completeMain(`Successfully saved ${successCount} product${successCount !== 1 ? 's' : ''}!`);
         } else {
+            console.log(`⚠️ Calling globalProgress.completeMain() with mixed results`);
             globalProgress.completeMain(`Saved ${successCount} products, ${errorCount} failed`);
         }
+        console.log(`✅ globalProgress.completeMain() called successfully`);
     }
     
+    console.log(`🎯 saveChangesToSquarespace returning: successCount=${successCount}, errorCount=${errorCount}`);
     return { successCount, errorCount };
 }
 
@@ -2043,9 +2111,11 @@ function initializeDataUtilities() {
             }
             
             try {
+                console.log(`💾 Save button clicked - starting save process`);
                 // Show saving state but keep button visible
                 saveBtn.textContent = 'Applying changes';
                 saveBtn.disabled = true;
+                console.log(`🔒 Save button disabled, text set to 'Applying changes'`);
                 
                 // Hide the discard button during save
                 const discardBtn = document.getElementById('discard-changes');
@@ -2063,10 +2133,13 @@ function initializeDataUtilities() {
                 const changesCount = changedProducts.size;
                 
                 if (changesCount > 0) {
+                    console.log(`📦 Starting save for ${changesCount} changed products`);
                     // Save product changes
                     const productResult = await saveChangesToSquarespace();
+                    console.log(`📦 saveChangesToSquarespace returned:`, productResult);
                     
                     if (productResult && productResult.successCount > 0) {
+                        console.log(`✅ Save successful, clearing UI modifications`);
                         // URL redirects are now handled inside saveChangesToSquarespace()
                         
                         // Clear modified state from successfully saved items
@@ -2094,10 +2167,12 @@ function initializeDataUtilities() {
                         
                         // Clear changed products tracking
                         clearProductModifications();
+                        console.log(`🧹 Product modifications cleared`);
                         
                         // Note: Success notification is already shown by globalProgress.completeMain()
                         // No need to call showFooterNotification again here
                     } else if (productResult && productResult.errorCount > 0) {
+                        console.log(`❌ Save had errors: ${productResult.errorCount} products failed`);
                         if (typeof showFooterNotification === 'function') {
                             showFooterNotification(`Failed to save changes. Please try again.`, 'error');
                         } else {
@@ -2112,26 +2187,31 @@ function initializeDataUtilities() {
                     }
                 }
             } catch (error) {
-                console.error('Save error:', error);
+                console.error('❌ Save error caught in try/catch:', error);
+                console.error('Error stack:', error.stack);
                 if (typeof showFooterNotification === 'function') {
                     showFooterNotification('Error saving changes. Please try again.', 'error');
                 } else {
                     showMessage('Error saving changes. Please try again.', 'error');
                 }
             } finally {
+                console.log(`🔓 Finally block executing - resetting button state`);
                 saveBtn.textContent = 'Apply Changes';
                 saveBtn.disabled = false;
+                console.log(`✅ Save button re-enabled, text reset to 'Apply Changes'`);
                 
                 // Restore the discard button
                 const discardBtn = document.getElementById('discard-changes');
                 if (discardBtn) {
                     discardBtn.style.display = '';
+                    console.log(`👁️ Discard button restored`);
                 }
                 
                 // Keep the changes info hidden after save completion - it will only show again when new changes are made
                 const changesInfo = document.querySelector('.changes-info');
                 
                 // Don't call updateChangesFooter immediately - changes info will only show when new unsaved changes are made
+                console.log(`🏁 Finally block completed - save operation fully finished`);
             }
         });
     }
@@ -8016,16 +8096,21 @@ const categoryOperationTracker = {
 
 // Category API functions - imported from api.js
 async function getCategoryIdsByNames(categoryNames) {
+    console.log(`🔍 BULK getCategoryIdsByNames called with:`, categoryNames);
     
     const globalCategories = window.globalCategoriesData || [];
+    console.log(`📊 globalCategoriesData has ${globalCategories.length} categories:`, globalCategories.map(c => `${c.name} (${c.id})`));
     
     const categoryIds = [];
     
     for (const categoryName of categoryNames) {
+        console.log(`🔎 Looking up category: "${categoryName}"`);
         const category = globalCategories.find(cat => cat.name === categoryName);
         if (category) {
+            console.log(`✅ Found category "${categoryName}" with ID: ${category.id}`);
             categoryIds.push(category.id);
         } else {
+            console.log(`❌ Category "${categoryName}" NOT FOUND in globalCategoriesData`);
             // Try to create the category
             const newCategoryId = await createNewCategory(categoryName);
             if (newCategoryId) {
@@ -8256,14 +8341,60 @@ async function updateProductCategories(productId, categoryNames, crumbToken) {
     }
 }
 
+// Unassign categories using direct category IDs (no name lookup needed)
+async function unassignProductCategoriesByIds(productId, categoryIds, crumbToken) {
+    console.log(`🗑️ unassignProductCategoriesByIds called with:`, {productId, categoryIds, crumbToken: crumbToken ? 'present' : 'missing'});
+    
+    if (!categoryIds || categoryIds.length === 0) {
+        console.log(`⚠️ No category IDs to remove`);
+        return true;
+    }
+    
+    // Build URL with multiple categoryIds parameters (like native Squarespace)
+    const categoryParams = categoryIds.map(id => `categoryIds=${id}`).join('&');
+    const url = `${window.location.origin}/api/commerce/products/${productId}/categories/unassign?${categoryParams}`;
+    console.log(`🌐 Will call API with direct IDs:`, url);
+    
+    try {
+        console.log(`🚀 Making fetch call...`);
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json, text/plain, */*',
+                'x-csrf-token': crumbToken
+            },
+            credentials: 'include',
+            body: null
+        });
+        
+        console.log(`📡 Fetch completed! Status: ${response.status}, OK: ${response.ok}`);
+        
+        if (response.ok) {
+            console.log(`✅ Category removal API call succeeded`);
+            return true;
+        } else {
+            const errorText = await response.text();
+            console.error(`❌ Failed to unassign categories by IDs: ${response.status} - ${errorText}`);
+            return false;
+        }
+    } catch (error) {
+        console.error(`💥 Error unassigning categories by IDs from product ${productId}:`, error);
+        return false;
+    }
+}
+
 async function unassignProductCategories(productId, categoryNames, crumbToken) {
+    console.log(`🗑️ BULK unassignProductCategories called with:`, {productId, categoryNames, crumbToken: crumbToken ? 'present' : 'missing'});
     
     if (!categoryNames || categoryNames.length === 0) {
+        console.log(`⚠️ No categories to remove`);
         return true;
     }
     
     // Get category IDs for removal
+    console.log(`📞 Calling getCategoryIdsByNames...`);
     const categoryIds = await getCategoryIdsByNames(categoryNames);
+    console.log(`📞 getCategoryIdsByNames returned:`, categoryIds);
     
     if (!categoryIds || categoryIds.length === 0) {
         console.error(`❌ Could not get category IDs for categories to unassign:`, categoryNames);
@@ -8273,8 +8404,10 @@ async function unassignProductCategories(productId, categoryNames, crumbToken) {
     // Build URL with multiple categoryIds parameters (like native Squarespace)
     const categoryParams = categoryIds.map(id => `categoryIds=${id}`).join('&');
     const url = `${window.location.origin}/api/commerce/products/${productId}/categories/unassign?${categoryParams}`;
+    console.log(`🌐 Will call API:`, url);
     
     try {
+        console.log(`🚀 Making fetch call...`);
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -8285,8 +8418,10 @@ async function unassignProductCategories(productId, categoryNames, crumbToken) {
             body: null  // Explicitly null like native Squarespace
         });
         
+        console.log(`📡 Fetch completed! Status: ${response.status}, OK: ${response.ok}`);
         
         if (response.ok) {
+            console.log(`✅ Response is OK, parsing body...`);
             // Parse and log the response body to understand what the API returns
             try {
                 const responseText = await response.text();
@@ -8322,8 +8457,10 @@ async function unassignProductCategories(productId, categoryNames, crumbToken) {
             
             // POST-REMOVAL VERIFICATION: Check if the removal actually worked
             try {
+                console.log(`🔍 Starting post-removal verification...`);
 
                 await new Promise(r => setTimeout(r, 500)); // Small delay for backend processing
+                console.log(`⏱️ 500ms delay complete, fetching product details...`);
                 
                 const verificationResponse = await fetch(`${window.location.origin}/api/commerce/products/${productId}`, {
                     method: 'GET',
@@ -8334,8 +8471,11 @@ async function unassignProductCategories(productId, categoryNames, crumbToken) {
                     credentials: 'include'
                 });
                 
+                console.log(`📡 Verification fetch completed! Status: ${verificationResponse.status}, OK: ${verificationResponse.ok}`);
+                
                 if (verificationResponse.ok) {
                     const verificationData = await verificationResponse.json();
+                    console.log(`📦 Verification data received:`, verificationData.categoryIds);
                     
                     // Increment API call progress after verification call
                     if (globalProgress) {
@@ -8344,8 +8484,11 @@ async function unassignProductCategories(productId, categoryNames, crumbToken) {
                     
                     // CRITICAL FIX: Check categoryIds instead of categories (which is always empty)
                     // Get the actual category IDs that should be removed for comparison
+                    console.log(`🔎 Getting category IDs for comparison...`);
                     const categoryIdsToRemove = await getCategoryIdsByNames(categoryNames);
                     const remainingCategoryIds = verificationData.categoryIds || [];
+                    console.log(`🔍 Category IDs to remove:`, categoryIdsToRemove);
+                    console.log(`🔍 Remaining category IDs:`, remainingCategoryIds);
                     
                     // Check if any of the categories we tried to remove are still in categoryIds
                     const stillAssignedIds = categoryIdsToRemove.filter(targetId => 
@@ -8390,6 +8533,7 @@ async function unassignProductCategories(productId, categoryNames, crumbToken) {
                             return false;
                         }
                     } else {
+                        console.log(`✅ Verification passed - no categories still assigned`);
                     }
                 } else {
                     console.warn(`⚠️ Could not verify removal success (${verificationResponse.status}), assuming success based on API response`);
@@ -8398,6 +8542,7 @@ async function unassignProductCategories(productId, categoryNames, crumbToken) {
                 console.warn(`⚠️ Error during post-removal verification:`, verificationError.message, `- assuming success based on API response`);
             }
             
+            console.log(`✅ Returning TRUE - category removal completed`);
             return true;
         } else {
             const errorText = await response.text();
@@ -17648,7 +17793,7 @@ function createProductRow(rowData) {
         <td class="col-title title-with-expand">${titleContent}</td>
         <td class="col-url">${rowData.url}</td>
         <td class="col-sku ${!rowData.skuEditable ? 'non-editable' : ''}">${rowData.sku}</td>
-        <td class="col-categories category-field" title="Click to edit categories" data-original-categories="${rowData.categories}">
+        <td class="col-categories category-field" title="Click to edit categories" data-original-categories="${rowData.categories}" data-category-ids="${Array.isArray(rowData.categoryIds) ? rowData.categoryIds.join(',') : ''}">
             ${rowData.categories || ''}
         </td>
         <td class="col-price">${rowData.price}</td>
@@ -21098,10 +21243,20 @@ function applyCategoryChanges(cell, row, tagsDisplay) {
     const originalCategoriesString = cell.dataset.originalCategories || '';
     const originalCategories = originalCategoriesString ? originalCategoriesString.split(', ').map(c => c.trim()) : [];
     
+    // Get original category IDs
+    const originalCategoryIds = cell.dataset.categoryIds ? cell.dataset.categoryIds.split(',') : [];
+    
     // Calculate what was added and removed
     const addedCategories = newCategories.filter(cat => !originalCategories.includes(cat));
     const removedCategories = originalCategories.filter(cat => !newCategories.includes(cat));
     
+    // Map removed category names to their actual IDs
+    const removedCategoryIds = removedCategories.map(categoryName => {
+        const index = originalCategories.indexOf(categoryName);
+        return index >= 0 && index < originalCategoryIds.length ? originalCategoryIds[index] : null;
+    }).filter(id => id !== null);
+    
+    console.log(`🗑️ applyCategoryChanges: Removed categories:`, removedCategories, `with IDs:`, removedCategoryIds);
     
     // Update the cell with plain text display
     cell.innerHTML = categoriesString;
@@ -21127,8 +21282,11 @@ function applyCategoryChanges(cell, row, tagsDisplay) {
     
     if (removedCategories.length > 0) {
         cell.setAttribute('data-categories-removed', removedCategories.join(','));
+        // Also store the actual category IDs for removal
+        cell.setAttribute('data-categories-removed-ids', removedCategoryIds.join(','));
     } else {
         cell.removeAttribute('data-categories-removed');
+        cell.removeAttribute('data-categories-removed-ids');
     }
     
     // Track changes globally if function exists
