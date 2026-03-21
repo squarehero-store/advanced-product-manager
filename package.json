@@ -1,0 +1,38 @@
+{
+  "name": "squarehero-product-manager",
+  "version": "1.0.32",
+  "description": "Advanced Product Manager for Squarespace",
+  "main": "src/main.js",
+  "scripts": {
+    "build": "node build/build.js",
+    "dev": "node build/build.js --dev",
+    "watch": "node build/build.js --watch",
+    "build-extension": "node build/build-extension.js",
+    "build-extension-dev": "node build/build-extension.js --dev",
+    "build-extension-store": "node build/build-extension-store.js",
+    "build-all": "npm run build && npm run build-extension",
+    "compile-scss": "sass chrome-extension/squarehero-content.scss chrome-extension/squarehero-content.css --style=expanded --watch"
+  },
+  "keywords": [
+    "squarespace",
+    "product-manager",
+    "ecommerce"
+  ],
+  "author": "SquareHero",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "chokidar": "^3.5.3",
+    "fs-extra": "^11.1.1",
+    "javascript-obfuscator": "^4.1.1",
+    "rollup": "^4.53.2",
+    "sass": "^1.69.5",
+    "terser": "^5.44.0",
+    "uglify-js": "^3.19.3"
+  },
+  "dependencies": {
+    "flatpickr": "^4.6.13"
+  }
+}
