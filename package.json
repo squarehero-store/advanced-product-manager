@@ -1,6 +1,6 @@
 {
   "name": "squarehero-product-manager",
-  "version": "1.0.32",
+  "version": "1.0.33",
   "description": "Advanced Product Manager for Squarespace",
   "main": "src/main.js",
   "scripts": {
