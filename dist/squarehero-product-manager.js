@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.36
+ * SquareHero Advanced Product Manager v1.0.37
  * https://squarehero.store
- * Build Date: 2026-11-23T22:31:36.773Z
+ * Build Date: 2026-11-23T22:41:35.917Z
  */
 (function() {
     'use strict';
@@ -30,6 +30,17 @@ function getCsrfToken() {
         return null;
     }
     return crumb;
+}
+
+// Products are loaded with SEO as seoData.seoTitle / seoData.seoDescription, but the commerce save
+// endpoint (PUT /api/commerce/products/{id}) takes seoData.title / seoData.description. Saves must send
+// the existing values back or Squarespace clears them, so read whichever shape the product has.
+function getProductSeoPayload(product) {
+    const seo = product?.seoData || product?.storeItem?.seoData || {};
+    return {
+        title: seo.seoTitle || seo.title || '',
+        description: seo.seoDescription || seo.description || ''
+    };
 }
 
 // Extract file ID from Squarespace asset URL
@@ -215,6 +226,7 @@ async function updateProductFields(product, changes, crumbToken) {
             },
             onSale: false, // Will be set below after price validation
             shareStates: [], // Keep empty array for now
+            seoData: getProductSeoPayload(product), // Preserve existing SEO title/description
             urlId: changes.url !== undefined ? changes.url : product.urlId,
             regenerateUrlId: false, // Don't regenerate URL
             sku: changes.sku !== undefined ? changes.sku : (product.storeItem?.sku || ''),
@@ -430,10 +442,10 @@ async function updateProductFields(product, changes, crumbToken) {
                     (v.optionalValues || []).map(ov => ov.optionName)
                 ))] : [], // Extract unique option names from variants
             variantOrderBySkus: updatedVariants.map(v => v.sku),
-            seoData: { title: "", description: "" }, // Add missing seoData field
-            useCustomAddButtonText: false, // Keep simple default
-            customAddButtonText: 'Add To Cart', // Match successful format with capital T
-            featuredProduct: false, // Keep simple default
+            seoData: getProductSeoPayload(product), // Preserve existing SEO title/description
+            useCustomAddButtonText: product.storeItem?.useCustomAddButtonText || false,
+            customAddButtonText: product.storeItem?.customAddButtonText || 'Add To Cart', // Match successful format with capital T
+            featuredProduct: product.storeItem?.featuredProduct || false,
             shareStates: [], // Keep empty array for now
             relatedProductsConfiguration: { strategy: "CATEGORIES" }, // Match native Squarespace format
             urlId: masterProductChanges.url !== undefined ? masterProductChanges.url : product.urlId,
@@ -9844,10 +9856,7 @@ function initializeProductUpdateAPI() {
                         (v.optionalValues || []).map(ov => ov.optionName)
                     ))] : [],
                 variantOrderBySkus: [changes.sku !== undefined ? changes.sku : (product.storeItem?.variants?.[0]?.sku || '')],
-                seoData: {
-                    title: product.seoData?.title || product.storeItem?.seoData?.title || "",
-                    description: product.seoData?.description || product.storeItem?.seoData?.description || ""
-                },
+                seoData: getProductSeoPayload(product), // Preserve existing SEO title/description
                 useCustomAddButtonText: product.storeItem?.useCustomAddButtonText || false,
                 customAddButtonText: product.storeItem?.customAddButtonText || 'Add to Cart',
                 featuredProduct: product.storeItem?.featuredProduct || false,
@@ -9925,10 +9934,7 @@ function initializeProductUpdateAPI() {
                 newImageOrder: product.storeItem?.itemImages?.map(img => img.id) || [],
                 variantOptionOrdering: [],
                 variantOrderBySkus: [],
-                seoData: {
-                    title: product.seoData?.title || product.storeItem?.seoData?.title || "",
-                    description: product.seoData?.description || product.storeItem?.seoData?.description || ""
-                },
+                seoData: getProductSeoPayload(product), // Preserve existing SEO title/description
                 useCustomAddButtonText: product.storeItem?.useCustomAddButtonText || false,
                 customAddButtonText: product.storeItem?.customAddButtonText || 'Add to Cart',
                 featuredProduct: product.storeItem?.featuredProduct || false,
@@ -10234,10 +10240,7 @@ function initializeProductUpdateAPI() {
                         (v.optionalValues || []).map(ov => ov.optionName)
                     ))] : [], // Extract unique option names from variants
                 variantOrderBySkus: updatedVariants.map(v => v.sku),
-                seoData: {
-                    title: product.seoData?.title || product.storeItem?.seoData?.title || "",
-                    description: product.seoData?.description || product.storeItem?.seoData?.description || ""
-                },
+                seoData: getProductSeoPayload(product), // Preserve existing SEO title/description
                 useCustomAddButtonText: product.storeItem?.useCustomAddButtonText || false,
                 customAddButtonText: product.storeItem?.customAddButtonText || 'Add to Cart',
                 featuredProduct: product.storeItem?.featuredProduct || false,
@@ -17361,6 +17364,8 @@ let globalCategoryTreeData = null;
 // a whole store, and Squarespace's own admin uses the root category for its "All" view.
 const rootCategoriesByCollection = new Map(); // collectionId -> { id, itemCount }
 let productLoadToken = 0; // Incremented per loadProducts() call so stale batches from an older load are ignored
+// Store pages listed by Squarespace whose product APIs return 404 (deleted/legacy pages) - skipped when loading products
+const unavailableCollections = new Set();
 
 // Fetch categories from Squarespace API for a single collection
 async function fetchCategoriesForCollection(collectionId, crumb) {
@@ -17383,7 +17388,13 @@ async function fetchCategoriesForCollection(collectionId, crumb) {
         });
         
         if (!response.ok) {
-            console.error(`❌ Categories fetch failed for collection ${collectionId}:`, response.status, response.statusText);
+            if (response.status === 404) {
+                // Listed as a store page but not available (usually a deleted or legacy page) - skip it quietly
+                unavailableCollections.add(collectionId);
+                console.info(`ℹ️ Skipping store page ${collectionId}: not available (likely deleted)`);
+            } else {
+                console.error(`❌ Categories fetch failed for collection ${collectionId}:`, response.status, response.statusText);
+            }
             return [];
         }
         
@@ -18160,7 +18171,7 @@ async function fetchAllProducts(onBatch) {
 
         const collectionsData = await collectionsResponse.json();
         const collections = collectionsData && collectionsData.collections ? Object.values(collectionsData.collections) : [];
-        const productCollections = collections.filter(col => col.typeName === "products");
+        const productCollections = collections.filter(col => col.typeName === "products" && !unavailableCollections.has(col.id));
         
         if (!productCollections.length) {
             return [];
@@ -22174,7 +22185,7 @@ function initializeTableScroll() {
     
     // Exit early if required elements don't exist
     if (!tableContainer || !scrollLeftBtn || !scrollRightBtn || !scrollArrowsContainer) {
-        console.warn('Table scroll elements not found, skipping initialization');
+        console.debug('Table scroll elements not found, skipping initialization');
         return null;
     }
 
