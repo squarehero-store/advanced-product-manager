@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.35
+ * SquareHero Advanced Product Manager v1.0.36
  * https://squarehero.store
- * Build Date: 2026-11-23T22:24:07.943Z
+ * Build Date: 2026-11-23T22:31:36.773Z
  */
 (function() {
     'use strict';
@@ -18222,10 +18222,15 @@ async function fetchAllProducts(onBatch) {
 // Mirrors the request Squarespace's own product list sends for a store's "All" view:
 //   { limit, pageAction: "NEXT", queryTermDTO: { ORDERED_PRODUCT, ASCENDING, queryFilters: [root categoryId] }, marker: 39 }
 // - a categoryId filter is required (requests without one return 400), so we filter by the root category
-// - nextPageMarker is an offset ("19", "39", ...) and is sent back as a numeric `marker` field
+// - nextPageMarker is an offset ("199", "399", ...) and is sent back as a numeric `marker` field
+// Because markers are plain offsets and the root category reports the product count, every page after the
+// first is fetched in parallel (PARALLEL_PAGE_REQUESTS at a time) and delivered to onPage in order.
 // If no root category is known for the collection, or the ordered request is rejected, the legacy
 // request format is used (it only reliably returns the first page).
 // onPage (optional) receives each page's new products; when given, products are not accumulated here.
+const PRODUCTS_PAGE_SIZE = 200;
+const PARALLEL_PAGE_REQUESTS = 4;
+
 async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken, onPage) {
     const apiUrl = `${window.location.origin}/api/content-service/product/1.1/websites/${websiteId}/products/${collectionId}/queryProductItems`;
     
@@ -18235,88 +18240,155 @@ async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken, o
         console.warn(`⚠️ No root category found for collection ${collectionId}, using legacy product query (may only load the first page)`);
     }
     
-    let allProducts = [];
+    const allProducts = [];
     const seenIds = new Set();
-    let hasNextPage = true;
-    let pageMarker = "";
-    let previousPageMarker = "";
-    let requestCount = 0;
-    const maxRequests = 1000; // Safety limit to prevent infinite loops (1000 x 200 = 200k products)
     
-    while (hasNextPage && requestCount < maxRequests) {
-        requestCount++;
-        
-        let requestBody;
+    const buildRequestBody = (marker) => {
         if (useOrderedQuery) {
-            requestBody = {
-                limit: 200,
+            return {
+                limit: PRODUCTS_PAGE_SIZE,
                 pageAction: "NEXT",
                 queryTermDTO: {
                     queryDirection: "ASCENDING",
                     queryCriteria: "ORDERED_PRODUCT",
                     queryFilters: [{ filterCriteria: "categoryId", filterParameter: rootCategory.id }]
                 },
-                ...(pageMarker !== "" && {
-                    marker: /^\d+$/.test(pageMarker) ? Number(pageMarker) : pageMarker
-                })
-            };
-        } else {
-            requestBody = {
-                limit: 200,
-                ...(pageMarker && {
-                    pageAction: "NEXT",
-                    pageMarker: pageMarker
+                ...(marker !== "" && {
+                    marker: /^\d+$/.test(marker) ? Number(marker) : marker
                 })
             };
         }
-        
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'accept': 'application/json',
-                'content-type': 'application/json',
-                'x-csrf-token': crumbToken
-            },
-            credentials: 'include',
-            body: JSON.stringify(requestBody)
-        });
-
-        if (!response.ok) {
+        return {
+            limit: PRODUCTS_PAGE_SIZE,
+            ...(marker && {
+                pageAction: "NEXT",
+                pageMarker: marker
+            })
+        };
+    };
+    
+    // Fetch one page, retrying transient failures (rate limiting / server errors) with backoff
+    const fetchPage = async (marker) => {
+        const maxAttempts = 3;
+        for (let attempt = 1; ; attempt++) {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'content-type': 'application/json',
+                    'x-csrf-token': crumbToken
+                },
+                credentials: 'include',
+                body: JSON.stringify(buildRequestBody(marker))
+            });
+            if (response.ok) {
+                return response.json();
+            }
             const errorText = await response.text();
-            // If the ordered query is rejected on the first page, retry with the legacy request format
-            if (useOrderedQuery && !pageMarker && response.status === 400) {
-                console.warn(`⚠️ Ordered queryProductItems request rejected for collection ${collectionId}, retrying with legacy format:`, errorText);
-                useOrderedQuery = false;
+            const retryable = response.status === 429 || response.status >= 500;
+            if (retryable && attempt < maxAttempts) {
+                console.warn(`⚠️ queryProductItems ${response.status} for collection ${collectionId} (marker ${marker || 'start'}), retrying (${attempt}/${maxAttempts - 1})`);
+                await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
                 continue;
             }
-            console.error(`💥 Error with queryProductItems API:`, errorText);
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
+            const error = new Error(`HTTP ${response.status}: ${errorText}`);
+            error.status = response.status;
+            error.body = errorText;
+            throw error;
         }
-
-        const data = await response.json();
-        
+    };
+    
+    // Dedupe a page's products, tag them with ids needed for later API calls, and hand them on
+    const deliverPage = (data) => {
         const pageProducts = [];
-        if (data.products && data.products.length > 0) {
-            data.products.forEach(product => {
-                if (seenIds.has(product.id)) return;
-                seenIds.add(product.id);
-                // Add websiteId and parentCollectionId to each product for later API calls
-                pageProducts.push({
-                    ...product,
-                    websiteId: websiteId,
-                    parentCollectionId: collectionId
-                });
+        (data.products || []).forEach(product => {
+            if (seenIds.has(product.id)) return;
+            seenIds.add(product.id);
+            pageProducts.push({
+                ...product,
+                websiteId: websiteId,
+                parentCollectionId: collectionId
             });
-        }
-        const newCount = pageProducts.length;
+        });
         if (typeof onPage === 'function') {
-            if (newCount > 0) onPage(pageProducts);
+            if (pageProducts.length > 0) onPage(pageProducts);
         } else {
             allProducts.push(...pageProducts);
         }
+        return pageProducts.length;
+    };
+    
+    // First page (also confirms which request format this store accepts)
+    let firstPage;
+    try {
+        firstPage = await fetchPage("");
+    } catch (error) {
+        if (useOrderedQuery && error.status === 400) {
+            console.warn(`⚠️ Ordered queryProductItems request rejected for collection ${collectionId}, retrying with legacy format:`, error.body);
+            useOrderedQuery = false;
+            firstPage = await fetchPage("");
+        } else {
+            console.error(`💥 Error with queryProductItems API:`, error.body || error);
+            throw error;
+        }
+    }
+    deliverPage(firstPage);
+    
+    let hasNextPage = firstPage.pagination?.hasNextPage || false;
+    let pageMarker = String(firstPage.pagination?.nextPageMarker ?? "");
+    let requestCount = 1;
+    
+    // Parallel path: markers are offsets, so we can work out every remaining page up front
+    const expectedTotal = rootCategory?.itemCount || 0;
+    const markersAreOffsets = useOrderedQuery && pageMarker === String(PRODUCTS_PAGE_SIZE - 1);
+    if (hasNextPage && markersAreOffsets && expectedTotal > PRODUCTS_PAGE_SIZE) {
+        const pageCount = Math.ceil(expectedTotal / PRODUCTS_PAGE_SIZE);
+        const markers = [];
+        for (let page = 1; page < pageCount; page++) {
+            markers.push(String(page * PRODUCTS_PAGE_SIZE - 1));
+        }
         
-        // Store previous marker for comparison
-        previousPageMarker = pageMarker;
+        const results = new Array(markers.length);
+        let nextToStart = 0;
+        let nextToDeliver = 0;
+        
+        // Deliver completed pages strictly in order so the table keeps Squarespace's product order
+        const flush = () => {
+            while (nextToDeliver < results.length && results[nextToDeliver] !== undefined) {
+                deliverPage(results[nextToDeliver]);
+                results[nextToDeliver] = null; // release memory
+                nextToDeliver++;
+            }
+        };
+        
+        const worker = async () => {
+            while (nextToStart < markers.length) {
+                const index = nextToStart++;
+                results[index] = await fetchPage(markers[index]);
+                flush();
+            }
+        };
+        
+        await Promise.all(Array.from({ length: Math.min(PARALLEL_PAGE_REQUESTS, markers.length) }, worker));
+        requestCount += markers.length;
+        
+        // Pick up anything added since the product count was read by continuing sequentially from the last page
+        const lastPageMarker = markers[markers.length - 1];
+        const lastData = await fetchPage(lastPageMarker);
+        requestCount++;
+        deliverPage(lastData);
+        hasNextPage = lastData.pagination?.hasNextPage || false;
+        pageMarker = String(lastData.pagination?.nextPageMarker ?? "");
+    }
+    
+    // Sequential path (legacy format, unknown totals, or products beyond the expected count)
+    const maxRequests = 1000; // Safety limit to prevent infinite loops (1000 x 200 = 200k products)
+    while (hasNextPage && requestCount < maxRequests) {
+        const previousPageMarker = pageMarker;
+        const data = await fetchPage(pageMarker);
+        requestCount++;
+        const newCount = deliverPage(data);
+        
         hasNextPage = data.pagination?.hasNextPage || false;
         pageMarker = String(data.pagination?.nextPageMarker ?? "");
         
@@ -19693,100 +19765,100 @@ function initializeSearchFiltering() {
         return filterString;
     }
 
-    // Filter products exactly like the reference
+    // Does a product row match the current category/status/type/search filters?
+    function rowMatchesFilters(row, categoryToken, term) {
+        if (categoryToken) {
+            const categories = (row.getAttribute('data-category') || '').split(/\s+/);
+            if (!categories.includes(categoryToken)) return false;
+        }
+        if (activeStatus !== 'all' && row.getAttribute('data-status') !== activeStatus) return false;
+        if (activeType !== 'all' && row.getAttribute('data-type') !== activeType) return false;
+        if (term) {
+            const title = row.getAttribute('data-title') || '';
+            if (title.includes(term)) return true;
+            const skuCell = row.querySelector('td:nth-child(4)');
+            const sku = skuCell ? skuCell.textContent.toLowerCase() : '';
+            return sku.includes(term);
+        }
+        return true;
+    }
+    
+    // Compare two rows for the current sort ("title:asc", "price:desc", "stock:asc" or "default")
+    function compareRows(a, b) {
+        const [attribute, direction] = currentSort !== 'default' ? currentSort.split(':') : ['default', 'asc'];
+        const multiplier = direction === 'desc' ? -1 : 1;
+        const defaultOrder = row => Number(row.getAttribute('data-default-order')) || 0;
+        let result = 0;
+        if (attribute === 'title') {
+            result = (a.getAttribute('data-title') || '').localeCompare(b.getAttribute('data-title') || '');
+        } else if (attribute !== 'default') {
+            result = (parseFloat(a.getAttribute(`data-${attribute}`)) || 0) - (parseFloat(b.getAttribute(`data-${attribute}`)) || 0);
+        }
+        if (result === 0) {
+            result = defaultOrder(a) - defaultOrder(b);
+            return attribute === 'default' ? result * multiplier : result;
+        }
+        return result * multiplier;
+    }
+    
+    // Filter, sort and paginate the product rows in one pass. Replaces MixItUp, which re-laid-out and
+    // animated every row on each change and built giant selectors for search (crashed on large stores).
+    function runFilterAndSort({ resetPage = true } = {}) {
+        assignDefaultRowOrder();
+        const rows = getMasterProductRows();
+        
+        // Sort all rows (not just matches) so the DOM order is stable when filters change
+        const sorted = rows.slice().sort(compareRows);
+        const orderChanged = sorted.some((row, index) => row !== rows[index]);
+        if (orderChanged) {
+            const fragment = document.createDocumentFragment();
+            sorted.forEach(row => {
+                // Move expanded variant rows together with their product row
+                const variantRows = [];
+                let next = row.nextElementSibling;
+                while (next && next.classList.contains('variant-row')) {
+                    variantRows.push(next);
+                    next = next.nextElementSibling;
+                }
+                fragment.appendChild(row);
+                variantRows.forEach(variantRow => fragment.appendChild(variantRow));
+            });
+            container.appendChild(fragment);
+        }
+        
+        const categoryToken = activeCategory !== 'all'
+            ? activeCategory.toLowerCase().replace(/[^a-z0-9\s,]/g, '').replace(/\s+/g, '-')
+            : null;
+        const term = (searchTerm || '').trim();
+        
+        filteredItems = sorted.filter(row => rowMatchesFilters(row, categoryToken, term));
+        if (resetPage) {
+            currentPage = 1;
+        }
+        updatePagination();
+        applyPagination();
+        
+        // Update select all checkbox state after filtering
+        if (typeof window.updateSelectAllState === 'function') {
+            window.updateSelectAllState();
+        }
+        
+        // Update reset button state after filtering
+        updateResetButtonState();
+        
+        return Promise.resolve();
+    }
+    
     function filterProducts() {
-        const activeMixer = window.productMixer || mixer;
-        
-        if (!activeMixer) {
-            console.warn('No mixer available - MixItUp not initialized yet');
-            return;
-        }
-        
-        // Check if MixItUp is busy before applying filter
-        if (activeMixer.isBusy && activeMixer.isBusy()) {
-            console.warn('🚫 MixItUp is busy, skipping filter operation');
-            return;
-        }
-        
-        const filterString = buildFilterString();
-        
-        // Reset any inline styles that might interfere
-        const allMixItems = document.querySelectorAll('.mix');
-        
-        allMixItems.forEach((item, index) => {
-            item.style.display = '';
-        });
-        
-        // Debug: Test the filter manually first
-        
-        // Reset MixItUp to show all items first, then apply the filter
-        // This matches the reference implementation exactly
-        return activeMixer.filter('.mix').then(function(state) {
-            return activeMixer.filter(filterString);
-        }).then(function(state) {
-            
-            // Update filtered items and reset to first page
-            filteredItems = state.matching;
-            currentPage = 1; // Reset to first page after filtering
-            
-            // Apply current sort after filtering
-            if (currentSort !== 'default') {
-                applySort();
-            } else {
-                // Update pagination even if no sorting
-                updatePagination();
-                applyPagination();
-            }
-            
-            // Update select all checkbox state after filtering
-            if (typeof window.updateSelectAllState === 'function') {
-                window.updateSelectAllState();
-            }
-            
-            // Update reset button state after filtering
-            updateResetButtonState();
-        }).catch(function(error) {
-            console.error('❌ Error applying filter:', error);
-        });
+        return runFilterAndSort({ resetPage: true });
     }
-
-    // Sort functionality exactly like the reference
+    
     function applySort() {
-        if (!window.productMixer) {
-            console.warn('MixItUp not available for sorting');
-            return;
-        }
-        
-        
-        let sortString;
-        
-        if (currentSort !== 'default') {
-            // Handle the dropdown format exactly like reference: "attribute:direction"
-            const [attribute, direction] = currentSort.split(':');
-            sortString = `${attribute}:${direction}`;
-        } else {
-            sortString = 'default:asc';
-        }
-        
-
-        window.productMixer.sort(sortString).then(function(state) {
-            
-            // Update filtered items after sorting
-            filteredItems = state.matching;
-            updatePagination();
-            applyPagination();
-            
-            // Update select all checkbox state after sorting
-            if (typeof window.updateSelectAllState === 'function') {
-                window.updateSelectAllState();
-            }
-            
-            // Update reset button state after sorting
-            updateResetButtonState();
-        }).catch(function(error) {
-            console.error('❌ Sort failed:', error);
-        });
+        return runFilterAndSort({ resetPage: true });
     }
+    
+    // Let the product loader re-apply the current filters after (re)loading products
+    window.shApplyProductFilters = runFilterAndSort;
 
     // Check if any filters are active and update reset button disabled state
     function updateResetButtonState() {
@@ -19919,15 +19991,7 @@ function initializeSearchFiltering() {
         }, 50);
         
         // Apply the reset filters and sort (show all items in default order)
-        filterProducts().then(() => {
-            // After filtering, apply default sort to reset visual order
-            if (window.productMixer) {
-                return window.productMixer.sort('default:asc');
-            }
-        }).then(() => {
-        }).catch((error) => {
-            console.error('❌ Error during reset:', error);
-        });
+        filterProducts();
         
         // Update reset button state after reset
         updateResetButtonState();
@@ -19997,31 +20061,9 @@ function initializeSearchFiltering() {
         }
     }
 
-    // Wait for MixItUp to be available, then set up (but don't initialize yet)
-    function waitForMixItUp() {
-        // Check if MixItUp is already loaded or loading
-        if (!window.mixitup && !document.querySelector('script[src*="mixitup"]')) {
-            const mixitupScript = document.createElement('script');
-            mixitupScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mixitup/3.3.1/mixitup.min.js';
-            document.head.appendChild(mixitupScript);
-            
-            // Wait for MixItUp to load, then set up event listeners (but don't initialize mixer yet)
-            mixitupScript.onload = function() {
-                setupEventListeners();
-                initializeCustomDropdowns();
-            };
-        } else if (window.mixitup) {
-            // MixItUp already loaded, set up event listeners
-            setupEventListeners();
-            initializeCustomDropdowns();
-        } else {
-            // Script is loading, wait a bit
-            setTimeout(waitForMixItUp, 100);
-        }
-    }
-
-    // Start initialization (only loads MixItUp library and sets up event listeners)
-    waitForMixItUp();
+    // Set up controls (MixItUp is no longer used for filtering)
+    setupEventListeners();
+    initializeCustomDropdowns();
     
     // Return public interface
     return {
@@ -20031,21 +20073,42 @@ function initializeSearchFiltering() {
     };
 }
 
+// Product rows in the table (variant rows excluded)
+function getMasterProductRows() {
+    return Array.from(document.querySelectorAll('#product-container > tr.master-product-row'));
+}
+
+// Give each product row its original position so "default" sort can restore Squarespace's order
+let defaultRowOrderCounter = 0;
+function assignDefaultRowOrder() {
+    getMasterProductRows().forEach(row => {
+        if (!row.hasAttribute('data-default-order')) {
+            row.setAttribute('data-default-order', String(defaultRowOrderCounter++));
+        }
+    });
+}
+
+// Show or hide a product row together with any expanded variant rows beneath it
+function setProductRowVisible(row, visible) {
+    const display = visible ? '' : 'none';
+    if (row.style.display !== display) {
+        row.style.display = display;
+    }
+    let next = row.nextElementSibling;
+    while (next && next.classList.contains('variant-row')) {
+        next.style.display = visible ? 'table-row' : 'none';
+        next = next.nextElementSibling;
+    }
+}
+
 // Pagination functions (accessible globally)
 function applyPagination() {
-    // Hide all items first
-    filteredItems.forEach(item => {
-        item.style.display = 'none';
-    });
-
-    // Calculate start and end indices for current page
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-
-    // Show items for current page
-    const itemsToShow = filteredItems.slice(startIndex, endIndex);
-    itemsToShow.forEach(item => {
-        item.style.display = '';
+    const pageItems = new Set(filteredItems.slice(startIndex, startIndex + itemsPerPage));
+    
+    // One pass over every row: show the current page, hide everything else (including non-matches)
+    getMasterProductRows().forEach(row => {
+        setProductRowVisible(row, pageItems.has(row));
     });
 
     updatePaginationInfo();
@@ -20053,27 +20116,62 @@ function applyPagination() {
 
 function updatePagination() {
     const totalItems = filteredItems.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+    currentPage = Math.min(Math.max(1, currentPage), totalPages);
     
-    // Generate page buttons
     const pageNumbersContainer = document.getElementById('page-numbers');
-    if (pageNumbersContainer) {
-        pageNumbersContainer.innerHTML = '';
-
-        for (let i = 1; i <= totalPages; i++) {
-            const pageBtn = document.createElement('button');
-            pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
-            pageBtn.textContent = i;
-            pageBtn.addEventListener('click', function() {
-                currentPage = i;
-                // Update active state
-                document.querySelectorAll('.page-btn').forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                applyPagination();
-            });
-            pageNumbersContainer.appendChild(pageBtn);
+    if (!pageNumbersContainer) return;
+    pageNumbersContainer.innerHTML = '';
+    
+    const goToPage = (page) => {
+        currentPage = page;
+        updatePagination();
+        applyPagination();
+    };
+    
+    const addButton = (label, page, { active = false, disabled = false, extraClass = '', ariaLabel = '' } = {}) => {
+        const pageBtn = document.createElement('button');
+        pageBtn.type = 'button';
+        pageBtn.className = `page-btn ${extraClass} ${active ? 'active' : ''}`.trim();
+        pageBtn.textContent = label;
+        if (ariaLabel) pageBtn.setAttribute('aria-label', ariaLabel);
+        if (active) pageBtn.setAttribute('aria-current', 'page');
+        pageBtn.disabled = disabled;
+        if (!disabled && !active) {
+            pageBtn.addEventListener('click', () => goToPage(page));
         }
+        pageNumbersContainer.appendChild(pageBtn);
+    };
+    
+    const addEllipsis = () => {
+        const ellipsis = document.createElement('span');
+        ellipsis.className = 'page-ellipsis';
+        ellipsis.textContent = '…';
+        pageNumbersContainer.appendChild(ellipsis);
+    };
+    
+    if (totalPages <= 1) return;
+    
+    // Show first, last and a window around the current page: ‹ 1 … 4 5 [6] 7 8 … 113 ›
+    const windowSize = 2;
+    let windowStart = Math.max(2, currentPage - windowSize);
+    let windowEnd = Math.min(totalPages - 1, currentPage + windowSize);
+    // Keep the number of buttons steady near the ends
+    if (currentPage - windowSize <= 2) windowEnd = Math.min(totalPages - 1, 2 + windowSize * 2);
+    if (currentPage + windowSize >= totalPages - 1) windowStart = Math.max(2, totalPages - 1 - windowSize * 2);
+    // Don't use an ellipsis to hide a single page
+    if (windowStart === 3) windowStart = 2;
+    if (windowEnd === totalPages - 2) windowEnd = totalPages - 1;
+    
+    addButton('‹', currentPage - 1, { disabled: currentPage === 1, extraClass: 'page-btn-nav', ariaLabel: 'Previous page' });
+    addButton('1', 1, { active: currentPage === 1 });
+    if (windowStart > 2) addEllipsis();
+    for (let i = windowStart; i <= windowEnd; i++) {
+        addButton(String(i), i, { active: i === currentPage });
     }
+    if (windowEnd < totalPages - 1) addEllipsis();
+    addButton(String(totalPages), totalPages, { active: currentPage === totalPages });
+    addButton('›', currentPage + 1, { disabled: currentPage === totalPages, extraClass: 'page-btn-nav', ariaLabel: 'Next page' });
 }
 
 function updatePaginationInfo() {
@@ -20083,68 +20181,22 @@ function updatePaginationInfo() {
     
     const paginationInfo = document.getElementById('pagination-info');
     if (paginationInfo) {
-        paginationInfo.textContent = `Showing ${startItem} to ${endItem} of ${totalItems} products`;
+        paginationInfo.textContent = `Showing ${startItem.toLocaleString()} to ${endItem.toLocaleString()} of ${totalItems.toLocaleString()} products`;
     }
 }
 
-// Initialize MixItUp after products are loaded (called from product-loader.js)
+// Set up filtering/pagination after products are loaded (called from product-loader.js).
+// Name kept for compatibility; MixItUp is no longer used.
 function initializeMixItUpAfterProducts() {
+    assignDefaultRowOrder();
     
-    // Always destroy existing mixer before reinitializing (fixes filter issues after bulk changes)
-    if (window.productMixer && typeof window.productMixer.destroy === 'function') {
-        try {
-            window.productMixer.destroy();
-        } catch (error) {
-            console.warn('⚠️ Error destroying existing mixer:', error);
-        }
-        window.productMixer = null;
-    }
-    
-    if (typeof mixitup === 'undefined') {
-        console.error('MixItUp is not loaded yet');
-        return;
-    }
-
-    try {
-        const container = document.getElementById('product-container');
-        const targetElements = document.querySelectorAll('.master-product-row');
-        
-        
-        if (targetElements.length === 0) {
-            console.warn('No target elements found, skipping MixItUp initialization');
-            return;
-        }
-        
-        const mixer = mixitup('#product-container', {
-            selectors: {
-                target: '.master-product-row'
-            },
-            animation: {
-                duration: 300,
-                effects: 'fade',
-                easing: 'ease'
-            },
-            callbacks: {
-                onMixEnd: function(state) {
-                }
-            }
-        });
-        
-        
-        // Store mixer globally so search functions can access it
-        window.productMixer = mixer;
-        
-        // Test immediately after initialization
-        const testState = mixer.getState();
-        
-                // Set initial filtered items to all items and setup pagination
-        filteredItems = testState.targets;
+    if (typeof window.shApplyProductFilters === 'function') {
+        // Re-apply whatever filters/sort are currently selected (e.g. after a reload following bulk changes)
+        window.shApplyProductFilters({ resetPage: false });
+    } else {
+        filteredItems = getMasterProductRows();
         updatePagination();
         applyPagination();
-        
-    } catch (error) {
-        console.error('Error initializing MixItUp after products loaded:', error);
-        console.error('Error stack:', error.stack);
     }
 }
 
