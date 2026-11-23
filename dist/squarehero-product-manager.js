@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.33
+ * SquareHero Advanced Product Manager v1.0.34
  * https://squarehero.store
- * Build Date: 2026-05-22T05:16:09.480Z
+ * Build Date: 2026-11-23T22:11:33.336Z
  */
 (function() {
     'use strict';
@@ -17357,6 +17357,7 @@ function getVariantStockDisplay(variant) {
 let globalCategoriesData = [];
 let globalCollectionsData = [];
 let globalCategoryTreeData = null;
+let productLoadToken = 0; // Incremented per loadProducts() call so stale batches from an older load are ignored
 
 // Fetch categories from Squarespace API for a single collection
 async function fetchCategoriesForCollection(collectionId, crumb) {
@@ -18109,8 +18110,17 @@ function getCsrfToken() {
     return crumb;
 }
 
+// Drop large fields nothing in the plugin reads, to keep memory down on big stores.
+// NOTE: description, seoData, tags etc. must be kept - save payloads send them back to Squarespace.
+function slimProduct(product) {
+    const { thumbnailImage, mainImage, ...rest } = product;
+    return rest;
+}
+
 // Fetch all products from Squarespace
-async function fetchAllProducts() {
+// onBatch (optional) is called with each new batch of (deduplicated, slimmed) products as they arrive,
+// so the table can render progressively. The returned promise still resolves with the full list.
+async function fetchAllProducts(onBatch) {
     const crumb = getCsrfToken();
     if (!crumb) return [];
 
@@ -18146,40 +18156,48 @@ async function fetchAllProducts() {
         }
 
         
+        const uniqueProducts = [];
+        const seenIds = new Set();
+        
+        // Deduplicate, filter and slim each batch as it arrives, then hand it to the caller
+        const addProducts = (products) => {
+            const added = [];
+            (products || []).forEach(product => {
+                if (!product || seenIds.has(product.id)) return;
+                seenIds.add(product.id);
+                // Filter out gift card products - they are not supported
+                if (product.storeItem?.productType === 'GIFT_CARD') return;
+                const slim = slimProduct(product);
+                uniqueProducts.push(slim);
+                added.push(slim);
+            });
+            if (added.length > 0 && typeof onBatch === 'function') {
+                try {
+                    onBatch(added);
+                } catch (error) {
+                    console.error('❌ Error handling product batch:', error);
+                }
+            }
+        };
+        
         // Get products from all collections concurrently for faster initial loading
         const allProductPromises = productCollections.map(async collection => {
             try {
                 
                 // Try the queryProductItems API first
                 try {
-                    return await fetchProductsUsingQueryAPI(collection.id, websiteId, crumb);
+                    await fetchProductsUsingQueryAPI(collection.id, websiteId, crumb, addProducts);
                 } catch (error) {
                     console.warn(`⚠️ queryProductItems API failed for ${collection.title}, falling back to commerce API:`, error);
-                    return await fetchProductsUsingCommerceAPI(collection.id, crumb);
+                    addProducts(await fetchProductsUsingCommerceAPI(collection.id, crumb));
                 }
             } catch (error) {
                 console.error(`❌ Failed to load products from "${collection.title}":`, error);
-                return [];
             }
         });
 
         // Wait for all collections to load
-        const allProductArrays = await Promise.all(allProductPromises);
-        
-        // Flatten and deduplicate products
-        const allProducts = allProductArrays.flat();
-        const uniqueProducts = [];
-        const seenIds = new Set();
-        
-        allProducts.forEach(product => {
-            if (!seenIds.has(product.id)) {
-                seenIds.add(product.id);
-                // Filter out gift card products - they are not supported
-                if (product.storeItem?.productType !== 'GIFT_CARD') {
-                    uniqueProducts.push(product);
-                }
-            }
-        });
+        await Promise.all(allProductPromises);
 
         return uniqueProducts;
 
@@ -18190,27 +18208,43 @@ async function fetchAllProducts() {
 }
 
 // New API method with pagination support
-async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken) {
+// Mirrors the request Squarespace's own product list sends: an explicit ORDERED_PRODUCT sort,
+// which makes nextPageMarker a stable offset ("19", "39", ...). Without queryTermDTO the API
+// returns ID-based markers that can stall on large stores (seen on a 20k+ product site).
+// onPage (optional) receives each page's new products; when given, products are not accumulated here.
+async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken, onPage) {
     const apiUrl = `${window.location.origin}/api/content-service/product/1.1/websites/${websiteId}/products/${collectionId}/queryProductItems`;
     
     let allProducts = [];
+    const seenIds = new Set();
     let hasNextPage = true;
     let pageMarker = "";
     let previousPageMarker = "";
     let requestCount = 0;
-    const maxRequests = 100; // Safety limit to prevent infinite loops
+    let useOrderedQuery = true;
+    const maxRequests = 1000; // Safety limit to prevent infinite loops (1000 x 200 = 200k products)
     
     while (hasNextPage && requestCount < maxRequests) {
         requestCount++;
         
-        const requestBody = {
-            limit: 200,
-            ...(pageMarker && {
+        const requestBody = useOrderedQuery
+            ? {
+                limit: 200,
                 pageAction: "NEXT",
-                pageMarker: pageMarker
-            })
-        };
-        
+                ...(pageMarker && { pageMarker }),
+                queryTermDTO: {
+                    queryDirection: "ASCENDING",
+                    queryCriteria: "ORDERED_PRODUCT",
+                    queryFilters: []
+                }
+            }
+            : {
+                limit: 200,
+                ...(pageMarker && {
+                    pageAction: "NEXT",
+                    pageMarker: pageMarker
+                })
+            };
         
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -18223,25 +18257,38 @@ async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken) {
             body: JSON.stringify(requestBody)
         });
 
-
         if (!response.ok) {
             const errorText = await response.text();
+            // If the ordered query is rejected on the first page, retry with the legacy request format
+            if (useOrderedQuery && !pageMarker && response.status === 400) {
+                console.warn(`⚠️ Ordered queryProductItems request rejected for collection ${collectionId}, retrying with legacy format`);
+                useOrderedQuery = false;
+                continue;
+            }
             console.error(`💥 Error with queryProductItems API:`, errorText);
             throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
 
         const data = await response.json();
         
+        const pageProducts = [];
         if (data.products && data.products.length > 0) {
-            // Add websiteId and parentCollectionId to each product for later API calls
-            const productsWithIds = data.products.map(product => ({
-                ...product,
-                websiteId: websiteId,
-                parentCollectionId: collectionId
-            }));
-            
-            allProducts = allProducts.concat(productsWithIds);
+            data.products.forEach(product => {
+                if (seenIds.has(product.id)) return;
+                seenIds.add(product.id);
+                // Add websiteId and parentCollectionId to each product for later API calls
+                pageProducts.push({
+                    ...product,
+                    websiteId: websiteId,
+                    parentCollectionId: collectionId
+                });
+            });
+        }
+        const newCount = pageProducts.length;
+        if (typeof onPage === 'function') {
+            if (newCount > 0) onPage(pageProducts);
         } else {
+            allProducts.push(...pageProducts);
         }
         
         // Store previous marker for comparison
@@ -18251,7 +18298,13 @@ async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken) {
         
         // Safety check: if the pageMarker hasn't changed and we still have hasNextPage, break the loop
         if (hasNextPage && pageMarker && pageMarker === previousPageMarker) {
-            console.warn(`⚠️ Page marker hasn't changed (${pageMarker}), breaking pagination loop to prevent infinite requests`);
+            console.warn(`⚠️ Page marker hasn't changed (${pageMarker}), breaking pagination loop to prevent infinite requests. Collection ${collectionId}: stopped after ${requestCount} requests, ${seenIds.size} products loaded`);
+            break;
+        }
+        
+        // Safety check: a page that returns only products we've already seen means we're looping
+        if (hasNextPage && data.products?.length > 0 && newCount === 0) {
+            console.warn(`⚠️ Page returned only duplicate products, breaking pagination loop. Collection ${collectionId}: ${seenIds.size} products loaded`);
             break;
         }
         
@@ -18260,11 +18313,12 @@ async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken) {
             console.warn(`⚠️ No page marker returned but hasNextPage is true, breaking pagination loop`);
             break;
         }
-        
-        if (hasNextPage) {
-        }
     }
-    
+
+    if (hasNextPage && requestCount >= maxRequests) {
+        console.warn(`⚠️ Hit max request limit (${maxRequests}) for collection ${collectionId} with ${seenIds.size} products loaded - results may be incomplete`);
+    }
+
     return allProducts;
 }
 
@@ -18393,11 +18447,64 @@ async function loadProducts() {
     window.globalCollectionsData = globalCollectionsData;
     window.globalCategoryTreeData = globalCategoryTreeData;
     
-    // Fetch products from Squarespace
-    const squarespaceProducts = await fetchAllProducts();
+    // Fetch products from Squarespace, rendering each batch as it arrives so large stores
+    // show products straight away instead of waiting for every page to load.
+    const loadToken = ++productLoadToken;
+    const squarespaceProducts = [];
+    let firstBatchRendered = false;
+    
+    // Store products globally (same array, filled as batches arrive) for undo and save functions
+    globalProductsData = squarespaceProducts;
+    window.squarespaceProducts = squarespaceProducts;
+    
+    setProductLoadingState(true, 0);
+    
+    const renderBatch = (batch) => {
+        // Ignore batches from an older load that has since been superseded
+        if (loadToken !== productLoadToken) return;
+        
+        if (!firstBatchRendered) {
+            productContainer.innerHTML = '';
+            const noProductsMessage = document.getElementById('no-products-message');
+            if (noProductsMessage) {
+                noProductsMessage.style.display = 'none';
+            }
+        }
+        
+        const fragment = document.createDocumentFragment();
+        batch.forEach(product => {
+            squarespaceProducts.push(product);
+            const row = createProductRow(convertProductToTableRow(product));
+            // Rows after the first batch stay hidden until pagination is rebuilt at the end
+            if (firstBatchRendered) {
+                row.style.display = 'none';
+            }
+            fragment.appendChild(row);
+        });
+        productContainer.appendChild(fragment);
+        
+        if (!firstBatchRendered) {
+            firstBatchRendered = true;
+            initializeProductTableAfterLoad(true);
+        }
+        
+        setProductLoadingState(true, squarespaceProducts.length);
+    };
+    
+    try {
+        await fetchAllProducts(renderBatch);
+    } finally {
+        if (loadToken === productLoadToken) {
+            setProductLoadingState(false, squarespaceProducts.length);
+        }
+    }
+    
+    // A newer loadProducts() call has taken over - leave the table to it
+    if (loadToken !== productLoadToken) return;
     
     if (squarespaceProducts.length === 0) {
         // Hide the table wrapper and show no products message
+        productContainer.innerHTML = '';
         if (tableWrapper) {
             tableWrapper.style.display = 'none';
         }
@@ -18408,53 +18515,71 @@ async function loadProducts() {
         return;
     }
     
-    // Hide no products message and show table if products exist
-    const noProductsMessage = document.getElementById('no-products-message');
-    if (noProductsMessage) {
-        noProductsMessage.style.display = 'none';
-    }
-    
-    // Store products globally for undo functionality
-    globalProductsData = squarespaceProducts;
-    
-    // Make products available to save functions
-    window.squarespaceProducts = squarespaceProducts;
-    
-    // Convert products and populate table
-    if (productContainer) {
-        productContainer.innerHTML = '';
-    }
-    
-    squarespaceProducts.forEach(product => {
-        const rowData = convertProductToTableRow(product);
-        const row = createProductRow(rowData);
-        if (productContainer) {
-            productContainer.appendChild(row);
+    // Rebuild filtering and pagination now that every product is in the table
+    initializeProductTableAfterLoad(false);
+}
+
+// Show/hide the "loading more products" status and lock controls that would otherwise act on a
+// partial product list (search, filters, sort, select-all) until loading finishes.
+function setProductLoadingState(isLoading, loadedCount) {
+    let status = document.getElementById('products-loading-status');
+    if (!status) {
+        const anchor = document.getElementById('products-selected-text');
+        if (anchor && anchor.parentNode) {
+            status = document.createElement('div');
+            status.id = 'products-loading-status';
+            status.className = 'products-loading-status';
+            status.style.cssText = 'margin-left: 16px; opacity: 0.7; font-size: inherit;';
+            anchor.insertAdjacentElement('afterend', status);
         }
+    }
+    if (status) {
+        status.textContent = isLoading
+            ? `Loading products… ${loadedCount.toLocaleString()} loaded so far`
+            : '';
+        status.style.display = isLoading ? '' : 'none';
+    }
+    
+    const filters = document.querySelector('.filters');
+    if (filters) {
+        filters.style.pointerEvents = isLoading ? 'none' : '';
+        filters.style.opacity = isLoading ? '0.5' : '';
+        filters.title = isLoading ? 'Available once all products have loaded' : '';
+    }
+    
+    ['select-all-checkbox', 'items-per-page', 'search-input'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = isLoading;
     });
-    
-    // Update category filter dropdown with only categories that have products
-    // Handle hierarchical categories properly by using full category context
-    const categoriesWithProducts = globalCategoriesData
-        .filter(category => category.itemCount > 0)
-        .map(category => {
-            // For nested categories, show parent context to distinguish them
-            const parentCategory = globalCategoriesData.find(cat => cat.id === category.parentCategoryId);
-            let displayName;
-            if (parentCategory && parentCategory.type !== 'ROOT') {
-                displayName = `${parentCategory.name} / ${category.name}`;
-            } else {
-                displayName = category.name;
-            }
-            return {
-                id: category.id,
-                displayName: displayName,
-                originalName: category.name
-            };
-        });
-    
-    // Populate the category filter dropdown with only categories that have products
-    populateCategoryFilterDropdown(categoriesWithProducts);
+}
+
+// Set up filters, MixItUp, pagination and table extras once products are in the table.
+// Called after the first batch (so page 1 shows straight away) and again when loading completes.
+function initializeProductTableAfterLoad(isFirstBatch) {
+    if (isFirstBatch) {
+        // Update category filter dropdown with only categories that have products
+        // Handle hierarchical categories properly by using full category context
+        const categoriesWithProducts = globalCategoriesData
+            .filter(category => category.itemCount > 0)
+            .map(category => {
+                // For nested categories, show parent context to distinguish them
+                const parentCategory = globalCategoriesData.find(cat => cat.id === category.parentCategoryId);
+                let displayName;
+                if (parentCategory && parentCategory.type !== 'ROOT') {
+                    displayName = `${parentCategory.name} / ${category.name}`;
+                } else {
+                    displayName = category.name;
+                }
+                return {
+                    id: category.id,
+                    displayName: displayName,
+                    originalName: category.name
+                };
+            });
+        
+        // Populate the category filter dropdown with only categories that have products
+        populateCategoryFilterDropdown(categoriesWithProducts);
+    }
     
     // Initialize MixItUp integration after products are loaded
     if (typeof initializeMixItUpIntegration === 'function') {
@@ -18483,7 +18608,6 @@ async function loadProducts() {
             window.tableScrollManager.updateScrollArrows();
         }, 300); // Small delay to ensure DOM layout is complete
     }
-
 }
 
 // Populate category filter dropdown with only categories that have products
