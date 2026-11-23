@@ -1,8 +1,8 @@
 
 /*!
- * SquareHero Advanced Product Manager v1.0.34
+ * SquareHero Advanced Product Manager v1.0.35
  * https://squarehero.store
- * Build Date: 2026-11-23T22:11:33.336Z
+ * Build Date: 2026-11-23T22:24:07.943Z
  */
 (function() {
     'use strict';
@@ -17357,6 +17357,9 @@ function getVariantStockDisplay(variant) {
 let globalCategoriesData = [];
 let globalCollectionsData = [];
 let globalCategoryTreeData = null;
+// Root ("All") category per store collection: queryProductItems requires a category filter to page through
+// a whole store, and Squarespace's own admin uses the root category for its "All" view.
+const rootCategoriesByCollection = new Map(); // collectionId -> { id, itemCount }
 let productLoadToken = 0; // Incremented per loadProducts() call so stale batches from an older load are ignored
 
 // Fetch categories from Squarespace API for a single collection
@@ -17394,6 +17397,14 @@ async function fetchCategoriesForCollection(collectionId, crumb) {
         // Extract categories from the tree structure
         const categories = [];
         if (categoriesData.categoryTree) {
+            const rootCategory = categoriesData.categoryTree.find(category => category.type === 'ROOT');
+            if (rootCategory) {
+                rootCategoriesByCollection.set(collectionId, {
+                    id: rootCategory.id,
+                    itemCount: rootCategory.orderedItemCount
+                });
+            }
+
             categoriesData.categoryTree.forEach(category => {
                 // Skip the root "All" category
                 if (category.type !== 'ROOT') {
@@ -18208,12 +18219,21 @@ async function fetchAllProducts(onBatch) {
 }
 
 // New API method with pagination support
-// Mirrors the request Squarespace's own product list sends: an explicit ORDERED_PRODUCT sort,
-// which makes nextPageMarker a stable offset ("19", "39", ...). Without queryTermDTO the API
-// returns ID-based markers that can stall on large stores (seen on a 20k+ product site).
+// Mirrors the request Squarespace's own product list sends for a store's "All" view:
+//   { limit, pageAction: "NEXT", queryTermDTO: { ORDERED_PRODUCT, ASCENDING, queryFilters: [root categoryId] }, marker: 39 }
+// - a categoryId filter is required (requests without one return 400), so we filter by the root category
+// - nextPageMarker is an offset ("19", "39", ...) and is sent back as a numeric `marker` field
+// If no root category is known for the collection, or the ordered request is rejected, the legacy
+// request format is used (it only reliably returns the first page).
 // onPage (optional) receives each page's new products; when given, products are not accumulated here.
 async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken, onPage) {
     const apiUrl = `${window.location.origin}/api/content-service/product/1.1/websites/${websiteId}/products/${collectionId}/queryProductItems`;
+    
+    const rootCategory = rootCategoriesByCollection.get(collectionId);
+    let useOrderedQuery = !!rootCategory;
+    if (!rootCategory) {
+        console.warn(`⚠️ No root category found for collection ${collectionId}, using legacy product query (may only load the first page)`);
+    }
     
     let allProducts = [];
     const seenIds = new Set();
@@ -18221,30 +18241,34 @@ async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken, o
     let pageMarker = "";
     let previousPageMarker = "";
     let requestCount = 0;
-    let useOrderedQuery = true;
     const maxRequests = 1000; // Safety limit to prevent infinite loops (1000 x 200 = 200k products)
     
     while (hasNextPage && requestCount < maxRequests) {
         requestCount++;
         
-        const requestBody = useOrderedQuery
-            ? {
+        let requestBody;
+        if (useOrderedQuery) {
+            requestBody = {
                 limit: 200,
                 pageAction: "NEXT",
-                ...(pageMarker && { pageMarker }),
                 queryTermDTO: {
                     queryDirection: "ASCENDING",
                     queryCriteria: "ORDERED_PRODUCT",
-                    queryFilters: []
-                }
-            }
-            : {
+                    queryFilters: [{ filterCriteria: "categoryId", filterParameter: rootCategory.id }]
+                },
+                ...(pageMarker !== "" && {
+                    marker: /^\d+$/.test(pageMarker) ? Number(pageMarker) : pageMarker
+                })
+            };
+        } else {
+            requestBody = {
                 limit: 200,
                 ...(pageMarker && {
                     pageAction: "NEXT",
                     pageMarker: pageMarker
                 })
             };
+        }
         
         const response = await fetch(apiUrl, {
             method: 'POST',
@@ -18261,7 +18285,7 @@ async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken, o
             const errorText = await response.text();
             // If the ordered query is rejected on the first page, retry with the legacy request format
             if (useOrderedQuery && !pageMarker && response.status === 400) {
-                console.warn(`⚠️ Ordered queryProductItems request rejected for collection ${collectionId}, retrying with legacy format`);
+                console.warn(`⚠️ Ordered queryProductItems request rejected for collection ${collectionId}, retrying with legacy format:`, errorText);
                 useOrderedQuery = false;
                 continue;
             }
@@ -18294,7 +18318,7 @@ async function fetchProductsUsingQueryAPI(collectionId, websiteId, crumbToken, o
         // Store previous marker for comparison
         previousPageMarker = pageMarker;
         hasNextPage = data.pagination?.hasNextPage || false;
-        pageMarker = data.pagination?.nextPageMarker || "";
+        pageMarker = String(data.pagination?.nextPageMarker ?? "");
         
         // Safety check: if the pageMarker hasn't changed and we still have hasNextPage, break the loop
         if (hasNextPage && pageMarker && pageMarker === previousPageMarker) {
@@ -18534,8 +18558,12 @@ function setProductLoadingState(isLoading, loadedCount) {
         }
     }
     if (status) {
+        let expectedTotal = 0;
+        rootCategoriesByCollection.forEach(root => { expectedTotal += root.itemCount || 0; });
         status.textContent = isLoading
-            ? `Loading products… ${loadedCount.toLocaleString()} loaded so far`
+            ? (expectedTotal > loadedCount
+                ? `Loading products… ${loadedCount.toLocaleString()} of ~${expectedTotal.toLocaleString()}`
+                : `Loading products… ${loadedCount.toLocaleString()} loaded so far`)
             : '';
         status.style.display = isLoading ? '' : 'none';
     }
